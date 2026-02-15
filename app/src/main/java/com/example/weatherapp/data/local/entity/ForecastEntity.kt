@@ -16,5 +16,5 @@ data class ForecastEntity(
     val tempMax: Double,
     val description: String,
     val icon: String,
-    val timestamp: Long // When this data was fetched
+    val timestamp: Long
 ) : Parcelable

@@ -76,17 +76,21 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            val locationMode by viewModel.locationMode.collectAsState()
+
             // Location Settings
             SettingsGroup(title = stringResource(R.string.settings_location)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.gps),
-                    selected = true, // Placeholder logic as per user design
-                    onClick = { }
+                    selected = locationMode == "gps",
+                    onClick = { viewModel.updateLocationMode("gps") }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.map),
-                    selected = false,
-                    onClick = { }
+                    selected = locationMode == "map",
+                    onClick = { 
+                        navController.navigate(com.example.weatherapp.ui.navigation.Screen.Map.createRoute("settings")) 
+                    }
                 )
             }
 
@@ -108,6 +112,22 @@ fun SettingsScreen(
                     text = stringResource(R.string.fahrenheit), 
                     selected = currentUnits == "imperial", 
                     onClick = { viewModel.updateSettings("imperial", currentLang) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Language Settings
+            SettingsGroup(title = "LANGUAGE") {
+                SettingsRadioButton(
+                    text = "English",
+                    selected = currentLang == "en",
+                    onClick = { viewModel.updateSettings(currentUnits, "en") }
+                )
+                SettingsRadioButton(
+                    text = "Arabic",
+                    selected = currentLang == "ar",
+                    onClick = { viewModel.updateSettings(currentUnits, "ar") }
                 )
             }
 

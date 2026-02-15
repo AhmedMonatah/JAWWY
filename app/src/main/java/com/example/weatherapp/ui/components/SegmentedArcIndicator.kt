@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -70,18 +71,21 @@ fun SegmentedArcIndicator(
                 )
             }
         }
+        val isDark = isSystemInDarkTheme()
+        val labelColor = if (isDark) Color.White else Color.Black
+        val unitColor = if (isDark) TextSecondary else Color.Gray
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = label,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = labelColor
             )
             Text(
                 text = unit,
                 fontSize = 14.sp,
-                color = TextSecondary
+                color = unitColor
             )
         }
     }

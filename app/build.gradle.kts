@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     id("kotlin-parcelize")
+
 }
 
 android {
@@ -63,24 +64,20 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
 
-    // DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    // Maps & Location
-    implementation(libs.osmdroid.android)
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
     implementation(libs.play.services.location)
 
-    // Coil
     implementation(libs.coil.compose)
 
     testImplementation(libs.junit)

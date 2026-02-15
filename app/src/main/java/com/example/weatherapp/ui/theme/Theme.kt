@@ -12,6 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+val LightBackground = Color(0xFFF8F9FE)
+val LightSurface = Color(0xFFFFFFFF)
+val SoftPurple = Color(0xFFE8E1FF)
+val SoftBlue = Color(0xFFE1F5FE)
+
 private val DarkColorScheme = darkColorScheme(
     primary = AccentPurple,
     secondary = AccentBlue,
@@ -30,14 +35,14 @@ private val LightColorScheme = lightColorScheme(
     primary = AccentPurple,
     secondary = AccentBlue,
     tertiary = Pink40,
-    background = Color(0xFFF5F5F7),
-    surface = Color.White,
+    background = LightBackground,
+    surface = LightSurface,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = DashboardBackground,
     onSurface = DashboardBackground,
-    surfaceVariant = Color(0xFFE5E5EA)
+    surfaceVariant = Color(0xFFF0F0F7)
 )
 
 @Composable

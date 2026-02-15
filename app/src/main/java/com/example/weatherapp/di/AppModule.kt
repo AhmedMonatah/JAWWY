@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.example.weatherapp.data.local.WeatherDatabase
 import com.example.weatherapp.data.local.dao.WeatherDao
 import com.example.weatherapp.data.remote.WeatherApi
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,5 +45,11 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFusedLocationProviderClient(@ApplicationContext context: Context): FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(context)
     }
 }

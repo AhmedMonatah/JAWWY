@@ -20,10 +20,19 @@ class SettingsViewModel @Inject constructor(
     val language = repository.languageFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
 
+    val locationMode = repository.locationModeFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "gps")
+
     fun updateSettings(newUnits: String, newLang: String) {
         viewModelScope.launch {
             repository.setUnits(newUnits)
             repository.setLanguage(newLang)
+        }
+    }
+
+    fun updateLocationMode(mode: String) {
+        viewModelScope.launch {
+            repository.setLocationMode(mode)
         }
     }
 }

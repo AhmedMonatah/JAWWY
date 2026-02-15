@@ -14,12 +14,20 @@ import com.example.weatherapp.ui.settings.view.SettingsScreen
 import com.example.weatherapp.ui.alarm.view.AlarmScreen
 
 sealed class Screen(val route: String) {
-    object Home : Screen("home")
+    object Home : Screen("home?lat={lat}&lon={lon}&city={city}") {
+        fun createRoute(lat: Double? = null, lon: Double? = null, city: String? = null): String {
+            return if (lat != null && lon != null && city != null) {
+                "home?lat=$lat&lon=$lon&city=$city"
+            } else "home"
+        }
+    }
     object Settings : Screen("settings")
     object Favorites : Screen("favorites")
     object Alerts : Screen("alerts")
     object Alarm : Screen("alarm")
-    object Search : Screen("search")
+    object Map : Screen("map?source={source}") {
+        fun createRoute(source: String = "favorites") = "map?source=$source"
+    }
 }
 
 @Composable
@@ -29,21 +37,42 @@ fun WeatherNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
-        modifier = modifier,
-        enterTransition = { EnterTransition.None },
-        exitTransition = { ExitTransition.None },
-        popEnterTransition = { EnterTransition.None },
-        popExitTransition = { ExitTransition.None }
+        startDestination = "home",
+        modifier = modifier
     ) {
-        composable(Screen.Home.route) {
-            HomeScreen(navController = navController)
+        composable(
+            route = Screen.Home.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("lat") { nullable = true; type = androidx.navigation.NavType.StringType },
+                androidx.navigation.navArgument("lon") { nullable = true; type = androidx.navigation.NavType.StringType },
+                androidx.navigation.navArgument("city") { nullable = true; type = androidx.navigation.NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull()
+            val lon = backStackEntry.arguments?.getString("lon")?.toDoubleOrNull()
+            val city = backStackEntry.arguments?.getString("city")
+            
+            HomeScreen(navController = navController, lat = lat, lon = lon, cityName = city)
         }
         composable(Screen.Settings.route) {
              SettingsScreen(navController = navController)
         }
         composable(Screen.Favorites.route) {
             FavoritesScreen(navController = navController)
+        }
+        composable(
+            route = Screen.Map.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("source") { defaultValue = "favorites" }
+            )
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: "favorites"
+            com.example.weatherapp.ui.map.view.MapScreen(
+                source = source,
+                onLocationSelected = {
+                    navController.popBackStack()
+                }
+            )
         }
         composable(Screen.Alerts.route) {
             AlertsScreen(navController = navController)

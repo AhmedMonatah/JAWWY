@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.data.local.entity.ForecastEntity
@@ -15,10 +17,15 @@ import com.example.weatherapp.ui.theme.*
 
 @Composable
 fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, progress: Float, icon: ImageVector) {
+    val isDark = isSystemInDarkTheme()
+    val containerColor = if (isDark) TranslucentBlack else MaterialTheme.colorScheme.surface
+    val contentColor = if (isDark) Color.White else Color.Black
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = TranslucentBlack)
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 2.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
@@ -36,7 +43,7 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
                     Icon(icon, null, Modifier.padding(8.dp), AccentPurple)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Text(title, style = MaterialTheme.typography.labelSmall, color = if (isDark) TextSecondary else Color.Gray)
             }
             
             Spacer(Modifier.height(16.dp))

@@ -20,6 +20,8 @@ playServicesLocation = "21.0.1"
 coil = "2.6.0"
 datastore = "1.0.0"
 ksp = "2.0.21-1.0.27"
+googleMaps = "19.0.0"
+mapsCompose = "6.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +65,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 
 # Image Loading
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "googleMaps" }
+maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

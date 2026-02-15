@@ -28,7 +28,6 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -42,7 +41,17 @@ fun MainScreen(navController: NavHostController) {
         Screen.Settings.route,
         Screen.Alarm.route
     )
-    val showBottomBar = currentRoute in topLevelRoutes
+    
+    // Bottom bar is shown for all top-level routes.
+    // We only hide it if we are on the Home screen but with VALiD location arguments (Detail mode).
+    val isHomeRoute = currentRoute?.startsWith("home") == true
+    val latArg = navBackStackEntry?.arguments?.getString("lat")
+    val hasValidLat = latArg != null && latArg != "{lat}"
+    
+    val isDetailMode = isHomeRoute && hasValidLat
+    val isTopLevel = currentRoute in topLevelRoutes || (isHomeRoute && !isDetailMode)
+    
+    val showBottomBar = isTopLevel && !isDetailMode
 
     Scaffold(
         containerColor = DashboardBackground,
@@ -55,12 +64,10 @@ fun MainScreen(navController: NavHostController) {
             SnackbarHost(hostState = snackbarHostState)
         },
         floatingActionButton = {
-            when (currentRoute) {
-                Screen.Favorites.route,
-                // Screen.Alarm.route // User's code had this but comment explains logic
-                -> {
+            when {
+                currentRoute == Screen.Favorites.route -> {
                     FloatingActionButton(
-                        onClick = { }, // Placeholder for Add action
+                        onClick = { navController.navigate(Screen.Map.route) },
                         containerColor = AccentPurple,
                         contentColor = Color.White,
                         shape = RoundedCornerShape(20.dp)
@@ -71,10 +78,12 @@ fun MainScreen(navController: NavHostController) {
             }
         },
         floatingActionButtonPosition = FabPosition.End
-    )
-    { 
+    ) { paddingValues ->
         CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+            ) {
                 WeatherNavGraph(navController = navController)
             }
         }
@@ -100,8 +109,8 @@ fun DashboardBottomBar(currentRoute: String?, navController: NavHostController) 
             BottomNavItem(
                 icon = Icons.Default.Dashboard,
                 label = "DASH",
-                selected = currentRoute == Screen.Home.route,
-                onClick = { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                selected = currentRoute?.startsWith("home") == true,
+                onClick = { navController.navigate("home") { popUpTo(0) } }
             )
 
             BottomNavItem(
