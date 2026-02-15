@@ -19,5 +19,6 @@ data class WeatherEntity(
     val timestamp: Long,
     val humidity: Int,
     val pressure: Int,
-    val windSpeed: Double
+    val windSpeed: Double,
+    val clouds: Int
 ) : Parcelable

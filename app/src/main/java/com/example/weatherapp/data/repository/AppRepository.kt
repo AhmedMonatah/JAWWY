@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.weatherapp.data.local.WeatherDatabase
 import com.example.weatherapp.data.local.entity.FavoriteLocation
 import com.example.weatherapp.data.local.entity.ForecastEntity
+import com.example.weatherapp.data.local.entity.HourlyForecastEntity
 import com.example.weatherapp.data.local.entity.WeatherEntity
 import com.example.weatherapp.data.remote.WeatherApi
 import com.example.weatherapp.utils.Resource
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Centralized DataStore extension
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @Singleton
@@ -36,8 +36,15 @@ class AppRepository @Inject constructor(
     private val LOCATION_MODE_KEY = stringPreferencesKey("location_mode") // "gps" or "map"
     private val MANUAL_LAT_KEY = stringPreferencesKey("manual_lat")
     private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
+    private val DARK_MODE_KEY = stringPreferencesKey("dark_mode") // "dark", "light", or "system"
 
     // --- Settings Logic ---
+    val darkModeFlow: Flow<String> = context.dataStore.data
+        .map { preferences -> preferences[DARK_MODE_KEY] ?: "system" }
+
+    suspend fun setDarkMode(mode: String) {
+        context.dataStore.edit { preferences -> preferences[DARK_MODE_KEY] = mode }
+    }
     val unitsFlow: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[UNITS_KEY] ?: "metric" }
 
@@ -93,7 +100,8 @@ class AppRepository @Inject constructor(
                 timestamp = System.currentTimeMillis(),
                 humidity = response.main.humidity,
                 pressure = response.main.pressure,
-                windSpeed = response.wind.speed
+                windSpeed = response.wind.speed,
+                clouds = response.clouds?.all ?: 0
             )
             Resource.Success(entity)
         } catch (e: Exception) {
@@ -133,7 +141,27 @@ class AppRepository @Inject constructor(
         }
     }
 
-    // --- Favorites Logic ---
+    suspend fun refreshHourlyForecast(lat: Double, lon: Double, apiKey: String, units: String, lang: String): Resource<Unit> {
+        return try {
+            val response = api.getHourlyForecast(lat, lon, apiKey, units, lang)
+            val entities = response.list.map { item ->
+                HourlyForecastEntity(
+                    dt = item.dt,
+                    temp = item.main.temp,
+                    description = item.weather.firstOrNull()?.description ?: "",
+                    icon = item.weather.firstOrNull()?.icon ?: "",
+                    timestamp = System.currentTimeMillis()
+                )
+            }
+            dao.clearHourlyForecast()
+            dao.insertHourlyForecast(entities)
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Log.e("AppRepo", "Error fetching hourly", e)
+            Resource.Error(e.message ?: "Unknown Error")
+        }
+    }
+
     fun getFavorites(): Flow<List<FavoriteLocation>> = favoriteDao.getAllFavorites()
 
     suspend fun addFavorite(favorite: FavoriteLocation) {
@@ -143,7 +171,11 @@ class AppRepository @Inject constructor(
     suspend fun removeFavorite(favorite: FavoriteLocation) {
         favoriteDao.deleteFavorite(favorite)
     }
+    fun getHourlyForecast(): Flow<List<HourlyForecastEntity>> {
 
+
+    return  dao.getHourlyForecast()
+    }
     suspend fun isFavorite(lat: Double, lon: Double): Boolean {
         return favoriteDao.getFavoriteByCoords(lat, lon) != null
     }

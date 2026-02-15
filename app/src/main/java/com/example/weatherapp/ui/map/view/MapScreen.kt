@@ -27,7 +27,7 @@ import com.google.maps.android.compose.*
 fun MapScreen(
     viewModel: MapViewModel = hiltViewModel(),
     source: String = "favorites",
-    onLocationSelected: () -> Unit
+    onLocationSelected: (String) -> Unit
 ) {
     val context = LocalContext.current
     var selectedPoint by remember { mutableStateOf<LatLng?>(null) }
@@ -85,7 +85,7 @@ fun MapScreen(
                 onClick = {
                     selectedPoint?.let {
                         viewModel.selectLocation(it.latitude, it.longitude, source)
-                        onLocationSelected()
+                        onLocationSelected(source)
                     }
                 },
                 modifier = Modifier

@@ -29,12 +29,10 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val themeController = LocalThemeController.current
     val currentUnits by viewModel.units.collectAsState()
     val currentLang by viewModel.language.collectAsState() 
 
-    Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
-        WeatherBackground(weatherType = "snow")
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,8 +51,10 @@ fun SettingsScreen(
                 )
             }
 
+            val darkMode by viewModel.darkMode.collectAsState()
+
             // Theme Setting
-            SettingsGroup(title = "APPEARANCE") {
+            SettingsGroup(title = stringResource(R.string.appearance)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -62,10 +62,12 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Dark Mode", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Text(text = stringResource(R.string.dark_mode), style = MaterialTheme.typography.titleMedium, color = Color.White)
                     Switch(
-                        checked = themeController.isDarkTheme,
-                        onCheckedChange = { themeController.toggleTheme() },
+                        checked = darkMode == "dark",
+                        onCheckedChange = { isDark -> 
+                            viewModel.updateDarkMode(if (isDark) "dark" else "light")
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = AccentPurple,
                             checkedTrackColor = AccentPurple.copy(alpha = 0.4f)
@@ -118,14 +120,14 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Language Settings
-            SettingsGroup(title = "LANGUAGE") {
+            SettingsGroup(title = stringResource(R.string.settings_language)) {
                 SettingsRadioButton(
-                    text = "English",
+                    text = stringResource(R.string.english),
                     selected = currentLang == "en",
                     onClick = { viewModel.updateSettings(currentUnits, "en") }
                 )
                 SettingsRadioButton(
-                    text = "Arabic",
+                    text = stringResource(R.string.arabic),
                     selected = currentLang == "ar",
                     onClick = { viewModel.updateSettings(currentUnits, "ar") }
                 )

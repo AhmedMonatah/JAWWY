@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,12 +24,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.weatherapp.model.FavoriteLocation
+import com.example.weatherapp.data.local.entity.FavoriteLocation
 import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.AcUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,18 +41,14 @@ fun FavoritesScreen(
     navController: NavController,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
-    // Dynamic Data from ViewModel
     val favoritesList by viewModel.favorites.collectAsState()
     
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DashboardBackground)
+        modifier = Modifier.fillMaxSize()
     ) {
-        WeatherBackground(weatherType = "snow")
 
         Column(
             modifier = Modifier
@@ -56,7 +59,7 @@ fun FavoritesScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "SAVED LOCATIONS",
+                text = stringResource(com.example.weatherapp.R.string.saved_locations),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -73,26 +76,28 @@ fun FavoritesScreen(
                     items = favoritesList,
                     key = { it.id }
                 ) { location ->
+                    val deletedText = stringResource(com.example.weatherapp.R.string.deleted)
+                    val undoText = stringResource(com.example.weatherapp.R.string.undo)
 
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = { value ->
                             if (value != SwipeToDismissBoxValue.Settled) {
+
                                 val deletedItem = location
-                                
-                                // Perform deletion in ViewModel
+
                                 viewModel.removeFavorite(location)
 
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = "Deleted ${location.name}",
-                                        actionLabel = "Undo"
+                                        message = "$deletedText ${location.name}",
+                                        actionLabel = undoText
                                     )
 
                                     if (result == SnackbarResult.ActionPerformed) {
-                                        // Undo deletion
                                         viewModel.addFavorite(deletedItem)
                                     }
                                 }
+
                                 true
                             } else false
                         }
@@ -143,9 +148,9 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            // Top Left: Country
+            // Top Left: Section label
             Text(
-                text = "Weather", 
+                text = stringResource(com.example.weatherapp.R.string.weather), 
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
@@ -170,11 +175,22 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White.copy(alpha = 0.15f)
             ) {
+                val weatherIcon = when {
+                    location.condition.lowercase().contains("cloud") -> Icons.Default.Cloud
+                    location.condition.lowercase().contains("rain") -> Icons.Default.WaterDrop
+                    location.condition.lowercase().contains("snow") -> Icons.Default.AcUnit
+                    else -> Icons.Default.WbSunny
+                }
+                val iconColor = when {
+                    location.condition.lowercase().contains("cloud") -> Color.White.copy(alpha = 0.8f)
+                    location.condition.lowercase().contains("rain") -> AccentBlue
+                    else -> Color.Yellow
+                }
                 Icon(
-                    imageVector = Icons.Default.WbSunny,
+                    imageVector = weatherIcon,
                     contentDescription = null,
                     modifier = Modifier.padding(10.dp),
-                    tint = Color.Yellow
+                    tint = iconColor
                 )
             }
 

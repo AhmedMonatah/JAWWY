@@ -21,53 +21,109 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import com.example.weatherapp.ui.alarm.view.AlarmScreen
+import com.example.weatherapp.ui.home.view.HomeScreen
+import com.example.weatherapp.ui.favorites.view.FavoritesScreen
+import com.example.weatherapp.ui.settings.view.SettingsScreen
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
 }
 
+
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(
+    navController: NavHostController,
+    viewModel: MainViewModel = hiltViewModel()
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val topLevelRoutes = listOf(
-        Screen.Home.route,
-        Screen.Favorites.route,
-        Screen.Alerts.route,
-        Screen.Settings.route,
-        Screen.Alarm.route
-    )
+    // Lifted PagerState for perfect sync between BottomBar and Swiping
+    val pagerState = rememberPagerState(pageCount = { 4 })
     
-    // Bottom bar is shown for all top-level routes.
-    // We only hide it if we are on the Home screen but with VALiD location arguments (Detail mode).
-    val isHomeRoute = currentRoute?.startsWith("home") == true
-    val latArg = navBackStackEntry?.arguments?.getString("lat")
-    val hasValidLat = latArg != null && latArg != "{lat}"
+    // Get current page from route arguments to handle initial navigation
+    val routePage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
     
-    val isDetailMode = isHomeRoute && hasValidLat
-    val isTopLevel = currentRoute in topLevelRoutes || (isHomeRoute && !isDetailMode)
-    
-    val showBottomBar = isTopLevel && !isDetailMode
+    // Sync Pager with Route (for initial load or external deep links)
+    LaunchedEffect(routePage) {
+        if (pagerState.currentPage != routePage) {
+            pagerState.scrollToPage(routePage)
+        }
+    }
 
-    Scaffold(
-        containerColor = DashboardBackground,
-        bottomBar = {
-            if (showBottomBar) {
-                DashboardBottomBar(currentRoute, navController)
+    // Sync Route with Pager (for swiping)
+    LaunchedEffect(pagerState.currentPage) {
+        val currentPathPage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
+        if (currentPathPage != pagerState.currentPage) {
+            navController.navigate(Screen.Dashboard.createRoute(pagerState.currentPage)) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
             }
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        floatingActionButton = {
-            when {
-                currentRoute == Screen.Favorites.route -> {
+        }
+    }
+
+    val scope = rememberCoroutineScope()
+    val currentWeather by viewModel.repository.getCurrentWeather().collectAsState(initial = null)
+    
+    val weatherType = remember(currentWeather) {
+        val desc = (currentWeather?.description ?: "").lowercase()
+        val icon = currentWeather?.icon ?: ""
+        when {
+            desc.contains("snow") || icon.startsWith("13") -> "snow"
+            desc.contains("rain") || desc.contains("drizzle") || icon.startsWith("09") || icon.startsWith("10") -> "rain"
+            desc.contains("cloud") || icon.startsWith("02") || icon.startsWith("03") || icon.startsWith("04") -> "clouds"
+            else -> "clear"
+        }
+    }
+    
+    val isCold = (currentWeather?.temp ?: 20.0) < 5.0
+
+    // Top-level routes where we show bottom bar
+    val showBottomBar = remember(currentRoute) {
+        currentRoute == Screen.Dashboard.route || currentRoute == null
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
+        WeatherBackground(weatherType = weatherType, isCold = isCold)
+        
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = {
+                if (showBottomBar) {
+                    DashboardBottomBar(pagerState.currentPage) { page ->
+                        scope.launch {
+                            // Use scrollToPage for instant transition to avoid jumping intermediate screens
+                            pagerState.scrollToPage(page)
+                        }
+                    }
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+            floatingActionButton = {
+                if (showBottomBar && pagerState.currentPage == 2) { // Favorites Page
                     FloatingActionButton(
-                        onClick = { navController.navigate(Screen.Map.route) },
+                        onClick = { navController.navigate(Screen.Map.createRoute("favorites")) },
                         containerColor = AccentPurple,
                         contentColor = Color.White,
                         shape = RoundedCornerShape(20.dp)
@@ -76,79 +132,81 @@ fun MainScreen(navController: NavHostController) {
                     }
                 }
             }
-        },
-        floatingActionButtonPosition = FabPosition.End
-    ) { paddingValues ->
-        CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-            ) {
-                WeatherNavGraph(navController = navController)
+        ) { paddingValues ->
+            CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                ) {
+                    WeatherNavGraph(navController = navController, pagerState = pagerState)
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DashboardBottomBar(currentRoute: String?, navController: NavHostController) {
+fun DashboardPager(
+    navController: NavHostController,
+    pagerState: androidx.compose.foundation.pager.PagerState
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+    ) { page ->
+        when (page) {
+            0 -> HomeScreen(navController = navController)
+            1 -> AlarmScreen(navController = navController)
+            2 -> FavoritesScreen(navController = navController)
+            3 -> SettingsScreen(navController = navController)
+        }
+    }
+}
 
+@Composable
+fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
-        shape = RoundedCornerShape(0.dp),
-        color = DashboardBackground,
-        shadowElevation = 8.dp
+            .height(70.dp),
+        color = DashboardBackground.copy(alpha = 0.9f),
+        shadowElevation = 12.dp
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BottomNavItem(
-                icon = Icons.Default.Dashboard,
-                label = "DASH",
-                selected = currentRoute?.startsWith("home") == true,
-                onClick = { navController.navigate("home") { popUpTo(0) } }
-            )
-
-            BottomNavItem(
-                icon = Icons.Default.Alarm,
-                label = "ALARM",
-                selected = currentRoute == Screen.Alarm.route,
-                onClick = { navController.navigate(Screen.Alarm.route) { popUpTo(0) } }
-            )
-
-            BottomNavItem(
-                icon = Icons.Default.Star,
-                label = "SAVED",
-                selected = currentRoute == Screen.Favorites.route,
-                onClick = { navController.navigate(Screen.Favorites.route) { popUpTo(0) } }
-            )
-
-            BottomNavItem(
-                icon = Icons.Default.Settings,
-                label = "SET",
-                selected = currentRoute == Screen.Settings.route,
-                onClick = { navController.navigate(Screen.Settings.route) { popUpTo(0) } }
-            )
+            BottomNavItem(Icons.Default.Dashboard, "DASH", currentPage == 0) { onPageSelected(0) }
+            BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 1) { onPageSelected(1) }
+            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 2) { onPageSelected(2) }
+            BottomNavItem(Icons.Default.Settings, "SET", currentPage == 3) { onPageSelected(3) }
         }
     }
 }
 
 @Composable
 fun BottomNavItem(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.size(50.dp)
     ) {
-        IconButton(onClick = onClick) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 icon,
                 contentDescription = label,
-                tint = if (selected) AccentPurple else Color.White.copy(alpha = 0.5f)
+                tint = if (selected) AccentPurple else Color.White.copy(alpha = 0.5f),
+                modifier = Modifier.size(if (selected) 28.dp else 24.dp)
             )
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .size(4.dp)
+                        .background(AccentPurple, CircleShape)
+                )
+            }
         }
     }
 }

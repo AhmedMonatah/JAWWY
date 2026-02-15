@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.home.view
 
+import com.example.weatherapp.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -34,6 +35,7 @@ import androidx.navigation.NavController
 import com.example.weatherapp.ui.components.StatArcCard
 import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
+import com.example.weatherapp.data.local.entity.HourlyForecastEntity
 import com.example.weatherapp.ui.theme.*
 import com.example.weatherapp.utils.Resource
 import java.text.SimpleDateFormat
@@ -75,15 +77,36 @@ fun HomeScreen(
         }
     }
     
-    val isDetailMode = lat != null
+    val hourlyForecast by viewModel.hourlyForecast.collectAsState(initial = emptyList())
     
     var selectedDayIndex by remember { mutableStateOf(0) }
+    
+    // Filter hourly forecast based on SELECTED day
+    val displayHourly = remember(hourlyForecast, selectedDayIndex, forecast) {
+        val targetCal = Calendar.getInstance()
+        if (selectedDayIndex != 0) {
+            val targetDay = forecast.getOrNull(selectedDayIndex - 1)
+            if (targetDay != null) {
+                targetCal.timeInMillis = targetDay.dt * 1000
+            }
+        }
+        
+        val targetDayOfYear = targetCal.get(Calendar.DAY_OF_YEAR)
+        val targetYear = targetCal.get(Calendar.YEAR)
+        
+        hourlyForecast.filter { 
+            val cal = Calendar.getInstance().apply { timeInMillis = it.dt * 1000 }
+            cal.get(Calendar.YEAR) == targetYear && cal.get(Calendar.DAY_OF_YEAR) == targetDayOfYear
+        }.sortedBy { it.dt }
+    }
+
+    val isDetailMode = lat != null
     
     val currentLang by viewModel.language.collectAsState()
     val locale = remember(currentLang) { Locale(currentLang) }
     
     // Combine Today + 7 Days Forecast
-    val days = listOf("Today") + forecast.take(7).map { 
+    val days = listOf(if (currentLang == "ar") "اليوم" else "Today") + forecast.take(7).map { 
         SimpleDateFormat("EEE", locale).format(Date(it.dt * 1000)) 
     }
     val temps = (currentWeather?.temp?.roundToInt()?.let { listOf(it) } ?: listOf(0)) + 
@@ -115,9 +138,19 @@ fun HomeScreen(
     } else {
         (currentWeather?.windSpeed ?: 0.0).toFloat()
     }
+
+    val displayClouds = if (isToday) {
+        (currentWeather?.clouds ?: 0)
+    } else {
+        75 // Fallback for daily forecast if not available
+    }
     val refreshStatus by viewModel.refreshStatus.collectAsState()
 
-    val cityNameDisplay = if (refreshStatus is Resource.Loading) "Loading..." else currentWeather?.cityName ?: "..."
+    val cityNameDisplay = if (refreshStatus is Resource.Loading && currentWeather == null) {
+        cityName ?: (if(currentLang == "ar") "جاري التحميل..." else "Loading...")
+    } else {
+        currentWeather?.cityName ?: cityName ?: "..."
+    }
     val date = SimpleDateFormat("EEE, MMM d", locale).format(Date())
     val time = SimpleDateFormat("h:mm a", locale).format(Date())
     val weatherType = remember(currentWeather) {
@@ -132,22 +165,16 @@ fun HomeScreen(
     }
 
     val isDark = isSystemInDarkTheme()
-    val bgColor = if (isDark) DashboardBackground else Color(0xFFF5F5F7)
     val contentColor = if (isDark) Color.White else Color.Black
 
-    Box(modifier = Modifier.fillMaxSize().background(bgColor)) {
-        WeatherBackground(weatherType = weatherType)
-        
-        Scaffold(
-            containerColor = Color.Transparent
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 30.dp),
-                verticalArrangement = Arrangement.spacedBy(25.dp)
-            ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 30.dp),
+            verticalArrangement = Arrangement.spacedBy(25.dp)
+        ) {
                 if (refreshStatus is Resource.Loading) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth().height(2.dp),
@@ -172,25 +199,203 @@ fun HomeScreen(
                     weatherType = weatherType
                 )
                 
-                DailyForecastRow(
-                    days = days,
-                    temps = temps,
+                DailyForecastSection(
+                    forecast = forecast.take(7),
                     selectedIndex = selectedDayIndex,
-                    onDaySelected = { selectedDayIndex = it }
+                    onDaySelected = { selectedDayIndex = it },
+                    isDark = isDark,
+                    locale = locale
                 )
+
+                if (displayHourly.isNotEmpty()) {
+                    HourlyForecastSection(displayHourly, locale, isDark)
+                }
                 
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        StatArcCard(Modifier.weight(1f), "Pressure", "${displayPressure.toInt()}", "hPa", displayPressure / 1100f, Icons.Default.Speed)
-                        StatArcCard(Modifier.weight(1f), "Humidity", "${displayHumidity.toInt()}", "%", displayHumidity / 100f, Icons.Default.WaterDrop)
+                        StatArcCard(
+                            Modifier.weight(1f), 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.pressure), 
+                            "${displayPressure.toInt()}", 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.unit_hpa), 
+                            displayPressure / 1100f, 
+                            Icons.Default.Speed
+                        )
+                        StatArcCard(
+                            Modifier.weight(1f), 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.humidity), 
+                            "${displayHumidity.toInt()}", 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.unit_percent), 
+                            displayHumidity / 100f, 
+                            Icons.Default.WaterDrop
+                        )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        StatArcCard(Modifier.weight(1f), "Wind", "${displayWind.toInt()}", "m/s", (displayWind / 30f).coerceIn(0f, 1f), Icons.Default.Air)
-                        StatArcCard(Modifier.weight(1f), "Clouds", "75", "%", 0.75f, Icons.Default.Cloud)
+                        StatArcCard(
+                            Modifier.weight(1f), 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.wind), 
+                            "${displayWind.toInt()}", 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.unit_ms), 
+                            (displayWind / 30f).coerceIn(0f, 1f), 
+                            Icons.Default.Air
+                        )
+                        StatArcCard(
+                            Modifier.weight(1f), 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.clouds), 
+                            "$displayClouds", 
+                            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.unit_percent), 
+                            displayClouds / 100f, 
+                            Icons.Default.Cloud
+                        )
                     }
                 }
                 
                 Spacer(modifier = Modifier.height(50.dp))
+            }
+        }
+    }
+
+@Composable
+fun HourlyForecastSection(
+    hourly: List<com.example.weatherapp.data.local.entity.HourlyForecastEntity>,
+    locale: Locale,
+    isDark: Boolean
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.hourly_forecast),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (isDark) Color.White else Color.Black
+        )
+        
+        hourly.take(5).forEach { item ->
+            val time = SimpleDateFormat("h:mm a", locale).format(Date(item.dt * 1000))
+            HourlyVerticalItem(time, item.temp.roundToInt(), item.description, isDark)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun HourlyVerticalItem(time: String, temp: Int, description: String, isDark: Boolean) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDark) TranslucentBlack.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.5f)
+        ),
+        modifier = Modifier.fillMaxWidth().height(70.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(time, style = MaterialTheme.typography.bodyMedium, color = if (isDark) TextSecondary else Color.Gray)
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Cloud, null, Modifier.size(24.dp), AccentPurple)
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    description.replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isDark) Color.White else Color.Black,
+                    modifier = Modifier.widthIn(max = 100.dp)
+                )
+            }
+            
+            Text(
+                "$temp°",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (isDark) Color.White else Color.Black
+            )
+        }
+    }
+}
+
+@Composable
+fun DailyForecastSection(
+    forecast: List<com.example.weatherapp.data.local.entity.ForecastEntity>,
+    selectedIndex: Int,
+    onDaySelected: (Int) -> Unit,
+    isDark: Boolean,
+    locale: Locale
+) {
+    Column {
+        Text(
+            androidx.compose.ui.res.stringResource(com.example.weatherapp.R.string.daily_forecast),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (isDark) Color.White else Color.Black
+        )
+        Spacer(Modifier.height(16.dp))
+        
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Today item
+            item {
+                DailyCardItem(
+                    dayName = if (locale.language == "ar") "اليوم" else "Today",
+                    temp = 0,
+                    isSelected = selectedIndex == 0,
+                    onClick = { onDaySelected(0) },
+                    isDark = isDark,
+                    isToday = true
+                )
+            }
+            
+            // Forecast items
+            itemsIndexed(forecast) { index, item ->
+                val dayName = SimpleDateFormat("EEE", locale).format(Date(item.dt * 1000))
+                DailyCardItem(
+                    dayName = dayName,
+                    temp = item.tempDay.roundToInt(),
+                    isSelected = selectedIndex == index + 1,
+                    onClick = { onDaySelected(index + 1) },
+                    isDark = isDark
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DailyCardItem(
+    dayName: String,
+    temp: Int,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    isDark: Boolean,
+    isToday: Boolean = false
+) {
+    val containerColor = if (isSelected) AccentPurple else if (isDark) TranslucentBlack.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.5f)
+    val contentColor = if (isSelected) Color.White else if (isDark) Color.White.copy(alpha = 0.7f) else Color.Gray
+    
+    Card(
+        modifier = Modifier
+            .width(85.dp)
+            .height(110.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(dayName, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = contentColor)
+            Icon(Icons.Default.Cloud, null, Modifier.size(28.dp), if (isSelected) Color.White else AccentPurple)
+            if (!isToday || temp != 0) {
+                Text(
+                    "$temp°",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isSelected) Color.White else if (isDark) Color.White else Color.Black
+                )
+            } else {
+                Text("-", style = MaterialTheme.typography.titleMedium, color = contentColor)
             }
         }
     }
@@ -259,34 +464,3 @@ fun TemperatureSection(temp: Int, condition: String, date: String, time: String,
     }
 }
 
-@Composable 
-fun DailyForecastRow(days: List<String>, temps: List<Int>, selectedIndex: Int, onDaySelected: (Int) -> Unit) {
-    val isDark = isSystemInDarkTheme()
-    
-    LazyRow( horizontalArrangement = Arrangement.spacedBy(12.dp))
-    {
-        itemsIndexed(days) {
-            index, day -> val isSelected = index == selectedIndex
-            val containerColor = if (isSelected) AccentPurple 
-                                else if (isDark) TranslucentBlack else MaterialTheme.colorScheme.surfaceVariant
-            val contentColor = if (isSelected) Color.White 
-                              else if (isDark) TextSecondary else Color.Gray
-            val iconColor = if (isSelected) Color.White else AccentPurple
-
-            Card( modifier = Modifier .width(75.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .clickable { onDaySelected(index) },
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = containerColor) ) {
-                Column( modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally ) {
-                    Text(day, style = MaterialTheme.typography.bodySmall, color = contentColor)
-                    Spacer(Modifier.height(12.dp))
-                    Icon(Icons.Default.Cloud, null, Modifier.size(24.dp), iconColor)
-                    Spacer(Modifier.height(12.dp))
-                    Text("${temps.getOrElse(index) { 0 }}°", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = if (isSelected) Color.White else if (isDark) Color.White else Color.Black)
-                }
-            }
-        }
-    }
-}

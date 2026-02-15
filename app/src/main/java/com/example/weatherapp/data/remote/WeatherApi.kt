@@ -24,6 +24,15 @@ interface WeatherApi {
         @Query("appid") apiKey: String,
         @Query("units") units: String,
         @Query("lang") lang: String,
-        @Query("cnt") cnt: Int = 7 // Default to 7 days
+        @Query("cnt") cnt: Int = 7
     ): DailyForecastResponse
+
+    @GET("data/2.5/forecast")
+    suspend fun getHourlyForecast(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("appid") apiKey: String,
+        @Query("units") units: String,
+        @Query("lang") lang: String
+    ): HourlyForecastResponse
 }

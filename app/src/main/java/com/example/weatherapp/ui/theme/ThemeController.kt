@@ -12,22 +12,30 @@ val LocalThemeController = compositionLocalOf<ThemeController> {
     error("No ThemeController provided")
 }
 
-class ThemeController {
-    var isDarkTheme by mutableStateOf(false)
+class ThemeController(
+    initialIsDark: Boolean,
+    private val onToggle: (Boolean) -> Unit
+) {
+    var isDarkTheme by mutableStateOf(initialIsDark)
         private set
 
     fun toggleTheme() {
         isDarkTheme = !isDarkTheme
+        onToggle(isDarkTheme)
     }
     
-    fun setTheme(isDark: Boolean) {
+    fun updateTheme(isDark: Boolean) {
         isDarkTheme = isDark
     }
 }
 
 @Composable
-fun ProvideThemeController(content: @Composable () -> Unit) {
-    val themeController = remember { ThemeController() }
+fun ProvideThemeController(
+    isDark: Boolean,
+    onToggle: (Boolean) -> Unit,
+    content: @Composable () -> Unit
+) {
+    val themeController = remember(isDark) { ThemeController(isDark, onToggle) }
     CompositionLocalProvider(LocalThemeController provides themeController) {
         content()
     }

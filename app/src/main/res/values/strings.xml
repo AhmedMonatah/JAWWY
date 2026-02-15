@@ -15,6 +15,9 @@
     <string name="wind">Wind</string>
     <string name="pressure">Pressure</string>
     <string name="clouds">Clouds</string>
+    <string name="unit_hpa">hPa</string>
+    <string name="unit_ms">m/s</string>
+    <string name="unit_percent">%</string>
     <string name="sunrise">Sunrise</string>
     <string name="sunset">Sunset</string>
     <string name="hourly_forecast">Hourly Forecast</string>
@@ -22,6 +25,8 @@
     <string name="no_data">No data available</string>
 
     <string name="settings_title">Settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="dark_mode">Dark Mode</string>
     <string name="settings_location">Location</string>
     <string name="gps">GPS</string>
     <string name="map">Map</string>
@@ -36,6 +41,12 @@
     <string name="english">English</string>
     <string name="arabic">Arabic</string>
     <string name="save_settings">Save</string>
+    <string name="daily">Daily</string>
+    <string name="weather_alarms">Weather Alarms</string>
+    <string name="saved_locations">Saved Locations</string>
+    <string name="weather">Weather</string>
+    <string name="deleted">Deleted</string>
+    <string name="undo">Undo</string>
 
     <string name="favorites_title">Favorite Locations</string>
     <string name="add_favorite">Add Favorite</string>
