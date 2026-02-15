@@ -29,7 +29,7 @@ fun AlertsScreen(
     navController: NavController,
     viewModel: AlertsViewModel = hiltViewModel()
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.local.entity.ForecastEntity
 import com.example.weatherapp.data.local.entity.WeatherEntity
+import com.example.weatherapp.data.local.entity.HourlyForecastEntity
 import com.example.weatherapp.data.repository.AppRepository
 import com.example.weatherapp.utils.Config
 import com.example.weatherapp.utils.Resource
@@ -13,7 +14,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import android.annotation.SuppressLint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -35,6 +40,9 @@ class HomeViewModel @Inject constructor(
     val forecast: StateFlow<List<ForecastEntity>> = repository.getForecast()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val hourlyForecast: StateFlow<List<HourlyForecastEntity>> = repository.getHourlyForecast()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val units = repository.unitsFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "metric")
 
@@ -42,6 +50,7 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
 
     private val _lastCoords = MutableStateFlow<Pair<Double, Double>?>(null)
+    private var isManualOverride = false
 
     init {
         viewModelScope.launch {
@@ -52,16 +61,33 @@ class HomeViewModel @Inject constructor(
                 repository.manualLocationFlow,
                 _lastCoords
             ) { unit, lang, mode, manual, gps ->
-                val coords = if (mode == "map") manual else gps
+                val coords = if (isManualOverride) gps else if (mode == "map") manual else gps
                 DataInput(unit, lang, coords)
+            }.distinctUntilChanged { old, new ->
+                // Only refresh if coordinates actually changed (ignoring unit/lang changes for now as they trigger re-collect anyway)
+                old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
             }.collect { input ->
                 input.coords?.let { (lat, lon) ->
                     val apiKey = Config.API_KEY
-                    _refreshStatus.value = Resource.Loading<WeatherEntity>()
-                    val result = repository.refreshCurrentWeather(lat, lon, apiKey, input.unit, input.lang)
-                    _refreshStatus.value = result
-                    if (result is Resource.Success<WeatherEntity>) {
-                        result.data?.let { repository.refreshForecast(it.cityName, apiKey, input.unit, input.lang) }
+                    _refreshStatus.value = Resource.Loading()
+                    
+                    coroutineScope {
+                        val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, apiKey, input.unit, input.lang) }
+                        // Note: refreshForecast needs cityName, which comes from current weather. 
+                        // To be TRULY parallel, we might need a lat/lon based forecast API if available, 
+                        // but let's at least parallelize Current and Hourly first.
+                        val hourlyDeferred = async { repository.refreshHourlyForecast(lat, lon, apiKey, input.unit, input.lang) }
+                        
+                        val currentResult = currentDeferred.await()
+                        _refreshStatus.value = currentResult
+                        
+                        if (currentResult is Resource.Success<WeatherEntity>) {
+                            currentResult.data?.let { 
+                                // Daily forecast depends on city name from current weather
+                                repository.refreshForecast(it.cityName, apiKey, input.unit, input.lang)
+                            }
+                        }
+                        hourlyDeferred.await()
                     }
                 }
             }
@@ -70,7 +96,7 @@ class HomeViewModel @Inject constructor(
         // Trigger GPS if needed
         viewModelScope.launch {
             repository.locationModeFlow.collect { mode ->
-                if (mode == "gps") {
+                if (mode == "gps" && !isManualOverride) {
                     requestCurrentLocation()
                 }
             }
@@ -81,21 +107,21 @@ class HomeViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun requestCurrentLocation() {
+        if (isManualOverride) return
+        
         viewModelScope.launch {
             // First attempt: current precise location
             locationClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 CancellationTokenSource().token
             ).addOnSuccessListener { location ->
-                if (location != null) {
+                if (location != null && !isManualOverride) {
                     _lastCoords.value = location.latitude to location.longitude
-                } else {
-                    // Fallback attempt: last known location
+                } else if (!isManualOverride) {
                     locationClient.lastLocation.addOnSuccessListener { lastLoc ->
-                        lastLoc?.let {
-                            _lastCoords.value = it.latitude to it.longitude
-                        } ?: run {
-                            // Ultimate fallback to Cairo if all fails
+                        if (lastLoc != null && !isManualOverride) {
+                            _lastCoords.value = lastLoc.latitude to lastLoc.longitude
+                        } else if (!isManualOverride) {
                             _lastCoords.value = 30.0444 to 31.2357
                         }
                     }
@@ -105,6 +131,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun refreshWeather(lat: Double, lon: Double) {
+        isManualOverride = true
         _lastCoords.value = lat to lon
     }
 

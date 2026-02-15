@@ -12,6 +12,7 @@ data class CurrentWeatherResponse(
     val wind: Wind,
     val dt: Long,
     val sys: Sys,
+    val clouds: Clouds?,
     val name: String,
     val id: Int
 ) : Parcelable
@@ -50,11 +51,15 @@ data class Sys(val type: Int, val id: Int, val country: String, val sunrise: Lon
 data class City(val id: Int, val name: String, val coord: Coord, val country: String) : Parcelable
 
 @Parcelize
+data class Clouds(val all: Int) : Parcelable
+
+@Parcelize
 data class HourlyItem(
     val dt: Long,
     val main: Main,
     val weather: List<Weather>,
     val wind: Wind,
+    val clouds: Clouds?,
     val dt_txt: String
 ) : Parcelable
 

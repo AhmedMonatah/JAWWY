@@ -36,10 +36,12 @@ class MapViewModel @Inject constructor(
                     if (source == "settings") {
                         repository.setManualLocation(lat, lon)
                         repository.setLocationMode("map")
+                        // Force update dashboard current weather
+                        repository.refreshCurrentWeather(lat, lon, apiKey, currentUnits, currentLang)
                     } else {
                         repository.addFavorite(
                             com.example.weatherapp.data.local.entity.FavoriteLocation(
-                                name = weather.cityName,
+                                name = weather.cityName.ifBlank { "Selected Location" },
                                 lat = weather.lat,
                                 lon = weather.lon,
                                 currentTemp = weather.temp,
