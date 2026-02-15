@@ -17,7 +17,7 @@ data class WeatherState(
 data class HourlyForecast(
     val time: String,
     val temp: Int,
-    val icon: String // Placeholder for icon resource name or URL
+    val icon: String
 )
 
 data class DailyForecast(
@@ -29,7 +29,7 @@ data class DailyForecast(
 
 data class Alert(
     val id: String,
-    val type: String, // Rain, Wind, Fog, etc.
+    val type: String,
     val startTime: String,
     val endTime: String,
     val isNotification: Boolean

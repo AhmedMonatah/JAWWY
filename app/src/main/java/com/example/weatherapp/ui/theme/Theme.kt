@@ -30,7 +30,7 @@ private val LightColorScheme = lightColorScheme(
     primary = AccentPurple,
     secondary = AccentBlue,
     tertiary = Pink40,
-    background = Color(0xFFF5F5F7), // Keeping a clean light mode option
+    background = Color(0xFFF5F5F7),
     surface = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -43,8 +43,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun WeatherAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false, // Disabled to enforce brand color
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -127,7 +127,7 @@ fun FavoritesScreen(navController: NavController) {
 @Composable
 fun FavoriteItem(location: FavoriteLocation) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(140.dp), // Resized to be smaller
+        modifier = Modifier.fillMaxWidth().height(140.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = AccentPurple)
     ) {
@@ -143,17 +143,14 @@ fun FavoriteItem(location: FavoriteLocation) {
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
             )
-
-            // Center Left: City
             Text(
                 text = location.name,
-                style = MaterialTheme.typography.headlineLarge, // Resized font
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
 
-            // Bottom Left: Condition
             Text(
                 text = location.condition,
                 style = MaterialTheme.typography.bodyMedium,
@@ -161,7 +158,6 @@ fun FavoriteItem(location: FavoriteLocation) {
                 modifier = Modifier.align(Alignment.BottomStart)
             )
 
-            // Top Right: Icon
             Surface(
                 modifier = Modifier.size(50.dp).align(Alignment.TopEnd),
                 shape = RoundedCornerShape(12.dp),
@@ -175,7 +171,6 @@ fun FavoriteItem(location: FavoriteLocation) {
                 )
             }
 
-            // Bottom Right: Temp
             Text(
                 text = "${location.currentTemp}°C",
                 style = MaterialTheme.typography.titleLarge, // Resized font

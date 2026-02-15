@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
-// Local Composition to provide the theme controller
 val LocalThemeController = compositionLocalOf<ThemeController> {
     error("No ThemeController provided")
 }
