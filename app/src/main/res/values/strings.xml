@@ -1,14 +1,12 @@
 <resources>
     <string name="app_name">CloudX</string>
 
-    <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_favorites">Favorites</string>
     <string name="nav_alerts">Alerts</string>
     <string name="nav_map">Map</string>
 
-    <!-- Home Screen -->
     <string name="home_title">Discover the weather</string>
     <string name="current_location_label">Current Location</string>
     <string name="weather_now">Weather now</string>
@@ -23,7 +21,6 @@
     <string name="daily_forecast">Daily Forecast</string>
     <string name="no_data">No data available</string>
 
-    <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     <string name="settings_location">Location</string>
     <string name="gps">GPS</string>
@@ -40,7 +37,6 @@
     <string name="arabic">Arabic</string>
     <string name="save_settings">Save</string>
 
-    <!-- Favorites Screen -->
     <string name="favorites_title">Favorite Locations</string>
     <string name="add_favorite">Add Favorite</string>
     <string name="remove_favorite">Remove</string>
@@ -49,7 +45,6 @@
     <string name="no">No</string>
     <string name="search_hint">Search for a city...</string>
 
-    <!-- Alerts Screen -->
     <string name="alerts_title">Weather Alerts</string>
     <string name="add_alert">Add Alert</string>
     <string name="alert_type">Alert Type</string>
@@ -60,7 +55,6 @@
     <string name="stop_alarm">Stop Alarm</string>
     <string name="no_alerts">No active alerts</string>
 
-    <!-- Map Screen -->
     <string name="map_title">Select Location</string>
     <string name="confirm_location">Confirm Location</string>
 
