@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.ui.home.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,49 +10,56 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.weatherapp.ui.components.SegmentedArcIndicator
+import com.example.weatherapp.ui.components.StatArcCard
 import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val currentWeather by viewModel.currentWeather.collectAsState()
+    val forecast by viewModel.forecast.collectAsState()
+    
     var selectedDayIndex by remember { mutableStateOf(0) }
-    var showDetailsSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
     
-    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    val temps = listOf(22, 24, 21, 23, 25, 22, 24)
-    val conditions = listOf("Sunny", "Cloudy", "Rainy", "Thunder", "Clear", "Cloudy", "Sunny")
-    
-    val currentDayName = days[selectedDayIndex]
-    val currentTemp = temps[selectedDayIndex]
-    val currentCondition = conditions[selectedDayIndex]
+    // Dynamic Data Mapping
+    // Fallbacks provided for initial load or null state
+    val cityName = currentWeather?.cityName ?: "Loading..."
+    val currentTemp = currentWeather?.temp?.roundToInt() ?: 0
+    val currentCondition = currentWeather?.description?.replaceFirstChar { it.uppercase() } ?: "..."
+    // Icons can be mapped here too if needed, currently hardcoded WbSunny in TempSection
 
-    val calendar = Calendar.getInstance()
-    val dateFormatter = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
-    val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
-    val currentDate = dateFormatter.format(calendar.time)
-    val currentTime = timeFormatter.format(calendar.time)
+    // Formatting date/time
+    val date = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(Date())
+    val time = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date())
 
     Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
-        WeatherBackground(weatherType = "snow")
+        // Use weather condition for background logic if desired, defaulting to 'snow' as per user design
+        WeatherBackground(weatherType = currentCondition.lowercase())
 
         Column(
             modifier = Modifier
@@ -61,30 +68,55 @@ fun HomeScreen(navController: NavController) {
                 .padding(horizontal = 30.dp),
             verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
-            HeaderSection()
+            HeaderSection(cityName)
             
             TemperatureSection(
                 temp = currentTemp, 
                 condition = currentCondition,
-                date = currentDate,
-                time = currentTime
+                date = date,
+                time = time
             )
             
-            DailyForecastRow(
-                days = days,
-                temps = temps,
-                selectedIndex = selectedDayIndex,
-                onDaySelected = { selectedDayIndex = it }
-            )
+            // Map forecast to UI model (taking first 7 days)
+            val days = forecast.take(7).map { 
+                SimpleDateFormat("EEE", Locale.getDefault()).format(Date(it.dt * 1000)) 
+            }
+            val temps = forecast.take(7).map { it.tempDay.roundToInt() }
+            
+            // Only show if we have data, otherwise show placeholder or loading
+            if (days.isNotEmpty()) {
+                DailyForecastRow(
+                    days = days,
+                    temps = temps,
+                    selectedIndex = selectedDayIndex,
+                    onDaySelected = { selectedDayIndex = it }
+                )
+            } else {
+                // Placeholder if no forecast yet
+                 DailyForecastRow(
+                    days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+                    temps = listOf(0, 0, 0, 0, 0, 0, 0),
+                    selectedIndex = selectedDayIndex,
+                    onDaySelected = { selectedDayIndex = it }
+                )
+            }
             
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    StatArcCard(Modifier.weight(1f), "Pressure", "29", "onHg", 0.7f, Icons.Default.Speed)
-                    StatArcCard(Modifier.weight(1f), "Humidity", "45", "%", 0.45f, Icons.Default.WaterDrop)
+                     // Normalize values for progress 0f..1f
+                    val pressureVal = (currentWeather?.pressure ?: 0).toFloat()
+                    val humidityVal = (currentWeather?.humidity ?: 0).toFloat()
+                    
+                    StatArcCard(Modifier.weight(1f), "Pressure", "${pressureVal.toInt()}", "hPa", pressureVal / 1100f, Icons.Default.Speed)
+                    StatArcCard(Modifier.weight(1f), "Humidity", "${humidityVal.toInt()}", "%", humidityVal / 100f, Icons.Default.WaterDrop)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    StatArcCard(Modifier.weight(1f), "Wind", "12", "mph", 0.3f, Icons.Default.Air)
-                    StatArcCard(Modifier.weight(1f), "Clouds", "75", "%", 0.75f, Icons.Default.Cloud)
+                    val windVal = (currentWeather?.windSpeed ?: 0.0).toFloat()
+                    // Assuming clouds/visibility for last card or just static as per user request
+                    val clouds = "75" 
+                     
+                    StatArcCard(Modifier.weight(1f), "Wind", "${windVal.toInt()}", "m/s", (windVal / 30f).coerceIn(0f, 1f), Icons.Default.Air)
+                    StatArcCard(Modifier.weight(1f), "Clouds", clouds, "%", 0.75f, Icons.Default.Cloud)
                 }
             }
             
@@ -93,9 +125,8 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
-
 @Composable
-fun HeaderSection() {
+fun HeaderSection(cityName: String) {
     Row(
         modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(top = 30.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -111,17 +142,15 @@ fun HeaderSection() {
             }
             Spacer(Modifier.width(12.dp))
             Column {
-                Text("San Francisco", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(cityName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
-
     }
 }
 
 @Composable
 fun TemperatureSection(temp: Int, condition: String, date: String, time: String) {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // Hero Weather Icon Placeholder (image icon style)
         Surface(
             modifier = Modifier.size(120.dp),
             shape = RoundedCornerShape(30.dp),
@@ -135,10 +164,10 @@ fun TemperatureSection(temp: Int, condition: String, date: String, time: String)
         Text("$date | $time", style = MaterialTheme.typography.bodyLarge, color = TextSecondary)
     }
 }
-@Composable fun DailyForecastRow(days: List<String>, temps: List<Int>, selectedIndex: Int, onDaySelected: (Int) -> Unit) {
-    LazyRow( horizontalArrangement = Arrangement.spacedBy(12.dp),
 
-    )
+@Composable 
+fun DailyForecastRow(days: List<String>, temps: List<Int>, selectedIndex: Int, onDaySelected: (Int) -> Unit) {
+    LazyRow( horizontalArrangement = Arrangement.spacedBy(12.dp))
     {
         itemsIndexed(days) {
             index, day -> val isSelected = index == selectedIndex
@@ -157,60 +186,9 @@ fun TemperatureSection(temp: Int, condition: String, date: String, time: String)
                     Icon(Icons.Default.Cloud, null, Modifier.size(24.dp),
                         if (isSelected) Color.White else AccentPurple)
                     Spacer(Modifier.height(12.dp))
-                    Text("${temps[index]}°", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("${temps.getOrElse(index) { 0 }}°", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
-
-    }
-}
-
-
-@Composable
-fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, progress: Float, icon: ImageVector) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = TranslucentBlack)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    modifier = Modifier.size(35.dp),
-                    shape = CircleShape,
-                    color = AccentPurple.copy(alpha = 0.2f)
-                ) {
-                    Icon(icon, null, Modifier.padding(8.dp), AccentPurple)
-                }
-                Spacer(Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
-            }
-            
-            Spacer(Modifier.height(16.dp))
-
-            SegmentedArcIndicator(
-                progress = progress,
-                label = value,
-                unit = unit,
-                modifier = Modifier.size(140.dp)
-            )
-        }
-    }
-}
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-)
-@Composable
-fun HomeScreenPreview() {
-    WeatherAppTheme {
-        val navController = rememberNavController()
-        HomeScreen(navController = navController)
     }
 }

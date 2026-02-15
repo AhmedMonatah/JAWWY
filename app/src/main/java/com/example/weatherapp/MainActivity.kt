@@ -13,11 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
-import com.example.weatherapp.ui.screens.MainScreen
+import com.example.weatherapp.ui.main.view.MainScreen
 import com.example.weatherapp.ui.theme.LocalThemeController
 import com.example.weatherapp.ui.theme.ProvideThemeController
 import com.example.weatherapp.ui.theme.WeatherAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

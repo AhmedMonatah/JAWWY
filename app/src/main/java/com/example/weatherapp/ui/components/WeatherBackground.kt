@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import java.util.*
 import kotlin.random.Random
 
 @Composable
@@ -39,7 +40,6 @@ fun WeatherBackground(weatherType: String = "snow") {
         val height = size.height
         
         particles.forEach { particle ->
-            // Base Y position shifted by progress
             val shiftedY = (particle.y + progress * particle.speed) % 1f
             val yPos = shiftedY * height
             
@@ -48,10 +48,6 @@ fun WeatherBackground(weatherType: String = "snow") {
                 radius = particle.size,
                 center = Offset(particle.x * width, yPos)
             )
-            
-            // To make it perfectly seamless, if it's near the top/bottom 
-            // the wrap-around usually handles it with (%), but drawing 
-            // double if needed ensures no gaps for very large particles.
         }
     }
 }

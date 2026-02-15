@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.ui.settings.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,16 +16,23 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.weatherapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(
+    navController: NavController,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
     val themeController = LocalThemeController.current
-    
+    val currentUnits by viewModel.units.collectAsState()
+    val currentLang by viewModel.language.collectAsState() 
+
     Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
         WeatherBackground(weatherType = "snow")
         Column(
@@ -74,7 +80,7 @@ fun SettingsScreen(navController: NavController) {
             SettingsGroup(title = stringResource(R.string.settings_location)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.gps),
-                    selected = true,
+                    selected = true, // Placeholder logic as per user design
                     onClick = { }
                 )
                 SettingsRadioButton(
@@ -88,9 +94,21 @@ fun SettingsScreen(navController: NavController) {
 
             // Temperature Unit
             SettingsGroup(title = stringResource(R.string.settings_temp_unit)) {
-                SettingsRadioButton(text = stringResource(R.string.celsius), selected = true, onClick = {})
-                SettingsRadioButton(text = stringResource(R.string.kelvin), selected = false, onClick = {})
-                SettingsRadioButton(text = stringResource(R.string.fahrenheit), selected = false, onClick = {})
+                SettingsRadioButton(
+                    text = stringResource(R.string.celsius), 
+                    selected = currentUnits == "metric", 
+                    onClick = { viewModel.updateSettings("metric", currentLang) }
+                )
+                SettingsRadioButton(
+                    text = stringResource(R.string.kelvin), 
+                    selected = currentUnits == "standard", 
+                    onClick = { viewModel.updateSettings("standard", currentLang) }
+                )
+                SettingsRadioButton(
+                    text = stringResource(R.string.fahrenheit), 
+                    selected = currentUnits == "imperial", 
+                    onClick = { viewModel.updateSettings("imperial", currentLang) }
+                )
             }
 
             Spacer(modifier = Modifier.height(110.dp))

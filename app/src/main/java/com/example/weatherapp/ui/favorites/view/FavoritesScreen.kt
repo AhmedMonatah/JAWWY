@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.ui.favorites.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
@@ -18,18 +17,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.weatherapp.model.FakeData
 import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
+import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(navController: NavController) {
-
-    var favoritesList by remember { mutableStateOf(FakeData.favorites) }
+fun FavoritesScreen(
+    navController: NavController,
+    viewModel: FavoritesViewModel = hiltViewModel()
+) {
+    // Dynamic Data from ViewModel
+    val favoritesList by viewModel.favorites.collectAsState()
+    
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
@@ -71,9 +77,9 @@ fun FavoritesScreen(navController: NavController) {
                         confirmValueChange = { value ->
                             if (value != SwipeToDismissBoxValue.Settled) {
                                 val deletedItem = location
-                                val deletedIndex = favoritesList.indexOf(location)
-
-                                favoritesList = favoritesList.filter { it.id != location.id }
+                                
+                                // Perform deletion in ViewModel
+                                viewModel.removeFavorite(location)
 
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
@@ -82,9 +88,8 @@ fun FavoritesScreen(navController: NavController) {
                                     )
 
                                     if (result == SnackbarResult.ActionPerformed) {
-                                        favoritesList = favoritesList.toMutableList().apply {
-                                            add(deletedIndex, deletedItem)
-                                        }
+                                        // Undo deletion
+                                        viewModel.addFavorite(deletedItem)
                                     }
                                 }
                                 true
@@ -123,7 +128,6 @@ fun FavoritesScreen(navController: NavController) {
     }
 }
 
-
 @Composable
 fun FavoriteItem(location: FavoriteLocation) {
     Card(
@@ -138,7 +142,7 @@ fun FavoriteItem(location: FavoriteLocation) {
         ) {
             // Top Left: Country
             Text(
-                text = "China",
+                text = "Country", // Placeholder or map from location if available
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
@@ -172,21 +176,12 @@ fun FavoriteItem(location: FavoriteLocation) {
             }
 
             Text(
-                text = "${location.currentTemp}°C",
-                style = MaterialTheme.typography.titleLarge, // Resized font
+                text = "${location.currentTemp}°",
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 modifier = Modifier.align(Alignment.BottomEnd)
             )
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun FavoritesScreenPreview() {
-    WeatherAppTheme {
-        val navController = rememberNavController()
-        FavoritesScreen(navController = navController)
     }
 }

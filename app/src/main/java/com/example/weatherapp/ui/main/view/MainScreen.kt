@@ -1,31 +1,32 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.ui.main.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
-import com.example.weatherapp.ui.theme.TranslucentBlack
-import com.example.weatherapp.ui.theme.WeatherAppTheme
+
+val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
+    error("No SnackbarHostState provided")
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -56,9 +57,10 @@ fun MainScreen(navController: NavHostController) {
         floatingActionButton = {
             when (currentRoute) {
                 Screen.Favorites.route,
-                Screen.Alarm.route -> {
+                // Screen.Alarm.route // User's code had this but comment explains logic
+                -> {
                     FloatingActionButton(
-                        onClick = { },
+                        onClick = { }, // Placeholder for Add action
                         containerColor = AccentPurple,
                         contentColor = Color.White,
                         shape = RoundedCornerShape(20.dp)
@@ -70,17 +72,13 @@ fun MainScreen(navController: NavHostController) {
         },
         floatingActionButtonPosition = FabPosition.End
     )
-    { @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    { 
         CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-            Box {
+            Box(modifier = Modifier.fillMaxSize()) {
                 WeatherNavGraph(navController = navController)
             }
         }
     }
-}
-
-val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No SnackbarHostState provided")
 }
 
 @Composable
@@ -130,7 +128,6 @@ fun DashboardBottomBar(currentRoute: String?, navController: NavHostController) 
     }
 }
 
-
 @Composable
 fun BottomNavItem(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit) {
     Column(
@@ -144,14 +141,5 @@ fun BottomNavItem(icon: ImageVector, label: String, selected: Boolean, onClick: 
                 tint = if (selected) AccentPurple else Color.White.copy(alpha = 0.5f)
             )
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun MainScreenPreview() {
-    WeatherAppTheme {
-        val navController = rememberNavController()
-        MainScreen(navController = navController)
     }
 }

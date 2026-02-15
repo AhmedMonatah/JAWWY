@@ -1,5 +1,9 @@
 package com.example.weatherapp.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class WeatherState(
     val currentTemp: Int,
     val condition: String,
@@ -12,29 +16,33 @@ data class WeatherState(
     val clouds: Int,
     val sunrise: String,
     val sunset: String
-)
+) : Parcelable
 
+@Parcelize
 data class HourlyForecast(
     val time: String,
     val temp: Int,
     val icon: String
-)
+) : Parcelable
 
+@Parcelize
 data class DailyForecast(
     val day: String,
     val tempHigh: Int,
     val tempLow: Int,
     val condition: String
-)
+) : Parcelable
 
+@Parcelize
 data class Alert(
     val id: String,
     val type: String,
     val startTime: String,
     val endTime: String,
     val isNotification: Boolean
-)
+) : Parcelable
 
+@Parcelize
 data class FavoriteLocation(
     val id: String,
     val name: String,
@@ -42,7 +50,7 @@ data class FavoriteLocation(
     val lon: Double,
     val currentTemp: Int,
     val condition: String
-)
+) : Parcelable
 
 object FakeData {
     val currentWeather = WeatherState(
