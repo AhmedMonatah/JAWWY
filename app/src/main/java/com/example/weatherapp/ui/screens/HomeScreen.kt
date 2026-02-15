@@ -136,7 +136,10 @@ fun TemperatureSection(temp: Int, condition: String, date: String, time: String)
     }
 }
 @Composable fun DailyForecastRow(days: List<String>, temps: List<Int>, selectedIndex: Int, onDaySelected: (Int) -> Unit) {
-    LazyRow( horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 15.dp) ) {
+    LazyRow( horizontalArrangement = Arrangement.spacedBy(12.dp),
+
+    )
+    {
         itemsIndexed(days) {
             index, day -> val isSelected = index == selectedIndex
             Card( modifier = Modifier .width(75.dp)
