@@ -7,7 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.weatherapp.ui.screens.*
+import com.example.weatherapp.ui.alerts.view.AlertsScreen
+import com.example.weatherapp.ui.favorites.view.FavoritesScreen
+import com.example.weatherapp.ui.home.view.HomeScreen
+import com.example.weatherapp.ui.settings.view.SettingsScreen
+import com.example.weatherapp.ui.alarm.view.AlarmScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -33,22 +37,19 @@ fun WeatherNavGraph(
         popExitTransition = { ExitTransition.None }
     ) {
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
-            SettingsScreen(navController)
+             SettingsScreen(navController = navController)
         }
         composable(Screen.Favorites.route) {
-            FavoritesScreen(navController)
+            FavoritesScreen(navController = navController)
         }
         composable(Screen.Alerts.route) {
-            AlertsScreen(navController)
+            AlertsScreen(navController = navController)
         }
         composable(Screen.Alarm.route) {
-            AlarmScreen(navController)
-        }
-        composable(Screen.Search.route) {
-            AlarmScreen(navController)
+            AlarmScreen(navController = navController)
         }
     }
 }

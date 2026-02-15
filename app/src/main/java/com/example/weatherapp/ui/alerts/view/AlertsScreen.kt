@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.screens
+package com.example.weatherapp.ui.alerts.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,13 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.model.Alert
 import com.example.weatherapp.model.FakeData
+import com.example.weatherapp.ui.alerts.viewmodel.AlertsViewModel
 import com.example.weatherapp.ui.theme.*
 
 @Composable
-fun AlertsScreen(navController: NavController) {
+fun AlertsScreen(
+    navController: NavController,
+    viewModel: AlertsViewModel = hiltViewModel()
+) {
     Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
         Column(
             modifier = Modifier
@@ -45,6 +50,7 @@ fun AlertsScreen(navController: NavController) {
             LazyColumn(
                  verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Using FakeData for now as VM is placeholder, but structure is ready for dynamic data
                 items(FakeData.alerts) { alert ->
                     AlertItem(alert = alert)
                 }
