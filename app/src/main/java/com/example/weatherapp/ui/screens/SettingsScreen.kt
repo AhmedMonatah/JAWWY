@@ -1,0 +1,149 @@
+package com.example.weatherapp.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.weatherapp.R
+import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.theme.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(navController: NavController) {
+    val themeController = LocalThemeController.current
+    
+    Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
+        WeatherBackground(weatherType = "snow")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 35.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // Theme Setting
+            SettingsGroup(title = "APPEARANCE") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Dark Mode", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Switch(
+                        checked = themeController.isDarkTheme,
+                        onCheckedChange = { themeController.toggleTheme() },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = AccentPurple,
+                            checkedTrackColor = AccentPurple.copy(alpha = 0.4f)
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Location Settings
+            SettingsGroup(title = stringResource(R.string.settings_location)) {
+                SettingsRadioButton(
+                    text = stringResource(R.string.gps),
+                    selected = true,
+                    onClick = { }
+                )
+                SettingsRadioButton(
+                    text = stringResource(R.string.map),
+                    selected = false,
+                    onClick = { }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Temperature Unit
+            SettingsGroup(title = stringResource(R.string.settings_temp_unit)) {
+                SettingsRadioButton(text = stringResource(R.string.celsius), selected = true, onClick = {})
+                SettingsRadioButton(text = stringResource(R.string.kelvin), selected = false, onClick = {})
+                SettingsRadioButton(text = stringResource(R.string.fahrenheit), selected = false, onClick = {})
+            }
+
+            Spacer(modifier = Modifier.height(110.dp))
+        }
+    }
+}
+
+@Composable
+fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = TextSecondary,
+            letterSpacing = 1.sp,
+            modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = TranslucentBlack)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsRadioButton(text: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = onClick
+            )
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = AccentPurple, 
+                unselectedColor = Color.White.copy(alpha=0.5f)
+            )
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(text = text, style = MaterialTheme.typography.titleMedium, color = Color.White)
+    }
+}
