@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.favorites.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -120,7 +121,9 @@ fun FavoritesScreen(
                             }
                         }
                     ) {
-                        FavoriteItem(location)
+                        FavoriteItem(location, onNavigate = {
+                            navController.navigate(com.example.weatherapp.ui.navigation.Screen.Home.createRoute(location.lat, location.lon, location.name))
+                        })
                     }
                 }
             }
@@ -129,9 +132,9 @@ fun FavoritesScreen(
 }
 
 @Composable
-fun FavoriteItem(location: FavoriteLocation) {
+fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLocation, onNavigate: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(140.dp),
+        modifier = Modifier.fillMaxWidth().height(140.dp).clickable { onNavigate() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = AccentPurple)
     ) {
@@ -142,7 +145,7 @@ fun FavoriteItem(location: FavoriteLocation) {
         ) {
             // Top Left: Country
             Text(
-                text = "Country", // Placeholder or map from location if available
+                text = "Weather", 
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
@@ -176,7 +179,7 @@ fun FavoriteItem(location: FavoriteLocation) {
             }
 
             Text(
-                text = "${location.currentTemp}°",
+                text = "${location.currentTemp.toInt()}°",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,

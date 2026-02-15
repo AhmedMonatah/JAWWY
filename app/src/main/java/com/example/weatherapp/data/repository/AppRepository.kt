@@ -7,7 +7,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.weatherapp.data.local.dao.WeatherDao
+import com.example.weatherapp.data.local.WeatherDatabase
+import com.example.weatherapp.data.local.entity.FavoriteLocation
 import com.example.weatherapp.data.local.entity.ForecastEntity
 import com.example.weatherapp.data.local.entity.WeatherEntity
 import com.example.weatherapp.data.remote.WeatherApi
@@ -25,11 +26,16 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 class AppRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: WeatherApi,
-    private val dao: WeatherDao
+    private val db: WeatherDatabase
 ) {
+    private val dao = db.weatherDao()
+    private val favoriteDao = db.favoriteDao()
 
     private val UNITS_KEY = stringPreferencesKey("units")
     private val LANG_KEY = stringPreferencesKey("lang")
+    private val LOCATION_MODE_KEY = stringPreferencesKey("location_mode") // "gps" or "map"
+    private val MANUAL_LAT_KEY = stringPreferencesKey("manual_lat")
+    private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
 
     // --- Settings Logic ---
     val unitsFlow: Flow<String> = context.dataStore.data
@@ -37,6 +43,16 @@ class AppRepository @Inject constructor(
 
     val languageFlow: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[LANG_KEY] ?: "en" }
+
+    val locationModeFlow: Flow<String> = context.dataStore.data
+        .map { preferences -> preferences[LOCATION_MODE_KEY] ?: "gps" }
+
+    val manualLocationFlow: Flow<Pair<Double, Double>?> = context.dataStore.data
+        .map { preferences -> 
+            val lat = preferences[MANUAL_LAT_KEY]?.toDoubleOrNull()
+            val lon = preferences[MANUAL_LON_KEY]?.toDoubleOrNull()
+            if (lat != null && lon != null) lat to lon else null
+        }
 
     suspend fun setUnits(units: String) {
         context.dataStore.edit { preferences -> preferences[UNITS_KEY] = units }
@@ -46,6 +62,17 @@ class AppRepository @Inject constructor(
         context.dataStore.edit { preferences -> preferences[LANG_KEY] = lang }
     }
 
+    suspend fun setLocationMode(mode: String) {
+        context.dataStore.edit { preferences -> preferences[LOCATION_MODE_KEY] = mode }
+    }
+
+    suspend fun setManualLocation(lat: Double, lon: Double) {
+        context.dataStore.edit { preferences -> 
+            preferences[MANUAL_LAT_KEY] = lat.toString()
+            preferences[MANUAL_LON_KEY] = lon.toString()
+        }
+    }
+
     // --- Weather Logic ---
 
     // Single Source of Truth: Database
@@ -53,7 +80,7 @@ class AppRepository @Inject constructor(
 
     fun getForecast(): Flow<List<ForecastEntity>> = dao.getForecast()
 
-    suspend fun refreshCurrentWeather(lat: Double, lon: Double, apiKey: String, units: String, lang: String): Resource<WeatherEntity> {
+    suspend fun fetchWeather(lat: Double, lon: Double, apiKey: String, units: String, lang: String): Resource<WeatherEntity> {
         return try {
             val response = api.getCurrentWeather(lat, lon, apiKey, units, lang)
             val entity = WeatherEntity(
@@ -68,12 +95,19 @@ class AppRepository @Inject constructor(
                 pressure = response.main.pressure,
                 windSpeed = response.wind.speed
             )
-            dao.insertCurrentWeather(entity)
             Resource.Success(entity)
         } catch (e: Exception) {
-            Log.e("AppRepo", "Error fetching current weather", e)
+            Log.e("AppRepo", "Error fetching weather", e)
             Resource.Error(e.message ?: "Unknown Error")
         }
+    }
+
+    suspend fun refreshCurrentWeather(lat: Double, lon: Double, apiKey: String, units: String, lang: String): Resource<WeatherEntity> {
+        val result = fetchWeather(lat, lon, apiKey, units, lang)
+        if (result is Resource.Success && result.data != null) {
+            dao.insertCurrentWeather(result.data)
+        }
+        return result
     }
 
     suspend fun refreshForecast(city: String, apiKey: String, units: String, lang: String): Resource<Unit> {
@@ -97,5 +131,20 @@ class AppRepository @Inject constructor(
             Log.e("AppRepo", "Error fetching forecast", e)
             Resource.Error(e.message ?: "Unknown Error")
         }
+    }
+
+    // --- Favorites Logic ---
+    fun getFavorites(): Flow<List<FavoriteLocation>> = favoriteDao.getAllFavorites()
+
+    suspend fun addFavorite(favorite: FavoriteLocation) {
+        favoriteDao.insertFavorite(favorite)
+    }
+
+    suspend fun removeFavorite(favorite: FavoriteLocation) {
+        favoriteDao.deleteFavorite(favorite)
+    }
+
+    suspend fun isFavorite(lat: Double, lon: Double): Boolean {
+        return favoriteDao.getFavoriteByCoords(lat, lon) != null
     }
 }
