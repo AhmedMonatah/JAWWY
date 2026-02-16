@@ -33,7 +33,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import com.example.weatherapp.ui.alarm.view.AlarmScreen
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
@@ -157,7 +156,7 @@ fun DashboardPager(
     ) { page ->
         when (page) {
             0 -> HomeScreen(navController = navController)
-            1 -> AlarmScreen(navController = navController)
+            1 -> com.example.weatherapp.ui.alerts.view.AlertsScreen(navController = navController)
             2 -> FavoritesScreen(navController = navController)
             3 -> SettingsScreen(navController = navController)
         }

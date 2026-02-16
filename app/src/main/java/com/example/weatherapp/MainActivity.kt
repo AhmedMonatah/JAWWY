@@ -1,9 +1,11 @@
 package com.example.weatherapp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
@@ -13,9 +15,10 @@ import com.example.weatherapp.ui.main.view.MainScreen
 import com.example.weatherapp.ui.theme.ProvideThemeController
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.MainScope
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     @Inject lateinit var repository: com.example.weatherapp.data.repository.AppRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,11 +35,17 @@ class MainActivity : ComponentActivity() {
             ProvideThemeController(
                 isDark = isDark,
                 onToggle = { dark -> 
-                    kotlinx.coroutines.MainScope().launch {
+                    MainScope().launch {
                         repository.setDarkMode(if (dark) "dark" else "light")
                     }
                 }
             ) {
+                val currentLang by repository.languageFlow.collectAsState(initial = "en")
+                LaunchedEffect(currentLang) {
+                    val locales = androidx.core.os.LocaleListCompat.forLanguageTags(currentLang)
+                    AppCompatDelegate.setApplicationLocales(locales)
+                }
+
                 WeatherAppTheme(darkTheme = isDark) {
                     val navController = rememberNavController()
                     MainScreen(navController = navController)

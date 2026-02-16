@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -106,7 +107,7 @@ fun HomeScreen(
     val locale = remember(currentLang) { Locale(currentLang) }
     
     // Combine Today + 7 Days Forecast
-    val days = listOf(if (currentLang == "ar") "اليوم" else "Today") + forecast.take(7).map { 
+    val days = listOf(stringResource(R.string.today)) + forecast.take(7).map { 
         SimpleDateFormat("EEE", locale).format(Date(it.dt * 1000)) 
     }
     val temps = (currentWeather?.temp?.roundToInt()?.let { listOf(it) } ?: listOf(0)) + 
@@ -142,12 +143,12 @@ fun HomeScreen(
     val displayClouds = if (isToday) {
         (currentWeather?.clouds ?: 0)
     } else {
-        75 // Fallback for daily forecast if not available
+        15 // Fallback
     }
     val refreshStatus by viewModel.refreshStatus.collectAsState()
 
     val cityNameDisplay = if (refreshStatus is Resource.Loading && currentWeather == null) {
-        cityName ?: (if(currentLang == "ar") "جاري التحميل..." else "Loading...")
+        cityName ?: stringResource(R.string.loading)
     } else {
         currentWeather?.cityName ?: cityName ?: "..."
     }
@@ -335,7 +336,7 @@ fun DailyForecastSection(
             // Today item
             item {
                 DailyCardItem(
-                    dayName = if (locale.language == "ar") "اليوم" else "Today",
+                    dayName = stringResource(R.string.today),
                     temp = 0,
                     isSelected = selectedIndex == 0,
                     onClick = { onDaySelected(0) },

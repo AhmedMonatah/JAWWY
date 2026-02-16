@@ -33,12 +33,11 @@ class AppRepository @Inject constructor(
 
     private val UNITS_KEY = stringPreferencesKey("units")
     private val LANG_KEY = stringPreferencesKey("lang")
-    private val LOCATION_MODE_KEY = stringPreferencesKey("location_mode") // "gps" or "map"
+    private val LOCATION_MODE_KEY = stringPreferencesKey("location_mode")
     private val MANUAL_LAT_KEY = stringPreferencesKey("manual_lat")
     private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
-    private val DARK_MODE_KEY = stringPreferencesKey("dark_mode") // "dark", "light", or "system"
+    private val DARK_MODE_KEY = stringPreferencesKey("dark_mode")
 
-    // --- Settings Logic ---
     val darkModeFlow: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[DARK_MODE_KEY] ?: "system" }
 
@@ -80,9 +79,6 @@ class AppRepository @Inject constructor(
         }
     }
 
-    // --- Weather Logic ---
-
-    // Single Source of Truth: Database
     fun getCurrentWeather(): Flow<WeatherEntity?> = dao.getCurrentWeather()
 
     fun getForecast(): Flow<List<ForecastEntity>> = dao.getForecast()
