@@ -39,6 +39,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAlertDao(db: WeatherDatabase): com.example.weatherapp.data.local.dao.AlertDao {
+        return db.alertDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideWeatherApi(): WeatherApi {
         return Retrofit.Builder()
             .baseUrl("https://api.openweathermap.org/")

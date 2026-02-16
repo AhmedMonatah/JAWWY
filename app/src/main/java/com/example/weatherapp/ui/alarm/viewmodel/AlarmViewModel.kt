@@ -6,5 +6,4 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlarmViewModel @Inject constructor() : ViewModel() {
-    // Alarm logic here
 }

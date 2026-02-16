@@ -11,7 +11,7 @@ import com.example.weatherapp.ui.alerts.view.AlertsScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
-import com.example.weatherapp.ui.alarm.view.AlarmScreen
+
 import android.net.Uri
 import androidx.compose.foundation.pager.PagerState
 

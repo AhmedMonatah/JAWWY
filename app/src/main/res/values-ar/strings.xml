@@ -4,7 +4,7 @@
     <string name="nav_home">الرئيسية</string>
     <string name="nav_settings">الإعدادات</string>
     <string name="nav_favorites">المفضلة</string>
-    <string name="nav_alerts">التنبيهات</string>
+    <string name="nav_alerts">تنبيهات</string>
     <string name="nav_map">الخريطة</string>
 
     <string name="home_title">اكتشف الطقس</string>
@@ -15,24 +15,26 @@
     <string name="wind">الرياح</string>
     <string name="pressure">الضغط</string>
     <string name="clouds">الغيوم</string>
-    <string name="unit_hpa">ه.با</string>
+    <string name="unit_hpa">هيكتوباسكال</string>
     <string name="unit_ms">م/ث</string>
-    <string name="unit_percent">٪</string>
+    <string name="unit_percent">%</string>
     <string name="sunrise">شروق الشمس</string>
     <string name="sunset">غروب الشمس</string>
-    <string name="hourly_forecast">توقعات كل ساعة</string>
-    <string name="daily_forecast">توقعات الأيام</string>
-    <string name="no_data">لا توجد بيانات متاحة</string>
+    <string name="hourly_forecast">توقعات بالساعة</string>
+    <string name="daily_forecast">توقعات يومية</string>
+    <string name="no_data">لا توجد بيانات</string>
+    <string name="loading">جاري التحميل...</string>
+    <string name="today">اليوم</string>
 
     <string name="settings_title">الإعدادات</string>
     <string name="appearance">المظهر</string>
-    <string name="dark_mode">الوضع المظلم</string>
+    <string name="dark_mode">الوضع الداكن</string>
     <string name="settings_location">الموقع</string>
     <string name="gps">GPS</string>
     <string name="map">الخريطة</string>
     <string name="settings_temp_unit">وحدة الحرارة</string>
-    <string name="celsius">سليزيوس</string>
-    <string name="kelvin">كالفن</string>
+    <string name="celsius">سيليزيوس</string>
+    <string name="kelvin">كلفن</string>
     <string name="fahrenheit">فهرنهايت</string>
     <string name="settings_wind_unit">وحدة سرعة الرياح</string>
     <string name="meter_sec">متر/ثانية</string>
@@ -41,17 +43,17 @@
     <string name="english">الإنجليزية</string>
     <string name="arabic">العربية</string>
     <string name="save_settings">حفظ</string>
-    <string name="daily">يومياً</string>
+    <string name="daily">يومي</string>
     <string name="weather_alarms">منبهات الطقس</string>
     <string name="saved_locations">المواقع المحفوظة</string>
     <string name="weather">الطقس</string>
-    <string name="deleted">تم المسح</string>
+    <string name="deleted">تم الحذف</string>
     <string name="undo">تراجع</string>
 
     <string name="favorites_title">المواقع المفضلة</string>
     <string name="add_favorite">إضافة مفضلة</string>
     <string name="remove_favorite">إزالة</string>
-    <string name="confirm_remove">هل أنت متأكد أنك تريد إزالة هذا الموقع؟</string>
+    <string name="confirm_remove">هل أنت متأكد من إزالة هذا الموقع؟</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
     <string name="search_hint">ابحث عن مدينة...</string>
@@ -65,8 +67,11 @@
     <string name="save_alert">حفظ التنبيه</string>
     <string name="stop_alarm">إيقاف المنبه</string>
     <string name="no_alerts">لا توجد تنبيهات نشطة</string>
+    <string name="startTime">وقت البدء</string>
+    <string name="endTime">وقت الانتهاء</string>
 
     <string name="map_title">اختر الموقع</string>
     <string name="confirm_location">تأكيد الموقع</string>
+    <string name="alerts_description">"قم باداره اشعارات و منبه الطقس"</string>
 
 </resources>

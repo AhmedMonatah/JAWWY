@@ -175,17 +175,28 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White.copy(alpha = 0.15f)
             ) {
+                // Use the icon code directly if available, fallback to condition string
                 val weatherIcon = when {
+                    location.icon.startsWith("01") -> Icons.Default.WbSunny
+                    location.icon.startsWith("02") || location.icon.startsWith("03") -> Icons.Default.Cloud
+                    location.icon.startsWith("04") -> Icons.Default.Cloud
+                    location.icon.startsWith("09") || location.icon.startsWith("10") -> Icons.Default.WaterDrop
+                    location.icon.startsWith("11") -> Icons.Default.WaterDrop 
+                    location.icon.startsWith("13") -> Icons.Default.AcUnit
+                    location.icon.startsWith("50") -> Icons.Default.Cloud
+                    // Fallback to text matching if icon code not useful
                     location.condition.lowercase().contains("cloud") -> Icons.Default.Cloud
                     location.condition.lowercase().contains("rain") -> Icons.Default.WaterDrop
                     location.condition.lowercase().contains("snow") -> Icons.Default.AcUnit
                     else -> Icons.Default.WbSunny
                 }
+                
                 val iconColor = when {
-                    location.condition.lowercase().contains("cloud") -> Color.White.copy(alpha = 0.8f)
-                    location.condition.lowercase().contains("rain") -> AccentBlue
-                    else -> Color.Yellow
+                    location.icon.startsWith("01") -> Color.Yellow
+                    location.icon.startsWith("10") || location.icon.startsWith("09") -> AccentBlue
+                    else -> Color.White
                 }
+
                 Icon(
                     imageVector = weatherIcon,
                     contentDescription = null,
