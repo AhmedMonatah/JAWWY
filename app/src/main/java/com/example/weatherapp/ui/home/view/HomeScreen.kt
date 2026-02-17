@@ -35,10 +35,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.components.OfflineBanner
-import com.example.weatherapp.ui.components.StatArcCard
 import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapp.data.local.entity.HourlyForecastEntity
+import com.example.weatherapp.ui.components.StatArcCard
 import com.example.weatherapp.ui.theme.*
 import com.example.weatherapp.utils.Resource
 import java.text.SimpleDateFormat

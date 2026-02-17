@@ -222,7 +222,9 @@ fun AddAlertDialog(
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     
+    // Default start time is NOW
     var startTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    // Default end time is 1 hour from NOW
     var endTime by remember { mutableStateOf(System.currentTimeMillis() + 3600000) }
     var type by remember { mutableStateOf("notification") }
 
@@ -234,6 +236,8 @@ fun AddAlertDialog(
         { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
             startTime = calendar.timeInMillis
             if (endTime <= startTime) {
                 endTime = startTime + 3600000
@@ -250,6 +254,8 @@ fun AddAlertDialog(
             val tempCal = Calendar.getInstance()
             tempCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
             tempCal.set(Calendar.MINUTE, minute)
+            tempCal.set(Calendar.SECOND, 0)
+            tempCal.set(Calendar.MILLISECOND, 0)
             endTime = tempCal.timeInMillis
         },
         calendar.get(Calendar.HOUR_OF_DAY),

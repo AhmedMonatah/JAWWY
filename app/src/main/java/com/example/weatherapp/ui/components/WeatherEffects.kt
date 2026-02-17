@@ -27,22 +27,27 @@ fun WeatherEffects(
 @Composable
 fun SnowEffect(modifier: Modifier = Modifier) {
     val snowflakes = remember { List(100) { Snowflake() } }
-    val transition = rememberInfiniteTransition()
-    val time by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing)
-        )
-    )
+
+    var time by remember { mutableStateOf(0f) }
+    
+    LaunchedEffect(Unit) {
+        val startTime = withFrameNanos { it }
+        while (true) {
+            withFrameNanos { frameTime ->
+                time = (frameTime - startTime) / 1_000_000_000f
+            }
+        }
+    }
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val canvasWidth = size.width
         val canvasHeight = size.height
 
         snowflakes.forEach { flake ->
-            val y = (flake.y + time * flake.speed * canvasHeight) % canvasHeight
-            val x = flake.x * canvasWidth + kotlin.math.sin(time * 10 + flake.wobble) * 20
+
+            val y = (flake.y * canvasHeight + time * flake.speed * canvasHeight) % canvasHeight
+            
+            val x = flake.x * canvasWidth + kotlin.math.sin(time * 2 + flake.wobble) * 20
             
             drawCircle(
                 color = Color.White.copy(alpha = 0.8f),

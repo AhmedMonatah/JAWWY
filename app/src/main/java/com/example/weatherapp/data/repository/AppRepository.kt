@@ -59,7 +59,7 @@ class AppRepository @Inject constructor(
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
         connectivityManager.registerNetworkCallback(request, callback)
-        trySend(isOnline()) // Initial state
+        trySend(isOnline())
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
     }.stateIn(
         scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO),

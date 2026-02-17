@@ -37,6 +37,8 @@ import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
+import com.example.weatherapp.utils.NetworkMonitor
+import kotlinx.coroutines.flow.StateFlow
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
@@ -83,15 +85,10 @@ fun MainScreen(
     val currentWeather by viewModel.repository.getCurrentWeather().collectAsState(initial = null)
     val isOnline by viewModel.repository.connectivityFlow.collectAsState(initial = true)
     
-    val offlineMessage = stringResource(com.example.weatherapp.R.string.offline_mode)
-    LaunchedEffect(isOnline) {
-        if (!isOnline) {
-            snackbarHostState.showSnackbar(
-                message = offlineMessage,
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
+    NetworkMonitor(
+        connectivityFlow = viewModel.repository.connectivityFlow as StateFlow<Boolean>,
+        snackbarHostState = snackbarHostState
+    )
     
     val weatherType = remember(currentWeather) {
         val desc = (currentWeather?.description ?: "").lowercase()

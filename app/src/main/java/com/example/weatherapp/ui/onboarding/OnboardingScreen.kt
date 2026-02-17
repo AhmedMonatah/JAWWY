@@ -1,30 +1,69 @@
 package com.example.weatherapp.ui.onboarding
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.weatherapp.R
-import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.theme.AccentPurple
 import kotlinx.coroutines.launch
+import kotlin.math.sin
+import kotlin.random.Random
+
+private data class PageData(
+    val icon: ImageVector,
+    val title: String,
+    val description: String
+)
+
+private val pages = listOf(
+    PageData(
+        icon = Icons.Default.WbSunny,
+        title = "Real-Time Weather",
+        description = "Get instant weather updates with precise temperature, humidity, and wind data for your exact location."
+    ),
+    PageData(
+        icon = Icons.Default.CalendarMonth,
+        title = "7-Day Forecast",
+        description = "Plan your week with detailed hourly and daily forecasts for the coming days."
+    ),
+    PageData(
+        icon = Icons.Default.NotificationsActive,
+        title = "Smart Alerts",
+        description = "Receive intelligent weather alerts for severe conditions. Never be caught off guard."
+    )
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -36,114 +75,210 @@ fun OnboardingScreen(
     val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.White)) { // Ensure white background
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF0F1923))
+    ) {
+        FloatingDots()
+
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            OnboardingPage(page = page)
+            OnboardingPageContent(
+                data = pages[page],
+                isActive = pagerState.currentPage == page
+            )
         }
 
-        // Indicators and Buttons
+        // Bottom bar
         Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp, start = 20.dp, end = 20.dp)
-                .fillMaxWidth(),
+                .padding(horizontal = 32.dp, vertical = 48.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Indicators
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                repeat(3) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) AccentPurple else Color.LightGray
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(3) { i ->
+                    val isSelected = pagerState.currentPage == i
+                    val width by animateDpAsState(
+                        targetValue = if (isSelected) 28.dp else 8.dp,
+                        animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
+                        label = ""
+                    )
                     Box(
                         modifier = Modifier
+                            .height(8.dp)
+                            .width(width)
                             .clip(CircleShape)
-                            .background(color)
-                            .size(10.dp)
+                            .background(
+                                if (isSelected) AccentPurple else Color.White.copy(alpha = 0.2f)
+                            )
                     )
                 }
             }
 
             // Button
+            val isLast = pagerState.currentPage == 2
             Button(
                 onClick = {
-                    if (pagerState.currentPage < 2) {
+                    if (isLast) {
+                        viewModel.completeOnboarding()
+                        onFinish()
+                    } else {
                         scope.launch {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
-                    } else {
-                        viewModel.completeOnboarding()
-                        onFinish()
                     }
                 },
+                modifier = Modifier.height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
-                shape = CircleShape
+                shape = RoundedCornerShape(26.dp)
             ) {
-                Text(
-                    text = if (pagerState.currentPage == 2) "Get Started" else "Next",
-                    color = Color.White
-                )
+                AnimatedContent(
+                    targetState = isLast,
+                    transitionSpec = {
+                        fadeIn(tween(300)) + slideInHorizontally { it / 2 } togetherWith
+                                fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
+                    },
+                    label = ""
+                ) { last ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            if (last) "Get Started" else "Next",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun OnboardingPage(page: Int) {
+private fun OnboardingPageContent(data: PageData, isActive: Boolean) {
+    val enterAnim = remember { Animatable(0f) }
+
+    LaunchedEffect(isActive) {
+        if (isActive) {
+            enterAnim.snapTo(0f)
+            enterAnim.animateTo(1f, tween(600, easing = FastOutSlowInEasing))
+        }
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val floatY by infiniteTransition.animateFloat(
+        initialValue = -8f, targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse
+        ),
+        label = ""
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .statusBarsPadding()
+            .padding(horizontal = 40.dp)
+            .padding(top = 120.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val imageRes = when (page) {
-            0 -> R.drawable.ic_sunny // Placeholder, can be replaced with illustration
-            1 -> R.drawable.ic_cloud
-            else -> R.drawable.ic_rainy
-        }
-        
-        val title = when (page) {
-            0 -> "Real-time Weather"
-            1 -> "Detailed Forecasts"
-            else -> "Stay Alert"
+        // Icon with float animation
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.graphicsLayer {
+                translationY = floatY
+                scaleX = 0.7f + (enterAnim.value * 0.3f)
+                scaleY = 0.7f + (enterAnim.value * 0.3f)
+                alpha = enterAnim.value
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(AccentPurple.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = data.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(56.dp),
+                    tint = AccentPurple
+                )
+            }
         }
 
-        val description = when (page) {
-            0 -> "Get accurate and real-time weather updates for your location instantly."
-            1 -> "Plan ahead with precise hourly and daily forecasts for the coming week."
-            else -> "Receive instant alerts for severe weather conditions to stay safe."
-        }
-        
-        // Use tint for now as we are using the simple icons
-        Icon(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            modifier = Modifier.size(200.dp),
-            tint = AccentPurple
-        )
-        
-        Spacer(modifier = Modifier.height(50.dp))
-        
+        Spacer(modifier = Modifier.height(48.dp))
+
         Text(
-            text = title,
+            text = data.title,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            textAlign = TextAlign.Center
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer {
+                translationY = (1 - enterAnim.value) * 40f
+                alpha = enterAnim.value
+            }
         )
-        
-        Spacer(modifier = Modifier.height(20.dp))
-        
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = description,
-            fontSize = 16.sp,
-            color = Color.Gray,
-            textAlign = TextAlign.Center
+            text = data.description,
+            fontSize = 15.sp,
+            color = Color.White.copy(alpha = 0.55f),
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp,
+            modifier = Modifier.graphicsLayer {
+                translationY = (1 - enterAnim.value) * 60f
+                alpha = enterAnim.value
+            }
         )
+    }
+}
+
+@Composable
+private fun FloatingDots(count: Int = 20) {
+    val particles = remember {
+        List(count) {
+            FloatArray(4).apply {
+                this[0] = Random.nextFloat()         // x
+                this[1] = Random.nextFloat()         // y
+                this[2] = Random.nextFloat() * 3 + 1 // radius
+                this[3] = Random.nextFloat() * 0.2f + 0.1f // speed
+            }
+        }
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val time by infiniteTransition.animateFloat(
+        initialValue = 0f, targetValue = 1000f,
+        animationSpec = infiniteRepeatable(tween(60_000, easing = LinearEasing)),
+        label = ""
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        particles.forEach { p ->
+            val x = (p[0] * size.width + sin((time * p[3] * 0.01f).toDouble()).toFloat() * 20f) % size.width
+            val y = (p[1] * size.height - (time * p[3] * 0.3f) % size.height + size.height) % size.height
+            drawCircle(
+                color = Color.White.copy(alpha = 0.08f),
+                radius = p[2],
+                center = Offset(x, y)
+            )
+        }
     }
 }
