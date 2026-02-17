@@ -21,6 +21,7 @@ class AlertReceiver : BroadcastReceiver() {
                     "ALERT_ID" to alertId,
                     "ALERT_TYPE" to alertType
                 ))
+                .setExpedited(androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
             WorkManager.getInstance(context).enqueue(workRequest)

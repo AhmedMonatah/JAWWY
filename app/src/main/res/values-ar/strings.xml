@@ -27,8 +27,6 @@
     <string name="today">اليوم</string>
 
     <string name="settings_title">الإعدادات</string>
-    <string name="appearance">المظهر</string>
-    <string name="dark_mode">الوضع الداكن</string>
     <string name="settings_location">الموقع</string>
     <string name="gps">GPS</string>
     <string name="map">الخريطة</string>
@@ -73,5 +71,5 @@
     <string name="map_title">اختر الموقع</string>
     <string name="confirm_location">تأكيد الموقع</string>
     <string name="alerts_description">"قم باداره اشعارات و منبه الطقس"</string>
-
+    <string name="offline_mode">أنت غير متصل بالإنترنت حالياً</string>
 </resources>

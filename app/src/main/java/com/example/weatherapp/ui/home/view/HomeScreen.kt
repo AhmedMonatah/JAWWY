@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.home.view
 import com.example.weatherapp.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import coil.compose.AsyncImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.weatherapp.ui.components.OfflineBanner
 import com.example.weatherapp.ui.components.StatArcCard
 import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
@@ -176,6 +178,10 @@ fun HomeScreen(
                 .padding(horizontal = 30.dp),
             verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
+                if (!viewModel.isOnline()) {
+                    OfflineBanner()
+                }
+
                 if (refreshStatus is Resource.Loading) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth().height(2.dp),
@@ -253,6 +259,17 @@ fun HomeScreen(
                 
                 Spacer(modifier = Modifier.height(50.dp))
             }
+            
+            // Weather Effects Overlay
+            val currentTemp = currentWeather?.temp ?: 0.0
+            val showSnow = weatherType == "snow" || currentTemp <= 0.0
+            
+            // Only show effects if we have a valid weather type or condition
+            if (showSnow) {
+                com.example.weatherapp.ui.components.WeatherEffects(weatherType = "snow", modifier = Modifier.fillMaxSize())
+            } else if (weatherType == "rain" || weatherType.contains("thunder")) {
+                com.example.weatherapp.ui.components.WeatherEffects(weatherType = "rain", modifier = Modifier.fillMaxSize())
+            }
         }
     }
 
@@ -270,40 +287,43 @@ fun HourlyForecastSection(
             color = if (isDark) Color.White else Color.Black
         )
         
-        hourly.take(5).forEach { item ->
-            val time = SimpleDateFormat("h:mm a", locale).format(Date(item.dt * 1000))
-            HourlyVerticalItem(time, item.temp.roundToInt(), item.description, isDark)
-            Spacer(Modifier.height(8.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 8.dp) // Add padding for elevation shadows
+        ) {
+            itemsIndexed(hourly) { index, item ->
+                val time = SimpleDateFormat("h a", locale).format(Date(item.dt * 1000))
+                HourlyForecastItem(time, item.temp.roundToInt(), item.description, item.icon, isDark)
+            }
         }
     }
 }
 
 @Composable
-fun HourlyVerticalItem(time: String, temp: Int, description: String, isDark: Boolean) {
+fun HourlyForecastItem(time: String, temp: Int, description: String, icon: String, isDark: Boolean) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(30.dp), // More rounded for modern look
         colors = CardDefaults.cardColors(
             containerColor = if (isDark) TranslucentBlack.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.5f)
         ),
-        modifier = Modifier.fillMaxWidth().height(70.dp)
+        modifier = Modifier.width(70.dp).height(120.dp) // Vertical pill shape
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(time, style = MaterialTheme.typography.bodyMedium, color = if (isDark) TextSecondary else Color.Gray)
+            Text(time, style = MaterialTheme.typography.bodySmall, color = if (isDark) TextSecondary else Color.Gray)
             
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Cloud, null, Modifier.size(24.dp), AccentPurple)
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    description.replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isDark) Color.White else Color.Black,
-                    modifier = Modifier.widthIn(max = 100.dp)
-                )
-            }
+            val iconRes = getWeatherIconRes(icon, description)
+            val iconTint = getWeatherIconTint(icon, description)
+            
+            Icon(
+                painter = androidx.compose.ui.res.painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = iconTint
+            )
             
             Text(
                 "$temp°",
@@ -351,6 +371,7 @@ fun DailyForecastSection(
                 DailyCardItem(
                     dayName = dayName,
                     temp = item.tempDay.roundToInt(),
+                    icon = item.icon,
                     isSelected = selectedIndex == index + 1,
                     onClick = { onDaySelected(index + 1) },
                     isDark = isDark
@@ -364,6 +385,7 @@ fun DailyForecastSection(
 fun DailyCardItem(
     dayName: String,
     temp: Int,
+    icon: String? = null,
     isSelected: Boolean,
     onClick: () -> Unit,
     isDark: Boolean,
@@ -387,7 +409,20 @@ fun DailyCardItem(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(dayName, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = contentColor)
-            Icon(Icons.Default.Cloud, null, Modifier.size(28.dp), if (isSelected) Color.White else AccentPurple)
+            
+            if (icon != null) {
+                val iconRes = getWeatherIconRes(icon, "")
+                val iconTint = if (isSelected) Color.White else getWeatherIconTint(icon, "")
+                Icon(
+                    painter = androidx.compose.ui.res.painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = iconTint
+                )
+            } else {
+                 Icon(androidx.compose.ui.res.painterResource(id = R.drawable.ic_cloud), null, Modifier.size(28.dp), if (isSelected) Color.White else AccentPurple)
+            }
+
             if (!isToday || temp != 0) {
                 Text(
                     "$temp°",
@@ -438,25 +473,23 @@ fun HeaderSection(cityName: String, isDetailMode: Boolean = false, navController
 @Composable
 fun TemperatureSection(temp: Int, condition: String, date: String, time: String, textColor: Color = Color.White, weatherType: String = "clear") {
     val isDark = isSystemInDarkTheme()
-    val icon = when (weatherType) {
-        "snow" -> Icons.Default.Cloud // Use placeholder or better icon
-        "rain" -> Icons.Default.WaterDrop
-        "clouds" -> Icons.Default.Cloud
-        else -> Icons.Default.WbSunny
-    }
-    val iconColor = when (weatherType) {
-        "clear" -> Color.Yellow
-        "snow" -> Color.White
-        else -> AccentBlue
-    }
+    val iconRes = getWeatherIconRes(weatherType, condition) // weatherType logic below covers condition mostly
+    val iconTint = getWeatherIconTint(weatherType, condition)
+    
+    // ... use Icon(painterResource(id = iconRes), tint = AccentPurple) ...
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
             modifier = Modifier.size(120.dp),
             shape = RoundedCornerShape(30.dp),
-            color = if (isDark) Color.White.copy(alpha = 0.05f) else AccentPurple.copy(alpha = 0.1f)
+            color = if (isDark) Color.White.copy(alpha = 0.05f) else iconTint.copy(alpha = 0.1f)
         ) {
-            Icon(icon, null, Modifier.padding(20.dp), iconColor)
+            Icon(
+                painter = androidx.compose.ui.res.painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.padding(20.dp),
+                tint = iconTint
+            )
         }
         Spacer(Modifier.height(16.dp))
         Text("$temp°", fontSize = 100.sp, fontWeight = FontWeight.Light, color = textColor)
@@ -464,4 +497,27 @@ fun TemperatureSection(temp: Int, condition: String, date: String, time: String,
         Text("$date | $time", style = MaterialTheme.typography.bodyLarge, color = if (isDark) TextSecondary else Color.Gray)
     }
 }
+
+fun getWeatherIconRes(icon: String, description: String = ""): Int {
+    val lowerDesc = description.lowercase()
+    return when {
+        lowerDesc.contains("snow") || icon.startsWith("13") -> R.drawable.ic_snowy
+        lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || icon.startsWith("09") || icon.startsWith("10") -> R.drawable.ic_rainy
+        lowerDesc.contains("thunder") || icon.startsWith("11") -> R.drawable.ic_rainy // Reuse rainy for thunder for now
+        lowerDesc.contains("cloud") || icon.startsWith("02") || icon.startsWith("03") || icon.startsWith("04") -> R.drawable.ic_cloud
+        else -> R.drawable.ic_sunny
+    }
+}
+
+fun getWeatherIconTint(icon: String, description: String = ""): Color {
+    val lowerDesc = description.lowercase()
+    return when {
+        lowerDesc.contains("snow") || icon.startsWith("13") -> Color(0xFFB0C4DE) // Light Steel Blue for Snow/Cold
+        lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || icon.startsWith("09") || icon.startsWith("10") -> Color(0xFF4682B4) // Steel Blue for Rain
+        lowerDesc.contains("thunder") || icon.startsWith("11") -> Color(0xFF483D8B) // Dark Slate Blue for Thunder
+        lowerDesc.contains("cloud") || icon.startsWith("02") || icon.startsWith("03") || icon.startsWith("04") -> Color(0xFF87CEEB) // Sky Blue for Clouds (Baby Blueish)
+        else -> Color(0xFFFFD700) // Gold/Yellow for Sun/Clear
+    }
+}
+
 

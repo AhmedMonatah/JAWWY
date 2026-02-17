@@ -23,9 +23,6 @@ class SettingsViewModel @Inject constructor(
     val locationMode = repository.locationModeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "gps")
 
-    val darkMode = repository.darkModeFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
-
     fun updateSettings(newUnits: String, newLang: String) {
         viewModelScope.launch {
             repository.setUnits(newUnits)
@@ -39,9 +36,5 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateDarkMode(mode: String) {
-        viewModelScope.launch {
-            repository.setDarkMode(mode)
-        }
-    }
+    fun isOnline() = repository.isOnline()
 }

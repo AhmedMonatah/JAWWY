@@ -19,6 +19,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.stateIn
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -30,20 +35,61 @@ class AppRepository @Inject constructor(
 ) {
     private val dao = db.weatherDao()
     private val favoriteDao = db.favoriteDao()
+    private val alertDao = db.alertDao()
+
+    fun isOnline(): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
+    }
+
+    val connectivityFlow: Flow<Boolean> = kotlinx.coroutines.flow.callbackFlow {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: android.net.Network) { trySend(true) }
+            override fun onLost(network: android.net.Network) { trySend(false) }
+        }
+        val request = android.net.NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+        connectivityManager.registerNetworkCallback(request, callback)
+        trySend(isOnline()) // Initial state
+        awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
+    }.stateIn(
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO),
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = isOnline()
+    )
 
     private val UNITS_KEY = stringPreferencesKey("units")
     private val LANG_KEY = stringPreferencesKey("lang")
     private val LOCATION_MODE_KEY = stringPreferencesKey("location_mode")
     private val MANUAL_LAT_KEY = stringPreferencesKey("manual_lat")
     private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
-    private val DARK_MODE_KEY = stringPreferencesKey("dark_mode")
+    private val ONBOARDING_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("onboarding_shown")
+    
+    val onboardingShownFlow: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[ONBOARDING_KEY] ?: false }
 
-    val darkModeFlow: Flow<String> = context.dataStore.data
-        .map { preferences -> preferences[DARK_MODE_KEY] ?: "system" }
-
-    suspend fun setDarkMode(mode: String) {
-        context.dataStore.edit { preferences -> preferences[DARK_MODE_KEY] = mode }
+    suspend fun setOnboardingShown() {
+        context.dataStore.edit { preferences -> preferences[ONBOARDING_KEY] = true }
     }
+
+    // --- Alert Methods ---
+    fun getAllAlerts(): Flow<List<com.example.weatherapp.data.local.entity.Alert>> = alertDao.getAllAlerts()
+    suspend fun insertAlert(alert: com.example.weatherapp.data.local.entity.Alert): Long = alertDao.insertAlert(alert)
+    suspend fun deleteAlert(alert: com.example.weatherapp.data.local.entity.Alert) = alertDao.deleteAlert(alert)
+    suspend fun getActiveAlerts(): List<com.example.weatherapp.data.local.entity.Alert> = alertDao.getActiveAlerts()
+    suspend fun getAlertById(id: Int): com.example.weatherapp.data.local.entity.Alert? = alertDao.getAlertById(id)
+    suspend fun deleteAllAlerts() = alertDao.deleteAllAlerts()
+
+    // --- Settings Methods ---
     val unitsFlow: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[UNITS_KEY] ?: "metric" }
 
@@ -114,9 +160,9 @@ class AppRepository @Inject constructor(
         return result
     }
 
-    suspend fun refreshForecast(city: String, apiKey: String, units: String, lang: String): Resource<Unit> {
+    suspend fun refreshForecast(lat: Double, lon: Double, apiKey: String, units: String, lang: String): Resource<Unit> {
         return try {
-            val response = api.getDailyForecast(city, apiKey, units, lang, 7)
+            val response = api.getDailyForecast(lat, lon, apiKey, units, lang, 7)
             val entities = response.list.map { item ->
                 ForecastEntity(
                     dt = item.dt,

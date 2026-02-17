@@ -33,6 +33,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
@@ -47,26 +48,24 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
 @Composable
 fun MainScreen(
     navController: NavHostController,
+    startDestination: String,
     viewModel: MainViewModel = hiltViewModel()
 ) {
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Lifted PagerState for perfect sync between BottomBar and Swiping
     val pagerState = rememberPagerState(pageCount = { 4 })
     
-    // Get current page from route arguments to handle initial navigation
     val routePage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
     
-    // Sync Pager with Route (for initial load or external deep links)
     LaunchedEffect(routePage) {
         if (pagerState.currentPage != routePage) {
             pagerState.scrollToPage(routePage)
         }
     }
 
-    // Sync Route with Pager (for swiping)
     LaunchedEffect(pagerState.currentPage) {
         val currentPathPage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
         if (currentPathPage != pagerState.currentPage) {
@@ -82,6 +81,17 @@ fun MainScreen(
 
     val scope = rememberCoroutineScope()
     val currentWeather by viewModel.repository.getCurrentWeather().collectAsState(initial = null)
+    val isOnline by viewModel.repository.connectivityFlow.collectAsState(initial = true)
+    
+    val offlineMessage = stringResource(com.example.weatherapp.R.string.offline_mode)
+    LaunchedEffect(isOnline) {
+        if (!isOnline) {
+            snackbarHostState.showSnackbar(
+                message = offlineMessage,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     
     val weatherType = remember(currentWeather) {
         val desc = (currentWeather?.description ?: "").lowercase()
@@ -96,7 +106,6 @@ fun MainScreen(
     
     val isCold = (currentWeather?.temp ?: 20.0) < 5.0
 
-    // Top-level routes where we show bottom bar
     val showBottomBar = remember(currentRoute) {
         currentRoute == Screen.Dashboard.route || currentRoute == null
     }
@@ -110,7 +119,6 @@ fun MainScreen(
                 if (showBottomBar) {
                     DashboardBottomBar(pagerState.currentPage) { page ->
                         scope.launch {
-                            // Use scrollToPage for instant transition to avoid jumping intermediate screens
                             pagerState.scrollToPage(page)
                         }
                     }
@@ -119,25 +127,18 @@ fun MainScreen(
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
-            floatingActionButton = {
-                if (showBottomBar && pagerState.currentPage == 2) { // Favorites Page
-                    FloatingActionButton(
-                        onClick = { navController.navigate(Screen.Map.createRoute("favorites")) },
-                        containerColor = AccentPurple,
-                        contentColor = Color.White,
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
-                    }
-                }
-            }
+
         ) { paddingValues ->
             CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                 ) {
-                    WeatherNavGraph(navController = navController, pagerState = pagerState)
+                    WeatherNavGraph(
+                        navController = navController, 
+                        pagerState = pagerState,
+                        startDestination = startDestination
+                    )
                 }
             }
         }

@@ -11,7 +11,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.weatherapp.R
-import com.example.weatherapp.data.repository.AlertRepository
+import com.example.weatherapp.data.repository.AppRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -22,22 +22,17 @@ import kotlinx.coroutines.withContext
 class AlertWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: com.example.weatherapp.data.repository.AppRepository, // Use AppRepository for weather
-    private val alertRepository: AlertRepository
+    private val repository: AppRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             val alertId = inputData.getInt("ALERT_ID", -1)
             if (alertId == -1) return@withContext Result.failure()
-
-            // Fetch current weather
-            // Note: In a real app we might want to fetch OneCall or specific Alert endpoint
-            // For now, we fetch current weather to tell user "It is Clear" etc.
             val weather = repository.getCurrentWeather().firstOrNull()
             val description = weather?.description ?: "Weather update"
 
-            val alert = alertRepository.getAlertById(alertId) ?: return@withContext Result.failure()
+            val alert = repository.getAlertById(alertId) ?: return@withContext Result.failure()
             
             triggerAlert(alert, description)
             
@@ -79,7 +74,6 @@ class AlertWorker @AssistedInject constructor(
         if (alert.type.lowercase() == "alarm") {
              val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
              notificationBuilder.setSound(alarmSound)
-             // For a full screen alarm activity, we would use setFullScreenIntent here
         }
 
         notificationManager.notify(alert.id, notificationBuilder.build())

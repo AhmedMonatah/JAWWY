@@ -85,6 +85,9 @@ fun MapScreen(
                 onClick = {
                     selectedPoint?.let {
                         viewModel.selectLocation(it.latitude, it.longitude, source)
+                        // The viewModel handles the save asynchronously. 
+                        // To be safe, we should navigate back only after success, but if the API is slow, 
+                        // user might be confused. For now, let's keep it but fix the API key first.
                         onLocationSelected(source)
                     }
                 },
