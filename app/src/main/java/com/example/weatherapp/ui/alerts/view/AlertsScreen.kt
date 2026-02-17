@@ -1,6 +1,9 @@
 package com.example.weatherapp.ui.alerts.view
 
 import android.app.TimePickerDialog
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,12 +18,15 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,6 +40,8 @@ import com.example.weatherapp.ui.theme.AccentPurple
 import java.text.SimpleDateFormat
 import java.util.*
 
+import com.example.weatherapp.ui.components.OfflineBanner
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertsScreen(
@@ -41,6 +49,8 @@ fun AlertsScreen(
     viewModel: AlertsViewModel = hiltViewModel()
 ) {
     val alerts by viewModel.alerts.collectAsState()
+    val language by viewModel.language.collectAsState()
+    val locale = remember(language) { Locale(language) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -58,6 +68,9 @@ fun AlertsScreen(
             Spacer(modifier = Modifier.height(20.dp))
             
 
+            if (!viewModel.isOnline()) {
+                OfflineBanner()
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -116,7 +129,11 @@ fun AlertsScreen(
                      contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                     items(alerts) { alert ->
-                        AlertItem(alert = alert, onDelete = { viewModel.deleteAlert(alert) })
+                        AlertItem(
+                            alert = alert, 
+                            onDelete = { viewModel.deleteAlert(alert) },
+                            locale = locale
+                        )
                     }
                 }
             }
@@ -124,7 +141,7 @@ fun AlertsScreen(
         
         FloatingActionButton(
             onClick = { 
-                if (!android.provider.Settings.canDrawOverlays(context)) {
+                if (!Settings.canDrawOverlays(context)) {
                     showPermissionDialog = true
                 } else {
                     showBottomSheet = true 
@@ -147,7 +164,11 @@ fun AlertsScreen(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_alert), tint = Color.White)
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Alarm, 
+                    contentDescription = stringResource(R.string.add_alert), 
+                    tint = Color.White
+                )
             }
         }
 
@@ -160,9 +181,9 @@ fun AlertsScreen(
                 confirmButton = {
                     Button(
                         onClick = {
-                            val intent = android.content.Intent(
-                                android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                android.net.Uri.parse("package:${context.packageName}")
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:${context.packageName}")
                             )
                             context.startActivity(intent)
                             showPermissionDialog = false
@@ -352,7 +373,7 @@ fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier:
 }
 
 @Composable
-fun AlertItem(alert: Alert, onDelete: () -> Unit) {
+fun AlertItem(alert: Alert, locale: Locale, onDelete: () -> Unit) {
     val isNotification = alert.type.lowercase() == "notification"
     
     Card(
@@ -379,7 +400,7 @@ fun AlertItem(alert: Alert, onDelete: () -> Unit) {
                 Icon(
                     imageVector = if (isNotification) Icons.Default.NotificationsActive else Icons.Default.Alarm,
                     contentDescription = null,
-                    tint = if (isNotification) Color(0xFF4CC9F0) else Color(0xFFF72585),
+                    tint = AccentPurple,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -396,9 +417,9 @@ fun AlertItem(alert: Alert, onDelete: () -> Unit) {
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
-                val startStr = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(alert.startTime))
-                val endStr = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(alert.endTime))
-                val dateStr = SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(alert.startTime))
+                val startStr = SimpleDateFormat("h:mm a", locale).format(Date(alert.startTime))
+                val endStr = SimpleDateFormat("h:mm a", locale).format(Date(alert.endTime))
+                val dateStr = SimpleDateFormat("MMM d", locale).format(Date(alert.startTime))
                 
                 Text(
                     text = "$startStr - $endStr",

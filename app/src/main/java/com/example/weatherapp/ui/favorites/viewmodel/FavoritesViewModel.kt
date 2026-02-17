@@ -34,4 +34,6 @@ class FavoritesViewModel @Inject constructor(
             repository.addFavorite(location)
         }
     }
+
+    fun isOnline() = repository.isOnline()
 }

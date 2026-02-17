@@ -34,17 +34,19 @@ sealed class Screen(val route: String) {
     object Map : Screen("map?source={source}") {
         fun createRoute(source: String = "favorites") = "map?source=$source"
     }
+    object Onboarding : Screen("onboarding")
 }
 
 @Composable
 fun WeatherNavGraph(
     navController: NavHostController,
     pagerState: androidx.compose.foundation.pager.PagerState,
+    startDestination: String,
     modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         composable(
@@ -77,7 +79,19 @@ fun WeatherNavGraph(
             route = Screen.Map.route,
             arguments = listOf(
                 androidx.navigation.navArgument("source") { defaultValue = "favorites" }
-            )
+            ),
+            enterTransition = {
+                slideIntoContainer(
+                    androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = androidx.compose.animation.core.tween(500)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Down,
+                    animationSpec = androidx.compose.animation.core.tween(500)
+                )
+            }
         ) { backStackEntry ->
             val source = backStackEntry.arguments?.getString("source") ?: "favorites"
             com.example.weatherapp.ui.map.view.MapScreen(
@@ -95,6 +109,16 @@ fun WeatherNavGraph(
         }
         composable(Screen.Alerts.route) {
             AlertsScreen(navController = navController)
+        }
+        composable(Screen.Onboarding.route) {
+            com.example.weatherapp.ui.onboarding.OnboardingScreen(
+                navController = navController,
+                onFinish = {
+                    navController.navigate(Screen.Dashboard.createRoute(0)) {
+                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

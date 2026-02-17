@@ -83,8 +83,8 @@ class HomeViewModel @Inject constructor(
                         
                         if (currentResult is Resource.Success<WeatherEntity>) {
                             currentResult.data?.let { 
-                                // Daily forecast depends on city name from current weather
-                                repository.refreshForecast(it.cityName, apiKey, input.unit, input.lang)
+                                // Daily forecast now uses lat/lon
+                                repository.refreshForecast(lat, lon, apiKey, input.unit, input.lang)
                             }
                         }
                         hourlyDeferred.await()
@@ -135,12 +135,14 @@ class HomeViewModel @Inject constructor(
         _lastCoords.value = lat to lon
     }
 
-    fun refreshForecast(city: String) {
+    fun refreshForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
              val apiKey = Config.API_KEY
              val currentUnits = units.value
              val currentLang = language.value
-             repository.refreshForecast(city, apiKey, currentUnits, currentLang)
+             repository.refreshForecast(lat, lon, apiKey, currentUnits, currentLang)
         }
     }
+
+    fun isOnline() = repository.isOnline()
 }

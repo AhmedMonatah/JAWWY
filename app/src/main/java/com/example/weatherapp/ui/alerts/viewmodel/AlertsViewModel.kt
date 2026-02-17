@@ -7,24 +7,28 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.local.entity.Alert
-import com.example.weatherapp.data.repository.AlertRepository
+import com.example.weatherapp.data.repository.AppRepository
 import com.example.weatherapp.receiver.AlertReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AlertsViewModel @Inject constructor(
-    private val repository: AlertRepository,
+    private val repository: AppRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _alerts = MutableStateFlow<List<Alert>>(emptyList())
     val alerts: StateFlow<List<Alert>> = _alerts.asStateFlow()
+    
+    val language = repository.languageFlow
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), "en")
 
     init {
         fetchAlerts()
@@ -116,4 +120,5 @@ class AlertsViewModel @Inject constructor(
         )
         alarmManager.cancel(pendingIntent)
     }
+    fun isOnline() = repository.isOnline()
 }

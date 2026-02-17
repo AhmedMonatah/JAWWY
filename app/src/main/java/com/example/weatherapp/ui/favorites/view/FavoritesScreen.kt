@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -34,7 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.AcUnit
-
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.graphics.Brush
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
@@ -42,7 +44,6 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val favoritesList by viewModel.favorites.collectAsState()
-    
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
@@ -56,6 +57,7 @@ fun FavoritesScreen(
                 .padding(horizontal = 20.dp)
                 .statusBarsPadding()
         ) {
+
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
@@ -76,25 +78,21 @@ fun FavoritesScreen(
                     items = favoritesList,
                     key = { it.id }
                 ) { location ->
-                    val deletedText = stringResource(com.example.weatherapp.R.string.deleted)
-                    val undoText = stringResource(com.example.weatherapp.R.string.undo)
 
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = { value ->
                             if (value != SwipeToDismissBoxValue.Settled) {
 
-                                val deletedItem = location
-
                                 viewModel.removeFavorite(location)
 
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = "$deletedText ${location.name}",
-                                        actionLabel = undoText
+                                        message = "Deleted ${location.name}",
+                                        actionLabel = "Undo"
                                     )
 
                                     if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.addFavorite(deletedItem)
+                                        viewModel.addFavorite(location)
                                     }
                                 }
 
@@ -106,35 +104,66 @@ fun FavoritesScreen(
                     SwipeToDismissBox(
                         state = dismissState,
                         backgroundContent = {
-                            val color = when (dismissState.targetValue) {
-                                SwipeToDismissBoxValue.StartToEnd -> Color.Red.copy(alpha = 0.5f)
-                                SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.5f)
-                                else -> Color.Transparent
-                            }
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(color, RoundedCornerShape(24.dp)),
+                                    .background(
+                                        Color.Red.copy(alpha = 0.5f),
+                                        RoundedCornerShape(24.dp)
+                                    ),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.padding(horizontal = 24.dp)
                                 )
                             }
                         }
                     ) {
-                        FavoriteItem(location, onNavigate = {
-                            navController.navigate(com.example.weatherapp.ui.navigation.Screen.Home.createRoute(location.lat, location.lon, location.name))
-                        })
+                        FavoriteItem(
+                            location = location,
+                            onNavigate = {
+                                navController.navigate(
+                                    com.example.weatherapp.ui.navigation.Screen.Home
+                                        .createRoute(location.lat, location.lon, location.name)
+                                )
+                            }
+                        )
                     }
                 }
             }
         }
+
+        FloatingActionButton(
+            onClick = {
+                navController.navigate(
+                    com.example.weatherapp.ui.navigation.Screen.Map.createRoute("favorites")
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(30.dp),
+            containerColor = Color.Transparent,
+            elevation = FloatingActionButtonDefaults.elevation(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(AccentPurple, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = "Add Favorite",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
+
 
 @Composable
 fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLocation, onNavigate: () -> Unit) {
@@ -150,7 +179,7 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
         ) {
             // Top Left: Section label
             Text(
-                text = stringResource(com.example.weatherapp.R.string.weather), 
+                text = stringResource(com.example.weatherapp.R.string.weather),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
@@ -181,7 +210,7 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
                     location.icon.startsWith("02") || location.icon.startsWith("03") -> Icons.Default.Cloud
                     location.icon.startsWith("04") -> Icons.Default.Cloud
                     location.icon.startsWith("09") || location.icon.startsWith("10") -> Icons.Default.WaterDrop
-                    location.icon.startsWith("11") -> Icons.Default.WaterDrop 
+                    location.icon.startsWith("11") -> Icons.Default.WaterDrop
                     location.icon.startsWith("13") -> Icons.Default.AcUnit
                     location.icon.startsWith("50") -> Icons.Default.Cloud
                     // Fallback to text matching if icon code not useful
@@ -190,7 +219,7 @@ fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLoca
                     location.condition.lowercase().contains("snow") -> Icons.Default.AcUnit
                     else -> Icons.Default.WbSunny
                 }
-                
+
                 val iconColor = when {
                     location.icon.startsWith("01") -> Color.Yellow
                     location.icon.startsWith("10") || location.icon.startsWith("09") -> AccentBlue

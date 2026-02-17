@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,8 +21,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.weatherapp.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,36 +54,12 @@ fun SettingsScreen(
                 )
             }
 
-            val darkMode by viewModel.darkMode.collectAsState()
-
-            // Theme Setting
-            SettingsGroup(title = stringResource(R.string.appearance)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = stringResource(R.string.dark_mode), style = MaterialTheme.typography.titleMedium, color = Color.White)
-                    Switch(
-                        checked = darkMode == "dark",
-                        onCheckedChange = { isDark -> 
-                            viewModel.updateDarkMode(if (isDark) "dark" else "light")
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = AccentPurple,
-                            checkedTrackColor = AccentPurple.copy(alpha = 0.4f)
-                        )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            val snackbarHostState = LocalSnackbarHostState.current
+            val scope = rememberCoroutineScope()
+            val offlineMsg = stringResource(R.string.internet_required)
 
             val locationMode by viewModel.locationMode.collectAsState()
 
-            // Location Settings
             SettingsGroup(title = stringResource(R.string.settings_location)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.gps),
@@ -91,14 +70,19 @@ fun SettingsScreen(
                     text = stringResource(R.string.map),
                     selected = locationMode == "map",
                     onClick = { 
-                        navController.navigate(com.example.weatherapp.ui.navigation.Screen.Map.createRoute("settings")) 
+                        if (viewModel.isOnline()) {
+                            navController.navigate(com.example.weatherapp.ui.navigation.Screen.Map.createRoute("settings")) 
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
                     }
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Temperature Unit
             SettingsGroup(title = stringResource(R.string.settings_temp_unit)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.celsius), 
@@ -119,7 +103,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Language Settings
             SettingsGroup(title = stringResource(R.string.settings_language)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.english),
@@ -135,6 +118,8 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(110.dp))
         }
+
+
     }
 }
 
