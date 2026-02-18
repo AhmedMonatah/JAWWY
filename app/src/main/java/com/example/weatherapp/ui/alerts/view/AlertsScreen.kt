@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.*
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -41,6 +42,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 import com.example.weatherapp.ui.components.OfflineBanner
+import com.example.weatherapp.ui.theme.RamadanDarkBlue
+import com.example.weatherapp.ui.theme.RamadanDeepNavy
+import com.example.weatherapp.ui.theme.RamadanGold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,7 +116,7 @@ fun AlertsScreen(
                         Icon(
                             imageVector = Icons.Default.NotificationsActive,
                             contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.1f),
+                            tint = RamadanGold.copy(alpha = 0.1f),
                             modifier = Modifier.size(120.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -156,18 +160,13 @@ fun AlertsScreen(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFFE94560), Color(0xFF533483))
-                        ),
-                        CircleShape
-                    ),
+                    .background(RamadanGold, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Alarm, 
+                    imageVector = Icons.Default.Alarm, 
                     contentDescription = stringResource(R.string.add_alert), 
-                    tint = Color.White
+                    tint = RamadanDeepNavy
                 )
             }
         }
@@ -175,9 +174,9 @@ fun AlertsScreen(
         if (showPermissionDialog) {
             AlertDialog(
                 onDismissRequest = { showPermissionDialog = false },
-                containerColor = Color(0xFF16213E),
+                containerColor = RamadanDarkBlue,
                 title = { Text(stringResource(R.string.permission_required), color = Color.White) },
-                text = { Text(stringResource(R.string.overlay_permission_desc), color = Color.Gray) },
+                text = { Text(stringResource(R.string.overlay_permission_desc), color = Color.White.copy(alpha = 0.7f)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -188,7 +187,7 @@ fun AlertsScreen(
                             context.startActivity(intent)
                             showPermissionDialog = false
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentPurple)
+                        colors = ButtonDefaults.buttonColors(containerColor = RamadanGold)
                     ) {
                         Text(stringResource(R.string.grant))
                     }
@@ -231,41 +230,110 @@ fun AddAlertDialog(
     val startFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
     val endFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
 
-    val startTimePickerDialog = TimePickerDialog(
-        context,
-        { _, hourOfDay, minute ->
-            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-            calendar.set(Calendar.MINUTE, minute)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
-            startTime = calendar.timeInMillis
-            if (endTime <= startTime) {
-                endTime = startTime + 3600000
-            }
-        },
-        calendar.get(Calendar.HOUR_OF_DAY),
-        calendar.get(Calendar.MINUTE),
-        false
-    )
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
 
-    val endTimePickerDialog = TimePickerDialog(
-        context,
-        { _, hourOfDay, minute ->
-            val tempCal = Calendar.getInstance()
-            tempCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
-            tempCal.set(Calendar.MINUTE, minute)
-            tempCal.set(Calendar.SECOND, 0)
-            tempCal.set(Calendar.MILLISECOND, 0)
-            endTime = tempCal.timeInMillis
-        },
-        calendar.get(Calendar.HOUR_OF_DAY),
-        calendar.get(Calendar.MINUTE),
-        false
-    )
+    if (showStartTimePicker) {
+        val timePickerState = rememberTimePickerState(
+            initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+            initialMinute = calendar.get(Calendar.MINUTE),
+            is24Hour = false
+        )
+        
+        AlertDialog(
+            onDismissRequest = { showStartTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                    calendar.set(Calendar.MINUTE, timePickerState.minute)
+                    calendar.set(Calendar.SECOND, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
+                    startTime = calendar.timeInMillis
+                    if (endTime <= startTime) {
+                        endTime = startTime + 3600000
+                    }
+                    showStartTimePicker = false
+                }) { Text("OK", color = RamadanGold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartTimePicker = false }) { Text("Cancel", color = Color.Gray) }
+            },
+            containerColor = RamadanDarkBlue,
+            text = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    TimePicker(
+                        state = timePickerState,
+                        colors = TimePickerDefaults.colors(
+                            clockDialColor = RamadanDeepNavy,
+                            clockDialSelectedContentColor = RamadanDeepNavy,
+                            clockDialUnselectedContentColor = RamadanGold.copy(alpha = 0.6f),
+                            selectorColor = RamadanGold,
+                            periodSelectorSelectedContainerColor = RamadanGold,
+                            periodSelectorUnselectedContainerColor = Color.Transparent,
+                            periodSelectorSelectedContentColor = RamadanDeepNavy,
+                            periodSelectorUnselectedContentColor = RamadanGold,
+                            timeSelectorSelectedContainerColor = RamadanGold,
+                            timeSelectorUnselectedContainerColor = RamadanDeepNavy,
+                            timeSelectorSelectedContentColor = RamadanDeepNavy,
+                            timeSelectorUnselectedContentColor = RamadanGold
+                        )
+                    )
+                }
+            }
+        )
+    }
+
+    if (showEndTimePicker) {
+        val timePickerState = rememberTimePickerState(
+            initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+            initialMinute = calendar.get(Calendar.MINUTE),
+            is24Hour = false
+        )
+        
+        AlertDialog(
+            onDismissRequest = { showEndTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val tempCal = Calendar.getInstance()
+                    tempCal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                    tempCal.set(Calendar.MINUTE, timePickerState.minute)
+                    tempCal.set(Calendar.SECOND, 0)
+                    tempCal.set(Calendar.MILLISECOND, 0)
+                    endTime = tempCal.timeInMillis
+                    showEndTimePicker = false
+                }) { Text("OK", color = RamadanGold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndTimePicker = false }) { Text("Cancel", color = Color.Gray) }
+            },
+            containerColor = RamadanDarkBlue,
+            text = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    TimePicker(
+                        state = timePickerState,
+                        colors = TimePickerDefaults.colors(
+                            clockDialColor = RamadanDeepNavy,
+                            clockDialSelectedContentColor = RamadanDeepNavy,
+                            clockDialUnselectedContentColor = RamadanGold.copy(alpha = 0.6f),
+                            selectorColor = RamadanGold,
+                            periodSelectorSelectedContainerColor = RamadanGold,
+                            periodSelectorUnselectedContainerColor = Color.Transparent,
+                            periodSelectorSelectedContentColor = RamadanDeepNavy,
+                            periodSelectorUnselectedContentColor = RamadanGold,
+                            timeSelectorSelectedContainerColor = RamadanGold,
+                            timeSelectorUnselectedContainerColor = RamadanDeepNavy,
+                            timeSelectorSelectedContentColor = RamadanDeepNavy,
+                            timeSelectorUnselectedContentColor = RamadanGold
+                        )
+                    )
+                }
+            }
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF16213E)
+        containerColor = RamadanDarkBlue
     ) {
         Column(
             modifier = Modifier
@@ -287,7 +355,7 @@ fun AddAlertDialog(
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(
-                        onClick = { startTimePickerDialog.show() },
+                        onClick = { showStartTimePicker = true },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                         shape = RoundedCornerShape(12.dp)
@@ -298,7 +366,7 @@ fun AddAlertDialog(
                         }
                     }
                     OutlinedButton(
-                        onClick = { endTimePickerDialog.show() },
+                        onClick = { showEndTimePicker = true },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                         shape = RoundedCornerShape(12.dp)
@@ -315,7 +383,7 @@ fun AddAlertDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.alert_type), style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.8f))
                 Row(
-                   modifier = Modifier.fillMaxWidth().background(Color(0xFF0F3460), RoundedCornerShape(12.dp)).padding(4.dp),
+                   modifier = Modifier.fillMaxWidth().background(RamadanDeepNavy, RoundedCornerShape(12.dp)).padding(4.dp),
                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     TypeSelector(
@@ -350,7 +418,7 @@ fun AddAlertDialog(
                     onClick = { onSave(startTime, endTime, type) },
                     modifier = Modifier.weight(1f).height(56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
+                    colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),
                     elevation = ButtonDefaults.buttonElevation(8.dp)
                 ) {
                     Text(stringResource(R.string.save_alert), fontWeight = FontWeight.Bold)
@@ -365,14 +433,14 @@ fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier:
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) AccentPurple else Color.Transparent)
+            .background(if (selected) RamadanGold else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (selected) Color.White else Color.Gray,
+            color = if (selected) RamadanDeepNavy else Color.Gray,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
@@ -385,7 +453,7 @@ fun AlertItem(alert: Alert, locale: Locale, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF16213E).copy(alpha = 0.8f)),
+        colors = CardDefaults.cardColors(containerColor = RamadanDarkBlue.copy(alpha = 0.8f)),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -406,7 +474,7 @@ fun AlertItem(alert: Alert, locale: Locale, onDelete: () -> Unit) {
                 Icon(
                     imageVector = if (isNotification) Icons.Default.NotificationsActive else Icons.Default.Alarm,
                     contentDescription = null,
-                    tint = AccentPurple,
+                    tint = RamadanGold,
                     modifier = Modifier.size(24.dp)
                 )
             }

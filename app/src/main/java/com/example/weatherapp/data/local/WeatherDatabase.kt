@@ -2,6 +2,7 @@ package com.example.weatherapp.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.weatherapp.data.local.dao.AlertDao
 import com.example.weatherapp.data.local.dao.FavoriteDao
 import com.example.weatherapp.data.local.dao.WeatherDao
 import com.example.weatherapp.data.local.entity.FavoriteLocation
@@ -12,5 +13,5 @@ import com.example.weatherapp.data.local.entity.WeatherEntity
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
     abstract fun favoriteDao(): FavoriteDao
-    abstract fun alertDao(): com.example.weatherapp.data.local.dao.AlertDao
+    abstract fun alertDao(): AlertDao
 }

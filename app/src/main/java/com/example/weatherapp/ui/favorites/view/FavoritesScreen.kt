@@ -69,68 +69,106 @@ fun FavoritesScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 120.dp)
-            ) {
-                items(
-                    items = favoritesList,
-                    key = { it.id }
-                ) { location ->
-
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = { value ->
-                            if (value != SwipeToDismissBoxValue.Settled) {
-
-                                viewModel.removeFavorite(location)
-
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Deleted ${location.name}",
-                                        actionLabel = "Undo"
-                                    )
-
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.addFavorite(location)
-                                    }
-                                }
-
-                                true
-                            } else false
-                        }
-                    )
-
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Color.Red.copy(alpha = 0.5f),
-                                        RoundedCornerShape(24.dp)
-                                    ),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.padding(horizontal = 24.dp)
-                                )
-                            }
-                        }
+            
+            if (favoritesList.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(bottom = 100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        FavoriteItem(
-                            location = location,
-                            onNavigate = {
-                                navController.navigate(
-                                    com.example.weatherapp.ui.navigation.Screen.Home
-                                        .createRoute(location.lat, location.lon, location.name)
-                                )
+                        Surface(
+                            modifier = Modifier.size(120.dp),
+                            shape = CircleShape,
+                            color = RamadanGold.copy(alpha = 0.1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = RamadanGold.copy(alpha = 0.3f),
+                                modifier = Modifier.padding(30.dp).size(60.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = stringResource(com.example.weatherapp.R.string.no_favorites),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White.copy(alpha = 0.4f),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(com.example.weatherapp.R.string.add_fav_description),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.2f)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 120.dp)
+                ) {
+                    items(
+                        items = favoritesList,
+                        key = { it.id }
+                    ) { location ->
+
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { value ->
+                                if (value != SwipeToDismissBoxValue.Settled) {
+
+                                    viewModel.removeFavorite(location)
+
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "Deleted ${location.name}",
+                                            actionLabel = "Undo"
+                                        )
+
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            viewModel.addFavorite(location)
+                                        }
+                                    }
+
+                                    true
+                                } else false
                             }
                         )
+
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            Color.Red.copy(alpha = 0.5f),
+                                            RoundedCornerShape(24.dp)
+                                        ),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.padding(horizontal = 24.dp)
+                                    )
+                                }
+                            }
+                        ) {
+                            FavoriteItem(
+                                location = location,
+                                onNavigate = {
+                                    navController.navigate(
+                                        com.example.weatherapp.ui.navigation.Screen.Home
+                                            .createRoute(location.lat, location.lon, location.name)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -151,13 +189,13 @@ fun FavoritesScreen(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .background(AccentPurple, CircleShape),
+                    .background(RamadanGold, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Favorite,
                     contentDescription = "Add Favorite",
-                    tint = Color.White
+                    tint = RamadanDeepNavy
                 )
             }
         }

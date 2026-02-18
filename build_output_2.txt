@@ -1,0 +1,309 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:checkDebugAarMetadata
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:javaPreCompileDebug
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugResources
+> Task :app:mergeDebugNativeLibs
+> Task :app:checkDebugDuplicateClasses
+> Task :app:validateSigningDebug
+> Task :app:mergeLibDexDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:processDebugManifestForPackage
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+warn: removing resource com.example.weatherapp:string/endTime without required default value.
+warn: removing resource com.example.weatherapp:string/startTime without required default value.
+
+
+> Task :app:processDebugResources
+
+.\gradlew : e: 
+java.lang.IllegalStateException: 
+Storage for [D:\iti\kotlin\CloudX\app\bu
+ild\kspCaches\debug\classLookups\file-to
+-id.tab] is already registered
+At line:1 char:1
++ .\gradlew assembleDebug 2>&1 | 
+Out-File -FilePath d:\iti\kotlin\Cloud 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (e: java.lang.Il...eady regist  
+  ered:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.FilePageCache.registerPagedFileSto
+rage(FilePageCache.java:410)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PagedFileStorage.<init>(PagedFileS
+torage.java:72)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.ResizeableMappedFile.<init>(Resize
+ableMappedFile.java:55)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentBTreeEnumerator.<init>(P
+ersistentBTreeEnumerator.java:128)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentEnumerator.createDefault
+Enumerator(PersistentEnumerator.java:52)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentMapImpl.<init>(Persisten
+tMapImpl.java:165)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentMapImpl.<init>(Persisten
+tMapImpl.java:140)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentMapBuilder.buildImplemen
+tation(PersistentMapBuilder.java:88)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentMapBuilder.build(Persist
+entMapBuilder.java:71)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentHashMap.<init>(Persisten
+tHashMap.java:45)
+	at org.jetbrains.kotlin.com.intellij.ut
+il.io.PersistentHashMap.<init>(Persisten
+tHashMap.java:71)
+	at org.jetbrains.kotlin.incremental.sto
+rage.LazyStorage.createMap(LazyStorage.k
+t:62)
+	at org.jetbrains.kotlin.incremental.sto
+rage.LazyStorage.getStorageOrCreateNew(L
+azyStorage.kt:59)
+	at org.jetbrains.kotlin.incremental.sto
+rage.LazyStorage.set(LazyStorage.kt:80)
+	at org.jetbrains.kotlin.incremental.sto
+rage.PersistentStorageWrapper.set(Persis
+tentStorage.kt:96)
+	at org.jetbrains.kotlin.incremental.Loo
+kupStorage.addFileIfNeeded(LookupStorage
+.kt:164)
+	at org.jetbrains.kotlin.incremental.Loo
+kupStorage.addAll$lambda$4(LookupStorage
+.kt:117)
+	at org.jetbrains.kotlin.utils.Collectio
+nsKt.keysToMap(collections.kt:117)
+	at org.jetbrains.kotlin.incremental.Loo
+kupStorage.addAll(LookupStorage.kt:117)
+	at org.jetbrains.kotlin.incremental.Bui
+ldUtilKt.update(buildUtil.kt:134)
+	at com.google.devtools.ksp.LookupStorag
+eWrapperImpl.update(IncrementalContext.k
+t:231)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase.updateLookupCache(Incr
+ementalContextBase.kt:137)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase.updateCaches(Increment
+alContextBase.kt:365)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase.access$updateCaches(In
+crementalContextBase.kt:62)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase$updateCachesAndOutputs
+$1.invoke(IncrementalContextBase.kt:476)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase$updateCachesAndOutputs
+$1.invoke(IncrementalContextBase.kt:428)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase.closeFilesOnException(
+IncrementalContextBase.kt:408)
+	at com.google.devtools.ksp.common.Incre
+mentalContextBase.updateCachesAndOutputs
+(IncrementalContextBase.kt:428)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension.doAnalysis(K
+otlinSymbolProcessingExtension.kt:376)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration(TopDownAnalyzerFac
+adeForJVM.kt:112)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration$default(TopDownAna
+lyzerFacadeForJVM.kt:75)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze$la
+mbda$12(KotlinToJVMBytecodeCompiler.kt:3
+73)
+	at org.jetbrains.kotlin.cli.common.mess
+ages.AnalyzerWithCompilerReport.analyzeA
+ndReport(AnalyzerWithCompilerReport.kt:1
+12)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze(Ko
+tlinToJVMBytecodeCompiler.kt:364)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.repeatAnal
+ysisIfNeeded(KotlinToJVMBytecodeCompiler
+.kt:282)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.repeatAnal
+ysisIfNeeded(KotlinToJVMBytecodeCompiler
+.kt:282)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.runFronten
+dAndGenerateIrUsingClassicFrontend(Kotli
+nToJVMBytecodeCompiler.kt:195)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.compileMod
+ules$cli(KotlinToJVMBytecodeCompiler.kt:
+106)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:170)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLIT
+ool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.daemon.CompileS
+erviceImpl.compile(CompileServiceImpl.kt
+:1555)
+> Task :app:kspDebugKotlin
+	at java.base/jdk.internal.reflect.Direc
+tMethodHandleAccessor.invoke(DirectMetho
+dHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.i
+nvoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServe
+rRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:197)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+714)
+	at java.rmi/sun.rmi.transport.Transport
+.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport.handleMessages(TCPTransport.java
+:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run0(TCPTransp
+ort.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.lambda$run$0(T
+CPTransport.java:721)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run(TCPTranspo
+rt.java:720)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor.runWorker(ThreadPoolExecut
+or.java:1144)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor$Worker.run(ThreadPoolExecu
+tor.java:642)
+	at java.base/java.lang.Thread.run(Threa
+d.java:1583)
+	Suppressed: java.lang.Exception: Storag
+e[D:\iti\kotlin\CloudX\app\build\kspCach
+es\debug\classLookups\file-to-id.tab] 
+registration stack trace
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.FilePageCache.registerPagedFileSt
+orage(FilePageCache.java:437)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PagedFileStorage.<init>(PagedFile
+Storage.java:72)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.ResizeableMappedFile.<init>(Resiz
+eableMappedFile.java:55)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentBTreeEnumerator.<init>(
+PersistentBTreeEnumerator.java:128)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentEnumerator.createDefaul
+tEnumerator(PersistentEnumerator.java:52
+)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentMapImpl.<init>(Persiste
+ntMapImpl.java:165)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentMapImpl.<init>(Persiste
+ntMapImpl.java:140)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentMapBuilder.buildImpleme
+ntation(PersistentMapBuilder.java:88)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentMapBuilder.build(Persis
+tentMapBuilder.java:71)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentHashMap.<init>(Persiste
+ntHashMap.java:45)
+		at org.jetbrains.kotlin.com.intellij.u
+til.io.PersistentHashMap.<init>(Persiste
+ntHashMap.java:71)
+		at org.jetbrains.kotlin.incremental.st
+orage.LazyStorage.createMap(LazyStorage.
+kt:62)
+		at org.jetbrains.kotlin.incremental.st
+orage.LazyStorage.getStorageIfExists(Laz
+yStorage.kt:53)
+		at org.jetbrains.kotlin.incremental.st
+orage.LazyStorage.get(LazyStorage.kt:76)
+		at org.jetbrains.kotlin.incremental.st
+orage.PersistentStorageWrapper.get(Persi
+stentStorage.kt:92)
+		at org.jetbrains.kotlin.incremental.Lo
+okupStorage.removeLookupsFrom(LookupStor
+age.kt:131)
+		at org.jetbrains.kotlin.incremental.Bu
+ildUtilKt.update(buildUtil.kt:132)
+		... 39 more
+
+
+> Task :app:kspDebugKotlin FAILED
+> Task :app:mergeExtDexDebug
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task 
+':app:kspDebugKotlin'.
+> A failure occurred while executing org
+.jetbrains.kotlin.compilerRunner.GradleC
+ompilerRunnerWithWorkers$GradleKotlinCom
+pilerWorkAction
+   > Internal compiler error. See log 
+for more details
+
+* Try:
+> Run with --stacktrace option to get 
+the stack trace.
+> Run with --info or --debug option to 
+get more log output.
+> Run with --scan to get full insights.
+> Get more help at 
+https://help.gradle.org.
+
+28 actionable tasks: 28 executed
+BUILD FAILED in 34s

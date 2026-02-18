@@ -72,4 +72,6 @@
     <string name="confirm_location">تأكيد الموقع</string>
     <string name="alerts_description">"قم باداره اشعارات و منبه الطقس"</string>
     <string name="offline_mode">أنت غير متصل بالإنترنت حالياً</string>
+    <string name="no_favorites">لا توجد مواقع محفوظة</string>
+    <string name="add_fav_description">أضف مدنك المفضلة لمتابعة حالة الطقس</string>
 </resources>

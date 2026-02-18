@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
+import com.example.weatherapp.ui.theme.RamadanGold
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -38,6 +39,7 @@ import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
 import com.example.weatherapp.utils.NetworkMonitor
+import com.example.weatherapp.utils.WeatherTypeUtil
 import kotlinx.coroutines.flow.StateFlow
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
@@ -91,20 +93,15 @@ fun MainScreen(
     )
     
     val weatherType = remember(currentWeather) {
-        val desc = (currentWeather?.description ?: "").lowercase()
-        val icon = currentWeather?.icon ?: ""
-        when {
-            desc.contains("snow") || icon.startsWith("13") -> "snow"
-            desc.contains("rain") || desc.contains("drizzle") || icon.startsWith("09") || icon.startsWith("10") -> "rain"
-            desc.contains("cloud") || icon.startsWith("02") || icon.startsWith("03") || icon.startsWith("04") -> "clouds"
-            else -> "clear"
-        }
+        WeatherTypeUtil.determineWeatherType(currentWeather?.description, currentWeather?.icon)
     }
     
     val isCold = (currentWeather?.temp ?: 20.0) < 5.0
 
     val showBottomBar = remember(currentRoute) {
-        currentRoute == Screen.Dashboard.route || currentRoute == null
+        val onDashboard = currentRoute == Screen.Dashboard.route || currentRoute == null
+        val onMap = currentRoute?.startsWith(Screen.Map.route.substringBefore("{")) == true
+        onDashboard && !onMap
     }
 
     Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {

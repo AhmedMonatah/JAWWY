@@ -1,0 +1,86 @@
+﻿> Task :app:clean FAILED
+.\gradlew : 
+At line:1 char:1
++ .\gradlew clean assembleDebug 2>&1 | 
+Out-File -FilePath d:\iti\kotlin ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:clean'.
+> java.io.IOException: Unable to delete 
+directory 
+'D:\iti\kotlin\CloudX\app\build'
+    New files were found. This might 
+happen because a process is still 
+writing to the target directory.
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger\hilt
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger\hilt\internal
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger\hilt\internal\processedrootsentin
+el
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger\hilt\internal\processedrootsentin
+el\codegen
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+dagger\hilt\internal\processedrootsentin
+el\codegen\_com_example_weatherapp_Weath
+erApplication.class
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com\example
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com\example\weatherapp
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com\example\weatherapp\WeatherApplicatio
+n_HiltComponents.class
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com\example\weatherapp\WeatherApplicatio
+n_HiltComponents$ViewWithFragmentCBuilde
+rModule.class
+    - D:\iti\kotlin\CloudX\app\build\int
+ermediates\hilt\component_classes\debug\
+com\example\weatherapp\WeatherApplicatio
+n_HiltComponents$ViewWithFragmentC.class
+    - and more ...
+
+* Try:
+> Run with --stacktrace option to get 
+the stack trace.
+> Run with --info or --debug option to 
+get more log output.
+> Run with --scan to get full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 13s
+1 actionable task: 1 executed

@@ -26,6 +26,7 @@ fun NetworkMonitor(
                 duration = SnackbarDuration.Indefinite
             )
         } else {
+            // Dismiss immediately when online
             snackbarHostState.currentSnackbarData?.dismiss()
         }
     }

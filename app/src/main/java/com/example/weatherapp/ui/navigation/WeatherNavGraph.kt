@@ -110,15 +110,5 @@ fun WeatherNavGraph(
         composable(Screen.Alerts.route) {
             AlertsScreen(navController = navController)
         }
-        composable(Screen.Onboarding.route) {
-            com.example.weatherapp.ui.onboarding.OnboardingScreen(
-                navController = navController,
-                onFinish = {
-                    navController.navigate(Screen.Dashboard.createRoute(0)) {
-                        popUpTo(Screen.Onboarding.route) { inclusive = true }
-                    }
-                }
-            )
-        }
     }
 }

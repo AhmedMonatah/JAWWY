@@ -1,0 +1,356 @@
+﻿Starting a Gradle Daemon, 2 incompatible and 5 stopped Daemons could not be reused, use --status for details
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugResources
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugNativeLibs
+> Task :app:validateSigningDebug
+> Task :app:mergeLibDexDebug
+> Task :app:writeDebugAppMetadata
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:processDebugManifestForPackage
+warn: removing resource com.example.weatherapp:string/endTime without required default value.
+warn: removing resource com.example.weatherapp:string/startTime without required default value.
+
+> Task :app:processDebugResources
+> Task :app:mergeExtDexDebug
+> Task :app:kspDebugKotlin
+.\gradlew : e: [ksp] [Hilt] failed to 
+make parent directories.: 
+java.lang.IllegalStateException: failed 
+to make parent directories.
+At line:1 char:306
++ ... e -ErrorAction SilentlyContinue; 
+.\gradlew assembleDebug 2>&1 | Out-F ...
++                                      
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (e: [ksp] [Hilt]...nt director  
+  ies.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+	at com.google.devtools.ksp.common.impl.
+CodeGeneratorImpl.createNewFile(CodeGene
+ratorImpl.kt:158)
+	at com.google.devtools.ksp.common.impl.
+CodeGeneratorImpl.createNewFile(CodeGene
+ratorImpl.kt:69)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspFiler.cr
+eateNewFile(KspFiler.kt:156)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspFiler.wr
+ite(KspFiler.kt:46)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.XFiler.write$de
+fault(XFiler.kt:33)
+	at dagger.hilt.android.processor.intern
+al.viewmodel.ViewModelModuleGenerator.ge
+nerate(ViewModelModuleGenerator.kt:91)
+	at dagger.hilt.android.processor.intern
+al.viewmodel.ViewModelProcessingStep.pro
+cessEach(ViewModelProcessingStep.kt:37)
+	at dagger.hilt.processor.internal.BaseP
+rocessingStep.process(BaseProcessingStep
+.java:118)
+	at dagger.hilt.processor.internal.BaseP
+rocessingStep.process(BaseProcessingStep
+.java:49)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.CommonProcessor
+Delegate.processRound(XBasicAnnotationPr
+ocessor.kt:132)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspBasicAnn
+otationProcessor.process(KspBasicAnnotat
+ionProcessor.kt:62)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension$doAnalysis$8
+$1.invoke(KotlinSymbolProcessingExtensio
+n.kt:320)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension$doAnalysis$8
+$1.invoke(KotlinSymbolProcessingExtensio
+n.kt:318)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension.handleExcept
+ion(KotlinSymbolProcessingExtension.kt:4
+30)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension.doAnalysis(K
+otlinSymbolProcessingExtension.kt:318)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration(TopDownAnalyzerFac
+adeForJVM.kt:112)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration$default(TopDownAna
+lyzerFacadeForJVM.kt:75)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze$la
+mbda$12(KotlinToJVMBytecodeCompiler.kt:3
+73)
+	at org.jetbrains.kotlin.cli.common.mess
+ages.AnalyzerWithCompilerReport.analyzeA
+ndReport(AnalyzerWithCompilerReport.kt:1
+12)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze(Ko
+tlinToJVMBytecodeCompiler.kt:364)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.runFronten
+dAndGenerateIrUsingClassicFrontend(Kotli
+nToJVMBytecodeCompiler.kt:195)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.compileMod
+ules$cli(KotlinToJVMBytecodeCompiler.kt:
+106)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:170)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLIT
+ool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.daemon.CompileS
+erviceImpl.compile(CompileServiceImpl.kt
+:1555)
+	at java.base/jdk.internal.reflect.Direc
+tMethodHandleAccessor.invoke(DirectMetho
+dHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.i
+nvoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServe
+rRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:197)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+714)
+	at java.rmi/sun.rmi.transport.Transport
+.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport.handleMessages(TCPTransport.java
+:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run0(TCPTransp
+ort.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.lambda$run$0(T
+CPTransport.java:721)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run(TCPTranspo
+rt.java:720)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor.runWorker(ThreadPoolExecut
+or.java:1144)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor$Worker.run(ThreadPoolExecu
+tor.java:642)
+	at java.base/java.lang.Thread.run(Threa
+d.java:1583)
+
+[1;31m[Hilt] Processing did not 
+complete. See error above for 
+details.[0m
+e: [ksp] [Hilt] failed to make parent 
+directories.: 
+java.lang.IllegalStateException: failed 
+to make parent directories.
+	at com.google.devtools.ksp.common.impl.
+CodeGeneratorImpl.createNewFile(CodeGene
+ratorImpl.kt:158)
+	at com.google.devtools.ksp.common.impl.
+CodeGeneratorImpl.createNewFile(CodeGene
+ratorImpl.kt:69)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspFiler.cr
+eateNewFile(KspFiler.kt:156)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspFiler.wr
+ite(KspFiler.kt:46)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.XFiler.write$de
+fault(XFiler.kt:33)
+	at dagger.hilt.android.processor.intern
+al.viewmodel.ViewModelModuleGenerator.ge
+nerate(ViewModelModuleGenerator.kt:91)
+	at dagger.hilt.android.processor.intern
+al.viewmodel.ViewModelProcessingStep.pro
+cessEach(ViewModelProcessingStep.kt:37)
+	at dagger.hilt.processor.internal.BaseP
+rocessingStep.process(BaseProcessingStep
+.java:118)
+	at dagger.hilt.processor.internal.BaseP
+rocessingStep.process(BaseProcessingStep
+.java:49)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.CommonProcessor
+Delegate.processRound(XBasicAnnotationPr
+ocessor.kt:132)
+	at dagger.spi.internal.shaded.androidx.
+room.compiler.processing.ksp.KspBasicAnn
+otationProcessor.process(KspBasicAnnotat
+ionProcessor.kt:62)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension$doAnalysis$8
+$1.invoke(KotlinSymbolProcessingExtensio
+n.kt:320)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension$doAnalysis$8
+$1.invoke(KotlinSymbolProcessingExtensio
+n.kt:318)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension.handleExcept
+ion(KotlinSymbolProcessingExtension.kt:4
+30)
+	at com.google.devtools.ksp.AbstractKotl
+inSymbolProcessingExtension.doAnalysis(K
+otlinSymbolProcessingExtension.kt:318)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration(TopDownAnalyzerFac
+adeForJVM.kt:112)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.TopDownAnalyzerFacadeForJVM.analyzeFil
+esWithJavaIntegration$default(TopDownAna
+lyzerFacadeForJVM.kt:75)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze$la
+mbda$12(KotlinToJVMBytecodeCompiler.kt:3
+73)
+	at org.jetbrains.kotlin.cli.common.mess
+ages.AnalyzerWithCompilerReport.analyzeA
+ndReport(AnalyzerWithCompilerReport.kt:1
+12)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.analyze(Ko
+tlinToJVMBytecodeCompiler.kt:364)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.runFronten
+dAndGenerateIrUsingClassicFrontend(Kotli
+nToJVMBytecodeCompiler.kt:195)
+	at org.jetbrains.kotlin.cli.jvm.compile
+r.KotlinToJVMBytecodeCompiler.compileMod
+ules$cli(KotlinToJVMBytecodeCompiler.kt:
+106)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:170)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCo
+mpiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLIC
+ompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLIT
+ool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.daemon.CompileS
+erviceImpl.compile(CompileServiceImpl.kt
+:1555)
+	at java.base/jdk.internal.reflect.Direc
+tMethodHandleAccessor.invoke(DirectMetho
+dHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.i
+nvoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServe
+rRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport
+$1.run(Transport.java:197)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+714)
+	at java.rmi/sun.rmi.transport.Transport
+.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport.handleMessages(TCPTransport.java
+:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run0(TCPTransp
+ort.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.lambda$run$0(T
+CPTransport.java:721)
+	at java.base/java.security.AccessContro
+ller.doPrivileged(AccessController.java:
+400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTr
+ansport$ConnectionHandler.run(TCPTranspo
+rt.java:720)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor.runWorker(ThreadPoolExecut
+or.java:1144)
+	at java.base/java.util.concurrent.Threa
+dPoolExecutor$Worker.run(ThreadPoolExecu
+tor.java:642)
+	at java.base/java.lang.Thread.run(Threa
+d.java:1583)
+
+[1;31m[Hilt] Processing did not 
+complete. See error above for 
+details.[0m
+e: Error occurred in KSP, check log for 
+detail
+w: Classpath entry points to a non-existent location: D:\iti\kotlin\CloudX\app\build\intermediates\compile_and_runtime_not_namespaced_r_class_jar\debug\processDebugResources\R.jar
+
+> Task :app:kspDebugKotlin FAILED
+w: Detected multiple Kotlin daemon sessions at 
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task 
+':app:kspDebugKotlin'.
+> A failure occurred while executing org
+.jetbrains.kotlin.compilerRunner.GradleC
+ompilerRunnerWithWorkers$GradleKotlinCom
+pilerWorkAction
+   > Compilation error. See log for 
+more details
+
+* Try:
+> Run with --stacktrace option to get 
+the stack trace.
+> Run with --info or --debug option to 
+get more log output.
+> Run with --scan to get full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 1m 28s
+28 actionable tasks: 28 executed

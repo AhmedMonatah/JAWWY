@@ -9,14 +9,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.data.repository.AppRepository
 import com.example.weatherapp.ui.main.view.MainScreen
 import com.example.weatherapp.ui.navigation.Screen
+import com.example.weatherapp.ui.theme.AccentPurple
+import com.example.weatherapp.ui.theme.DashboardBackground
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -43,13 +50,30 @@ class MainActivity : AppCompatActivity() {
             }
 
             WeatherAppTheme(darkTheme = isDark) {
-                val navController = rememberNavController()
-                val onboardingShown by repository.onboardingShownFlow.collectAsState(initial = true)
+                val onboardingShown by repository.onboardingShownFlow.collectAsState(initial = null)
 
-                MainScreen(
-                    navController = navController,
-                    startDestination = if (onboardingShown) Screen.Dashboard.route else Screen.Onboarding.route
-                )
+                if (onboardingShown != null) {
+                    if (onboardingShown == true) {
+                        val navController = rememberNavController()
+                        MainScreen(
+                            navController = navController,
+                            startDestination = Screen.Dashboard.route
+                        )
+                    } else {
+                        com.example.weatherapp.ui.onboarding.OnboardingScreen(
+                            onFinish = {
+                                // The flow will automatically update when repository.setOnboardingShown() is called
+                            }
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(DashboardBackground),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = AccentPurple)
+                    }
+                }
             }
         }
     }
