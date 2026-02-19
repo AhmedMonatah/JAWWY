@@ -79,7 +79,7 @@ fun SegmentedArcIndicator(
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = label,
+                text = label+unit,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = labelColor

@@ -1,5 +1,8 @@
 package com.example.weatherapp.ui.home.view
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -11,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import java.util.Locale
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.components.background.WeatherEffects
@@ -48,19 +52,19 @@ fun HomeScreen(
         if (lat != null && lon != null) {
             viewModel.refreshWeather(lat, lon)
         } else {
-            val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-            val hasCoarse = androidx.core.content.ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            val hasFine = checkSelfPermission(
+                context, ACCESS_FINE_LOCATION
+            ) == PERMISSION_GRANTED
+            val hasCoarse = checkSelfPermission(
+                context, ACCESS_COARSE_LOCATION
+            ) == PERMISSION_GRANTED
 
             if (hasFine || hasCoarse) {
                 viewModel.requestCurrentLocation()
             } else {
                 val permissions = mutableListOf(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    ACCESS_FINE_LOCATION,
+                    ACCESS_COARSE_LOCATION
                 )
                 locationPermissionLauncher.launch(permissions.toTypedArray())
             }
@@ -136,7 +140,6 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(50.dp))
         }
         
-        // Weather effects overlay
         val currentTemp = currentWeather?.temp ?: 0.0
         val showSnow = weatherType == "snow" || currentTemp <= 0.0
         

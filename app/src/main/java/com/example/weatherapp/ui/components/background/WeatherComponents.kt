@@ -52,7 +52,7 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
                 progress = progress,
                 label = value,
                 unit = unit,
-                modifier = Modifier.size(140.dp)
+                modifier = Modifier.size(160.dp)
             )
         }
     }
