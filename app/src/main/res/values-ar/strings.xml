@@ -15,7 +15,7 @@
     <string name="wind">الرياح</string>
     <string name="pressure">الضغط</string>
     <string name="clouds">الغيوم</string>
-    <string name="unit_hpa">هيكتوباسكال</string>
+    <string name="unit_hpa">ضغط الجو</string>
     <string name="unit_ms">م/ث</string>
     <string name="unit_percent">%</string>
     <string name="sunrise">شروق الشمس</string>
