@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,11 @@ plugins {
 
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 android {
     namespace = "com.example.weatherapp"
     compileSdk = 35
@@ -18,7 +25,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
+        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -57,7 +64,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation(libs.androidx.compose.animation.core)
     
-    // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.appcompat)
     ksp(libs.hilt.compiler)
@@ -81,6 +87,8 @@ dependencies {
     implementation(libs.play.services.location)
 
     implementation(libs.coil.compose)
+    implementation(libs.adhan)
+    implementation(libs.ummalqura)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

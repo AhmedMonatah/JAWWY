@@ -6,6 +6,7 @@ import com.example.weatherapp.data.local.entity.ForecastEntity
 import com.example.weatherapp.data.local.entity.WeatherEntity
 import com.example.weatherapp.data.local.entity.HourlyForecastEntity
 import com.example.weatherapp.data.repository.AppRepository
+import com.example.weatherapp.observer.WeatherData
 import com.example.weatherapp.utils.Config
 import com.example.weatherapp.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import android.annotation.SuppressLint
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -28,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: AppRepository,
-    private val locationClient: FusedLocationProviderClient
+    private val locationClient: FusedLocationProviderClient,
+    val weatherData: WeatherData
 ) : ViewModel() {
 
     private val _refreshStatus = MutableStateFlow<Resource<WeatherEntity>?>(null)
@@ -53,6 +54,24 @@ class HomeViewModel @Inject constructor(
     private var isManualOverride = false
 
     init {
+        // Observe current weather from DB and push to WeatherData (Subject)
+        viewModelScope.launch {
+            currentWeather.collect { weather ->
+                weather?.let {
+                    weatherData.setMeasurements(
+                        temperature = it.temp,
+                        humidity = it.humidity,
+                        pressure = it.pressure,
+                        windSpeed = it.windSpeed,
+                        clouds = it.clouds,
+                        description = it.description,
+                        cityName = it.cityName,
+                        icon = it.icon
+                    )
+                }
+            }
+        }
+
         viewModelScope.launch {
             kotlinx.coroutines.flow.combine(
                 repository.unitsFlow, 
@@ -64,7 +83,6 @@ class HomeViewModel @Inject constructor(
                 val coords = if (isManualOverride) gps else if (mode == "map") manual else gps
                 DataInput(unit, lang, coords)
             }.distinctUntilChanged { old, new ->
-                // Only refresh if coordinates actually changed (ignoring unit/lang changes for now as they trigger re-collect anyway)
                 old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
             }.collect { input ->
                 input.coords?.let { (lat, lon) ->
@@ -73,9 +91,6 @@ class HomeViewModel @Inject constructor(
                     
                     coroutineScope {
                         val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, apiKey, input.unit, input.lang) }
-                        // Note: refreshForecast needs cityName, which comes from current weather. 
-                        // To be TRULY parallel, we might need a lat/lon based forecast API if available, 
-                        // but let's at least parallelize Current and Hourly first.
                         val hourlyDeferred = async { repository.refreshHourlyForecast(lat, lon, apiKey, input.unit, input.lang) }
                         
                         val currentResult = currentDeferred.await()
@@ -83,7 +98,6 @@ class HomeViewModel @Inject constructor(
                         
                         if (currentResult is Resource.Success<WeatherEntity>) {
                             currentResult.data?.let { 
-                                // Daily forecast now uses lat/lon
                                 repository.refreshForecast(lat, lon, apiKey, input.unit, input.lang)
                             }
                         }
@@ -110,7 +124,6 @@ class HomeViewModel @Inject constructor(
         if (isManualOverride) return
         
         viewModelScope.launch {
-            // First attempt: current precise location
             locationClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 CancellationTokenSource().token

@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".WeatherApplication"
@@ -40,7 +41,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="" />
+            android:value="${MAPS_API_KEY}" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -72,4 +72,35 @@
     <string name="confirm_location">تأكيد الموقع</string>
     <string name="alerts_description">"قم باداره اشعارات و منبه الطقس"</string>
     <string name="offline_mode">أنت غير متصل بالإنترنت حالياً</string>
+    <string name="no_favorites">لا توجد مواقع محفوظة</string>
+    <string name="add_fav_description">أضف مدنك المفضلة لمتابعة حالة الطقس</string>
+
+    <!-- Islamic Section -->
+    <string name="islamic_center">المركز الإسلامي</string>
+    <string name="prayer_schedule">جدول الصلاة</string>
+    <string name="days_remaining">أيام متبقية</string>
+    <string name="ramadan_countdown">العد التنازلي لرمضان</string>
+    <string name="ramadan_kareem">رمضان كريم</string>
+    <string name="ramadan_hero_subtitle">شهر البركات والنمو الروحي</string>
+    <string name="upcoming_prayer">الصلاة القادمة</string>
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_sunrise">الشروق</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+    <string name="hijri_suffix">هـ</string>
+
+    <string name="month_1">محرم</string>
+    <string name="month_2">صفر</string>
+    <string name="month_3">ربيع الأول</string>
+    <string name="month_4">ربيع الثاني</string>
+    <string name="month_5">جمادى الأولى</string>
+    <string name="month_6">جمادى الآخرة</string>
+    <string name="month_7">رجب</string>
+    <string name="month_8">شعبان</string>
+    <string name="month_9">رمضان</string>
+    <string name="month_10">شوال</string>
+    <string name="month_11">ذو القعدة</string>
+    <string name="month_12">ذو الحجة</string>
 </resources>

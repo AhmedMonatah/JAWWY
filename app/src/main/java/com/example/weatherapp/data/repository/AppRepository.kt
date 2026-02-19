@@ -21,6 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.example.weatherapp.data.local.entity.Alert
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
@@ -59,7 +60,7 @@ class AppRepository @Inject constructor(
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
         connectivityManager.registerNetworkCallback(request, callback)
-        trySend(isOnline()) // Initial state
+        trySend(isOnline())
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
     }.stateIn(
         scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO),
@@ -81,15 +82,13 @@ class AppRepository @Inject constructor(
         context.dataStore.edit { preferences -> preferences[ONBOARDING_KEY] = true }
     }
 
-    // --- Alert Methods ---
-    fun getAllAlerts(): Flow<List<com.example.weatherapp.data.local.entity.Alert>> = alertDao.getAllAlerts()
-    suspend fun insertAlert(alert: com.example.weatherapp.data.local.entity.Alert): Long = alertDao.insertAlert(alert)
-    suspend fun deleteAlert(alert: com.example.weatherapp.data.local.entity.Alert) = alertDao.deleteAlert(alert)
-    suspend fun getActiveAlerts(): List<com.example.weatherapp.data.local.entity.Alert> = alertDao.getActiveAlerts()
-    suspend fun getAlertById(id: Int): com.example.weatherapp.data.local.entity.Alert? = alertDao.getAlertById(id)
+    fun getAllAlerts(): Flow<List<Alert>> = alertDao.getAllAlerts()
+    suspend fun insertAlert(alert: Alert): Long = alertDao.insertAlert(alert)
+    suspend fun deleteAlert(alert: Alert) = alertDao.deleteAlert(alert)
+    suspend fun getActiveAlerts(): List<Alert> = alertDao.getActiveAlerts()
+    suspend fun getAlertById(id: Int): Alert? = alertDao.getAlertById(id)
     suspend fun deleteAllAlerts() = alertDao.deleteAllAlerts()
 
-    // --- Settings Methods ---
     val unitsFlow: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[UNITS_KEY] ?: "metric" }
 

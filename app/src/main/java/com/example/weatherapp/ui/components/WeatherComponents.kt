@@ -18,14 +18,15 @@ import com.example.weatherapp.ui.theme.*
 @Composable
 fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, progress: Float, icon: ImageVector) {
     val isDark = isSystemInDarkTheme()
-    val containerColor = if (isDark) TranslucentBlack else MaterialTheme.colorScheme.surface
-    val contentColor = if (isDark) Color.White else Color.Black
+    val containerColor = if (isDark) com.example.weatherapp.ui.theme.RamadanMidnight.copy(alpha = 0.7f) else MaterialTheme.colorScheme.surface
+    val contentColor = if (isDark) Color.White else com.example.weatherapp.ui.theme.RamadanDeepNavy
 
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 4.dp),
+        border = if (isDark) androidx.compose.foundation.BorderStroke(1.dp, com.example.weatherapp.ui.theme.RamadanGold.copy(alpha = 0.3f)) else null
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
@@ -38,12 +39,12 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
                 Surface(
                     modifier = Modifier.size(35.dp),
                     shape = CircleShape,
-                    color = AccentPurple.copy(alpha = 0.2f)
+                    color = com.example.weatherapp.ui.theme.RamadanGold.copy(alpha = 0.15f)
                 ) {
-                    Icon(icon, null, Modifier.padding(8.dp), AccentPurple)
+                    Icon(icon, null, Modifier.padding(8.dp), com.example.weatherapp.ui.theme.RamadanGold)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.labelSmall, color = if (isDark) TextSecondary else Color.Gray)
+                Text(title, style = MaterialTheme.typography.labelSmall, color = if (isDark) com.example.weatherapp.ui.theme.RamadanMoonGlow else Color.Gray)
             }
             
             Spacer(Modifier.height(16.dp))
