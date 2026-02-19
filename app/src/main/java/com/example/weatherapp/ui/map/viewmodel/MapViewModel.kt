@@ -3,8 +3,7 @@ package com.example.weatherapp.ui.map.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.AppRepository
-import com.example.weatherapp.utils.Config
-import com.example.weatherapp.utils.Resource
+import com.example.weatherapp.utils.state.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,8 +27,7 @@ class MapViewModel @Inject constructor(
 
     fun selectLocation(lat: Double, lon: Double, source: String = "favorites") {
         viewModelScope.launch {
-            val apiKey = Config.API_KEY
-            val result = repository.fetchWeather(lat, lon, apiKey, currentUnits, currentLang)
+            val result = repository.fetchWeather(lat, lon, currentUnits, currentLang)
             
             if (result is Resource.Success) {
                 result.data?.let { weather ->
@@ -37,10 +35,10 @@ class MapViewModel @Inject constructor(
                         repository.setManualLocation(lat, lon)
                         repository.setLocationMode("map")
                         // Force update dashboard current weather
-                        repository.refreshCurrentWeather(lat, lon, apiKey, currentUnits, currentLang)
+                        repository.refreshCurrentWeather(lat, lon, currentUnits, currentLang)
                     } else {
                         repository.addFavorite(
-                            com.example.weatherapp.data.local.entity.FavoriteLocation(
+                            com.example.weatherapp.model.FavoriteLocation(
                                 name = weather.cityName.ifBlank { "Selected Location" },
                                 lat = weather.lat,
                                 lon = weather.lon,

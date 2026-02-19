@@ -19,24 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.weatherapp.data.local.entity.FavoriteLocation
-import com.example.weatherapp.ui.components.WeatherBackground
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.ui.graphics.Brush
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
@@ -203,7 +195,7 @@ fun FavoritesScreen(
 
 
 @Composable
-fun FavoriteItem(location: com.example.weatherapp.data.local.entity.FavoriteLocation, onNavigate: () -> Unit) {
+fun FavoriteItem(location: com.example.weatherapp.model.FavoriteLocation, onNavigate: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().height(140.dp).clickable { onNavigate() },
         shape = RoundedCornerShape(24.dp),

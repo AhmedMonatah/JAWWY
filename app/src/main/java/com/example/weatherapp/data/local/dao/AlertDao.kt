@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.weatherapp.data.local.entity.Alert
+import com.example.weatherapp.model.Alert
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -1,13 +1,10 @@
 package com.example.weatherapp.ui.main.view
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Nightlight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -23,25 +20,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.weatherapp.ui.components.WeatherBackground
+import com.example.weatherapp.ui.components.background.WeatherBackground
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
 import com.example.weatherapp.ui.theme.RamadanGold
 import androidx.compose.foundation.background
-import androidx.compose.material.icons.automirrored.filled.*
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.utils.NetworkMonitor
-import com.example.weatherapp.utils.WeatherTypeUtil
+import com.example.weatherapp.utils.network.NetworkMonitor
+import com.example.weatherapp.utils.weather.WeatherTypeUtil
 import kotlinx.coroutines.flow.StateFlow
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {

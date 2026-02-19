@@ -2,7 +2,7 @@ package com.example.weatherapp.ui.favorites.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.local.entity.FavoriteLocation
+import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.data.repository.AppRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

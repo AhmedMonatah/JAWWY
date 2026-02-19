@@ -4,8 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.weatherapp.data.local.entity.ForecastEntity
-import com.example.weatherapp.data.local.entity.WeatherEntity
+import com.example.weatherapp.model.ForecastEntity
+import com.example.weatherapp.model.HourlyForecastEntity
+import com.example.weatherapp.model.WeatherEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,10 +28,10 @@ interface WeatherDao {
     suspend fun clearForecast()
 
     @Query("SELECT * FROM hourly_forecast ORDER BY dt ASC")
-    fun getHourlyForecast(): Flow<List<com.example.weatherapp.data.local.entity.HourlyForecastEntity>>
+    fun getHourlyForecast(): Flow<List<com.example.weatherapp.model.HourlyForecastEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHourlyForecast(hourly: List<com.example.weatherapp.data.local.entity.HourlyForecastEntity>)
+    suspend fun insertHourlyForecast(hourly: List<com.example.weatherapp.model.HourlyForecastEntity>)
 
     @Query("DELETE FROM hourly_forecast")
     suspend fun clearHourlyForecast()

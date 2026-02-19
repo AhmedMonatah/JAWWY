@@ -4,9 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.weatherapp.utils.NotificationUtils
+import com.example.weatherapp.data.service.NotificationHelper
 
-// Receives exact alarms from AlarmManager for the "alarm" type only.
 class AlertReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -16,7 +15,7 @@ class AlertReceiver : BroadcastReceiver() {
         Log.d("AlertReceiver", "onReceive: alertId=$alertId, type=$alertType")
 
         if (alertId != -1 && alertType == "alarm") {
-            NotificationUtils.showAlarmNotification(context, alertId)
+            NotificationHelper.showAlarmNotification(context, alertId)
         }
     }
 }
