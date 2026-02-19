@@ -87,6 +87,8 @@ dependencies {
     implementation(libs.play.services.location)
 
     implementation(libs.coil.compose)
+    implementation(libs.adhan)
+    implementation(libs.ummalqura)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

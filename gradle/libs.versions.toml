@@ -24,6 +24,8 @@ googleMaps = "19.0.0"
 mapsCompose = "6.1.2"
 appcompat = "1.7.1"
 roomCompiler = "2.8.4"
+adhan = "1.2.1"
+ummalqura = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +74,8 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+adhan = { group = "com.batoulapps.adhan", name = "adhan", version.ref = "adhan" }
+ummalqura = { group = "com.github.msarhan", name = "ummalqura-calendar", version.ref = "ummalqura" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

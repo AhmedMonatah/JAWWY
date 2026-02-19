@@ -86,4 +86,33 @@
     <string name="offline_mode">You are currently offline</string>
 
     <string name="internet_required">Internet connection required</string>
+
+    <!-- Islamic Section -->
+    <string name="islamic_center">Islamic Center</string>
+    <string name="prayer_schedule">Prayer Schedule</string>
+    <string name="days_remaining">days remaining</string>
+    <string name="ramadan_countdown">Ramadan Countdown</string>
+    <string name="ramadan_kareem">Ramadan Kareem</string>
+    <string name="ramadan_hero_subtitle">A month of blessings and spiritual growth</string>
+    <string name="upcoming_prayer">UPCOMING PRAYER</string>
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_sunrise">Sunrise</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
+    <string name="hijri_suffix">AH</string>
+
+    <string name="month_1">Muharram</string>
+    <string name="month_2">Safar</string>
+    <string name="month_3">Rabi‘ al-Awwal</string>
+    <string name="month_4">Rabi‘ al-Thani</string>
+    <string name="month_5">Jumada al-Ula</string>
+    <string name="month_6">Jumada al-Akhira</string>
+    <string name="month_7">Rajab</string>
+    <string name="month_8">Sha‘ban</string>
+    <string name="month_9">Ramadan</string>
+    <string name="month_10">Shawwal</string>
+    <string name="month_11">Dhu al-Qi‘dah</string>
+    <string name="month_12">Dhu al-Hijjah</string>
 </resources>

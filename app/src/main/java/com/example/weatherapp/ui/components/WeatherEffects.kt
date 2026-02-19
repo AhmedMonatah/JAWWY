@@ -11,6 +11,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
+import com.example.weatherapp.ui.components.Snowflake
+import com.example.weatherapp.ui.components.Raindrop
 
 @Composable
 fun WeatherEffects(
@@ -88,17 +90,4 @@ fun RainEffect(modifier: Modifier = Modifier) {
     }
 }
 
-data class Snowflake(
-    val x: Float = Random.nextFloat(),
-    val y: Float = Random.nextFloat(),
-    val radius: Float = Random.nextFloat() * 5f + 2f,
-    val speed: Float = Random.nextFloat() * 0.5f + 0.1f,
-    val wobble: Float = Random.nextFloat() * 10f
-)
-
-data class Raindrop(
-    val x: Float = Random.nextFloat(),
-    val y: Float = Random.nextFloat(),
-    val length: Float = Random.nextFloat() * 20f + 10f,
-    val speed: Float = Random.nextFloat() * 1.5f + 1.0f
-)
+// Models moved to WeatherEffectModels.kt

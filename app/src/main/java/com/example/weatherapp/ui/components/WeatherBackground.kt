@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.random.Random
+import com.example.weatherapp.ui.components.Particle
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -241,11 +242,4 @@ private fun DrawScope.drawCrescentMoon(
     )
 }
 
-data class Particle(
-    val x: Float,
-    val y: Float,
-    val speed: Float,
-    val size: Float,
-    val alpha: Float,
-    val rotation: Float = 0f
-)
+// Particle model moved to WeatherEffectModels.kt

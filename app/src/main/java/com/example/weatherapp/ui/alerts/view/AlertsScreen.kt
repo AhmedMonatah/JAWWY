@@ -4,6 +4,8 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,7 +43,6 @@ import com.example.weatherapp.ui.theme.AccentPurple
 import java.text.SimpleDateFormat
 import java.util.*
 
-import com.example.weatherapp.ui.components.OfflineBanner
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.ui.theme.RamadanDeepNavy
 import com.example.weatherapp.ui.theme.RamadanGold
@@ -66,15 +67,12 @@ fun AlertsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
                 .statusBarsPadding()
+                .padding(horizontal = 25.dp)
         ) {
             Spacer(modifier = Modifier.height(20.dp))
             
 
-            if (!viewModel.isOnline()) {
-                OfflineBanner()
-            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,18 +84,6 @@ fun AlertsScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                
-                if (alerts.isNotEmpty()) {
-                    IconButton(
-                        onClick = { viewModel.deleteAllAlerts() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteSweep,
-                            contentDescription = stringResource(R.string.delete_all),
-                            tint = Color(0xFFFF6B6B)
-                        )
-                    }
-                }
             }
             
             Text(
@@ -219,6 +205,12 @@ fun AddAlertDialog(
     onSave: (Long, Long, String) -> Unit
 ) {
     val context = LocalContext.current
+    
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        // After permission choice, optionally handle it if needed
+    }
     val calendar = Calendar.getInstance()
     
     // Default start time is NOW
@@ -415,7 +407,19 @@ fun AddAlertDialog(
                 }
 
                 Button(
-                    onClick = { onSave(startTime, endTime, type) },
+                    onClick = { 
+                        if (type == "notification" && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
+                                context, android.Manifest.permission.POST_NOTIFICATIONS
+                            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                            
+                            if (!hasPermission) {
+                                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                // We continue to save anyway or user can retry
+                            }
+                        }
+                        onSave(startTime, endTime, type) 
+                    },
                     modifier = Modifier.weight(1f).height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),

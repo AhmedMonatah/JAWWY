@@ -42,39 +42,14 @@ import com.example.weatherapp.ui.theme.RamadanMoonGlow
 import com.example.weatherapp.ui.theme.RamadanStarLight
 import com.example.weatherapp.ui.theme.RamadanMidnight
 import com.example.weatherapp.ui.theme.RamadanNightSky
+import com.example.weatherapp.ui.onboarding.OnboardingPageData
+import com.example.weatherapp.ui.onboarding.PageType
+import com.example.weatherapp.ui.onboarding.onboardingPages
 import kotlinx.coroutines.launch
 import kotlin.math.sin
 import kotlin.random.Random
 
-private data class OnboardingPageData(
-    val title: String,
-    val description: String,
-    val type: PageType
-)
-
-private enum class PageType {
-    RAMADAN_NIGHT,
-    WEATHER_DAY,
-    ALERTS
-}
-
-private val onboardingPages = listOf(
-    OnboardingPageData(
-        title = "Ramadan Blessings",
-        description = "Experience the holy month with accurate prayer times and weather guidance for your spiritual journey.",
-        type = PageType.RAMADAN_NIGHT
-    ),
-    OnboardingPageData(
-        title = "Accurate Forecast",
-        description = "Plan your day with precise weather updates. Know exactly when to seek shade or enjoy the sun.",
-        type = PageType.WEATHER_DAY
-    ),
-    OnboardingPageData(
-        title = "Stay Informed",
-        description = "Get timely weather alerts to keep you and your family safe during sudden weather changes.",
-        type = PageType.ALERTS
-    )
-)
+// Onboarding pages are now defined in OnboardingModels.kt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -90,8 +65,17 @@ fun OnboardingScreen(
             .fillMaxSize()
             .background(RamadanMidnight)
     ) {
-        // Dynamic Background based on page
-        BackgroundTransition(pagerState.currentPage, pagerState.currentPageOffsetFraction)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(RamadanMidnight, RamadanDeepNavy, RamadanDarkBlue)
+                    )
+                )
+        ) {
+            RamadanSkyEffect()
+        }
 
         HorizontalPager(
             state = pagerState,
@@ -103,27 +87,27 @@ fun OnboardingScreen(
             )
         }
 
-        // Bottom Controls
-        Box(
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(32.dp)
+                .padding(bottom = 60.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            // Indicators
             Row(
-                modifier = Modifier.align(Alignment.CenterStart),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(3) { i ->
                     val isSelected = pagerState.currentPage == i
                     val width by animateDpAsState(
-                        targetValue = if (isSelected) 32.dp else 10.dp,
-                        animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
+                        targetValue = if (isSelected) 36.dp else 12.dp,
+                        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
                         label = ""
                     )
                     val color by animateColorAsState(
-                        targetValue = if (isSelected) RamadanGold else Color.White.copy(alpha = 0.3f),
+                        targetValue = if (isSelected) RamadanGold else Color.White.copy(alpha = 0.2f),
                         label = ""
                     )
                     Box(
@@ -136,7 +120,6 @@ fun OnboardingScreen(
                 }
             }
 
-            // Next/Finish Button
             val isLast = pagerState.currentPage == 2
             Button(
                 onClick = {
@@ -150,32 +133,36 @@ fun OnboardingScreen(
                     }
                 },
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .height(56.dp),
+                    .width(220.dp)
+                    .height(64.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),
-                shape = RoundedCornerShape(16.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                shape = RoundedCornerShape(20.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 12.dp)
             ) {
                 AnimatedContent(
                     targetState = isLast,
                     transitionSpec = {
-                        fadeIn(tween(300)) + slideInHorizontally { it / 2 } togetherWith
-                                fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
+                        fadeIn(tween(400)) + scaleIn(initialScale = 0.8f) togetherWith
+                                fadeOut(tween(300)) + scaleOut(targetScale = 0.8f)
                     },
                     label = ""
                 ) { last ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
-                            if (last) "Get Started" else "Next",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = RamadanDeepNavy
+                            if (last) "Get Started" else "Continue",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 18.sp,
+                            color = RamadanDeepNavy,
+                            letterSpacing = 1.sp
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(12.dp))
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(24.dp),
                             tint = RamadanDeepNavy
                         )
                     }
@@ -185,36 +172,6 @@ fun OnboardingScreen(
     }
 }
 
-@Composable
-fun BackgroundTransition(page: Int, offset: Float) {
-    val color1 = listOf(RamadanMidnight, RamadanDeepNavy, RamadanNightSky) // Night
-    val color2 = listOf(Color(0xFF4A90E2), Color(0xFF87CEEB), Color(0xFFE0F7FA)) // Day/Weather
-    val color3 = listOf(Color(0xFF2C3E50), Color(0xFF34495E), Color(0xFF5D6D7E)) // Storm/Alerts
-
-    val targetColors = when (page) {
-        0 -> color1
-        1 -> color2
-        else -> color3
-    }
-    
-    // We can't easily interpolate arrays of colors, so we just switch brushes with animation
-    // Ideally we would interpolate, but for simplicity we crossfade based on page
-    
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = if (page == 0) color1 else if (page == 1) color2 else color3
-                )
-            )
-    ) {
-         // Ambient effects
-         if (page == 0) RamadanSkyEffect()
-         if (page == 1) SunCloudEffect()
-         if (page == 2) RainEffect()
-    }
-}
 
 
 @Composable
@@ -233,53 +190,73 @@ private fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
             .fillMaxSize()
             .statusBarsPadding()
             .padding(horizontal = 32.dp)
-            .padding(top = 100.dp),
+            .padding(top = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Main Visual Area
+        // Person/Assistant Visual Area
         Box(
             modifier = Modifier
-                .size(280.dp)
+                .size(320.dp)
                 .graphicsLayer {
-                    scaleX = 0.8f + (enterAnim.value * 0.2f)
-                    scaleY = 0.8f + (enterAnim.value * 0.2f)
+                    scaleX = 0.9f + (enterAnim.value * 0.1f)
+                    scaleY = 0.9f + (enterAnim.value * 0.1f)
                     alpha = enterAnim.value
                 },
             contentAlignment = Alignment.Center
         ) {
-            when (data.type) {
+            WeatherAssistantWithVisual(data.type)
+        }
+
+        Spacer(modifier = Modifier.height(60.dp))
+
+        Text(
+            text = data.title,
+            fontSize = 36.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = RamadanGold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer {
+                translationY = (1 - enterAnim.value) * 40f
+                alpha = enterAnim.value
+            }
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = data.description,
+            fontSize = 18.sp,
+            color = Color.White.copy(alpha = 0.9f),
+            textAlign = TextAlign.Center,
+            lineHeight = 28.sp,
+            modifier = Modifier.graphicsLayer {
+                translationY = (1 - enterAnim.value) * 80f
+                alpha = enterAnim.value
+            }
+        )
+    }
+}
+
+@Composable
+fun WeatherAssistantWithVisual(type: PageType) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+        // Primary Weather Icon (Larger)
+        Box(modifier = Modifier.offset(y = (-40).dp)) {
+            when (type) {
                 PageType.RAMADAN_NIGHT -> RamadanVisual()
                 PageType.WEATHER_DAY -> WeatherVisual()
                 PageType.ALERTS -> AlertsVisual()
             }
         }
+        
 
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Text(
-            text = data.title,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (data.type == PageType.WEATHER_DAY) Color.White else RamadanGold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer {
-                translationY = (1 - enterAnim.value) * 50f
-                alpha = enterAnim.value
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = data.description,
-            fontSize = 16.sp,
-            color = Color.White.copy(alpha = 0.8f),
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp,
-            modifier = Modifier.graphicsLayer {
-                translationY = (1 - enterAnim.value) * 100f
-                alpha = enterAnim.value
-            }
+        
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = 40.dp)
+                .size(100.dp, 4.dp)
+                .background(RamadanGold.copy(alpha = 0.3f), CircleShape)
         )
     }
 }
@@ -316,7 +293,6 @@ fun WeatherVisual() {
                  radius = size.minDimension / 2
              )
          }
-         // Clouds
          Text(text = "☁️", fontSize = 100.sp, modifier = Modifier.align(Alignment.BottomStart))
     }
 }
@@ -350,43 +326,3 @@ private fun RamadanSkyEffect() {
         }
     }
 }
-
-@Composable
-fun SunCloudEffect() {
-     // Subtle sun rays or cloud movement could go here
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(Color.White.copy(alpha=0.1f), Color.Transparent),
-                radius = size.maxDimension * 0.8f,
-                center = Offset(size.width, 0f)
-            ),
-             radius = size.maxDimension * 0.8f,
-             center = Offset(size.width, 0f)
-        )
-    }
-}
-
-@Composable
-fun RainEffect() {
-     val infiniteTransition = rememberInfiniteTransition(label = "")
-     val offset by infiniteTransition.animateFloat(
-         initialValue = 0f, targetValue = 1000f,
-         animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Restart),
-         label = ""
-     )
-     
-     Canvas(modifier = Modifier.fillMaxSize()) {
-         for(i in 0..30) {
-             val x = (i * 50f) % size.width
-             val y = (offset + i * 100f) % size.height
-             drawLine(
-                 color = Color.White.copy(alpha = 0.3f),
-                 start = Offset(x, y),
-                 end = Offset(x - 10f, y + 20f),
-                 strokeWidth = 2f
-             )
-         }
-     }
-}
-

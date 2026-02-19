@@ -12,10 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import java.util.Locale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.weatherapp.ui.components.OfflineBanner
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapp.ui.home.view.components.DailyForecastSection
 import com.example.weatherapp.ui.home.view.components.HeaderSection
@@ -25,11 +25,7 @@ import com.example.weatherapp.ui.home.view.components.WeatherStatsSection
 import com.example.weatherapp.ui.theme.*
 import com.example.weatherapp.utils.Resource
 import com.example.weatherapp.utils.WeatherTypeUtil
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.math.roundToInt
-
-@OptIn(ExperimentalMaterial3Api::class)
+import com.example.weatherapp.ui.home.view.HomeDisplayState
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -51,6 +47,7 @@ fun HomeScreen(
             viewModel.requestCurrentLocation()
         }
     }
+    
 
     LaunchedEffect(lat, lon) {
         if (lat != null && lon != null) {
@@ -110,22 +107,11 @@ fun HomeScreen(
                 .padding(horizontal = 25.dp),
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
-            if (!viewModel.isOnline()) {
-                OfflineBanner()
-            }
 
-            // Notification Permission Banner
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                com.example.weatherapp.ui.home.view.components.NotificationBanner()
-            }
 
-            if (refreshStatus is Resource.Loading) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth().height(2.dp),
-                    color = RamadanGold,
-                    trackColor = Color.Transparent
-                )
-            }
+
+
+
 
             HeaderSection(
                 cityName = displayState.cityName,
@@ -182,78 +168,3 @@ fun HomeScreen(
     }
 }
 
-// --- Helper data and functions ---
-
-private data class HomeDisplayState(
-    val cityName: String,
-    val temp: Int,
-    val condition: String,
-    val date: String,
-    val time: String,
-    val humidity: Float,
-    val pressure: Float,
-    val wind: Float,
-    val clouds: Int
-)
-
-private fun computeDisplayState(
-    currentWeather: com.example.weatherapp.data.local.entity.WeatherEntity?,
-    forecast: List<com.example.weatherapp.data.local.entity.ForecastEntity>,
-    selectedDayIndex: Int,
-    locale: Locale,
-    refreshStatus: Resource<com.example.weatherapp.data.local.entity.WeatherEntity>?,
-    cityNameParam: String?
-): HomeDisplayState {
-    val isToday = selectedDayIndex == 0
-    
-    val temps = (currentWeather?.temp?.roundToInt()?.let { listOf(it) } ?: listOf(0)) +
-            forecast.take(7).map { it.tempDay.roundToInt() }
-    val temp = temps.getOrElse(selectedDayIndex) { 0 }
-
-    val condition = if (isToday) {
-        currentWeather?.description?.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(locale) else it.toString()
-        } ?: "..."
-    } else {
-        forecast.getOrNull(selectedDayIndex - 1)?.description?.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(locale) else it.toString()
-        } ?: "..."
-    }
-
-    val humidity = (currentWeather?.humidity ?: 0).toFloat()
-    val pressure = (currentWeather?.pressure ?: 0).toFloat()
-    val wind = (currentWeather?.windSpeed ?: 0.0).toFloat()
-    val clouds = if (isToday) (currentWeather?.clouds ?: 0) else 15
-
-    val cityName = if (refreshStatus is Resource.Loading && currentWeather == null) {
-        cityNameParam ?: "Loading..."
-    } else {
-        currentWeather?.cityName ?: cityNameParam ?: "..."
-    }
-
-    val date = SimpleDateFormat("EEE, MMM d", locale).format(Date())
-    val time = SimpleDateFormat("h:mm a", locale).format(Date())
-
-    return HomeDisplayState(cityName, temp, condition, date, time, humidity, pressure, wind, clouds)
-}
-
-private fun filterHourlyForDay(
-    hourlyForecast: List<com.example.weatherapp.data.local.entity.HourlyForecastEntity>,
-    selectedDayIndex: Int,
-    forecast: List<com.example.weatherapp.data.local.entity.ForecastEntity>
-): List<com.example.weatherapp.data.local.entity.HourlyForecastEntity> {
-    val targetCal = Calendar.getInstance()
-    if (selectedDayIndex != 0) {
-        val targetDay = forecast.getOrNull(selectedDayIndex - 1)
-        if (targetDay != null) {
-            targetCal.timeInMillis = targetDay.dt * 1000
-        }
-    }
-    val targetDayOfYear = targetCal.get(Calendar.DAY_OF_YEAR)
-    val targetYear = targetCal.get(Calendar.YEAR)
-
-    return hourlyForecast.filter {
-        val cal = Calendar.getInstance().apply { timeInMillis = it.dt * 1000 }
-        cal.get(Calendar.YEAR) == targetYear && cal.get(Calendar.DAY_OF_YEAR) == targetDayOfYear
-    }.sortedBy { it.dt }
-}

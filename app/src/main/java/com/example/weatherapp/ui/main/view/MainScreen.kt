@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Nightlight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -38,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.ui.home.view.HomeScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
+import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.utils.NetworkMonitor
 import com.example.weatherapp.utils.WeatherTypeUtil
 import kotlinx.coroutines.flow.StateFlow
@@ -60,7 +62,7 @@ fun MainScreen(
     val currentRoute = navBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val pagerState = rememberPagerState(pageCount = { 4 })
+    val pagerState = rememberPagerState(pageCount = { 5 })
     
     val routePage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
     
@@ -119,7 +121,16 @@ fun MainScreen(
                 }
             },
             snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = RamadanDarkBlue,
+                        contentColor = Color.White,
+                        actionColor = RamadanGold,
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
             },
 
         ) { paddingValues ->
@@ -152,8 +163,9 @@ fun DashboardPager(
         when (page) {
             0 -> HomeScreen(navController = navController)
             1 -> com.example.weatherapp.ui.alerts.view.AlertsScreen(navController = navController)
-            2 -> FavoritesScreen(navController = navController)
-            3 -> SettingsScreen(navController = navController)
+            2 -> com.example.weatherapp.ui.islamic.view.IslamicScreen(navController = navController)
+            3 -> FavoritesScreen(navController = navController)
+            4 -> SettingsScreen(navController = navController)
         }
     }
 }
@@ -174,8 +186,9 @@ fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
         ) {
             BottomNavItem(Icons.Default.Dashboard, "DASH", currentPage == 0) { onPageSelected(0) }
             BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 1) { onPageSelected(1) }
-            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 2) { onPageSelected(2) }
-            BottomNavItem(Icons.Default.Settings, "SET", currentPage == 3) { onPageSelected(3) }
+            BottomNavItem(Icons.Default.Nightlight, "ISLAMIC", currentPage == 2) { onPageSelected(2) }
+            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 3) { onPageSelected(3) }
+            BottomNavItem(Icons.Default.Settings, "SET", currentPage == 4) { onPageSelected(4) }
         }
     }
 }

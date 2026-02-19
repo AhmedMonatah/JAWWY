@@ -54,18 +54,17 @@ fun FavoritesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp)
                 .statusBarsPadding()
+                .padding(horizontal = 25.dp)
         ) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = stringResource(com.example.weatherapp.R.string.saved_locations),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
-                letterSpacing = 1.sp
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(24.dp))
