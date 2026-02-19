@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CloudX</string>
+    <string name="app_name">Naseem</string>
 
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
@@ -87,7 +87,6 @@
 
     <string name="internet_required">Internet connection required</string>
 
-    <!-- Islamic Section -->
     <string name="islamic_center">Islamic Center</string>
     <string name="prayer_schedule">Prayer Schedule</string>
     <string name="days_remaining">days remaining</string>
@@ -115,4 +114,10 @@
     <string name="month_10">Shawwal</string>
     <string name="month_11">Dhu al-Qi‘dah</string>
     <string name="month_12">Dhu al-Hijjah</string>
+    <string name="alarm_title">⏰ Alarm!</string>
+    <string name="alarm_text">Your alarm time has arrived!</string>
+    <string name="weather_title">🌤 Weather in %1$s</string>
+    <string name="weather_title_default">🌤 Weather Update</string>
+    <string name="weather_content">%1$d°C · %2$s</string>
+    <string name="splash_subtitle">Ramadan Edition</string>
 </resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CloudX</string>
+    <string name="app_name">نسيم</string>
 
     <string name="nav_home">الرئيسية</string>
     <string name="nav_settings">الإعدادات</string>
@@ -103,4 +103,12 @@
     <string name="month_10">شوال</string>
     <string name="month_11">ذو القعدة</string>
     <string name="month_12">ذو الحجة</string>
+    <string name="alarm_title">⏰ منبه!</string>
+    <string name="alarm_text">حان وقت المنبه!</string>
+    <string name="weather_title">🌤 الطقس في %1$s</string>
+    <string name="weather_title_default">🌤 تحديث الطقس</string>
+    <string name="weather_content">%1$d°م · %2$s</string>
+    <string name="start_time_label">البدء</string>
+    <string name="end_time_label">الانتهاء</string>
+
 </resources>

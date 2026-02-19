@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.local.entity.Alert
+import com.example.weatherapp.model.Alert
 import com.example.weatherapp.data.repository.AppRepository
-import com.example.weatherapp.utils.NotificationUtils
+import com.example.weatherapp.data.service.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +49,7 @@ class AlertsViewModel @Inject constructor(
 
             Log.d("AlertsVM", "Alert saved id=${savedAlert.id} type=$type")
 
-            NotificationUtils.scheduleAlert(
+            NotificationHelper.scheduleAlert(
                 context = context,
                 startTime = savedAlert.startTime,
                 endTime = savedAlert.endTime,
@@ -62,28 +62,11 @@ class AlertsViewModel @Inject constructor(
     fun deleteAlert(alert: Alert) {
         viewModelScope.launch {
             repository.deleteAlert(alert)
-            NotificationUtils.cancelAlert(
+            NotificationHelper.cancelAlert(
                 context = context,
                 alertId = alert.id,
-                type = alert.type,
-                startTime = alert.startTime
+                type = alert.type
             )
         }
     }
-
-    fun deleteAllAlerts() {
-        viewModelScope.launch {
-            _alerts.value.forEach { alert ->
-                NotificationUtils.cancelAlert(
-                    context = context,
-                    alertId = alert.id,
-                    type = alert.type,
-                    startTime = alert.startTime
-                )
-            }
-            repository.deleteAllAlerts()
-        }
-    }
-
-    fun isOnline() = repository.isOnline()
 }

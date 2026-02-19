@@ -1,9 +1,9 @@
 package com.example.weatherapp.data.remote
 
-import com.example.weatherapp.data.model.CurrentWeatherResponse
-import com.example.weatherapp.data.model.DailyForecastResponse
-import com.example.weatherapp.data.model.HourlyForecastResponse
-import com.example.weatherapp.data.model.GeocodingResponse
+import com.example.weatherapp.model.CurrentWeatherResponse
+import com.example.weatherapp.model.DailyForecastResponse
+import com.example.weatherapp.model.HourlyForecastResponse
+import com.example.weatherapp.model.GeocodingResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -13,7 +13,6 @@ interface WeatherApi {
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("appid") apiKey: String,
         @Query("units") units: String,
         @Query("lang") lang: String
     ): CurrentWeatherResponse
@@ -22,7 +21,6 @@ interface WeatherApi {
     suspend fun getDailyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("appid") apiKey: String,
         @Query("units") units: String,
         @Query("lang") lang: String,
         @Query("cnt") cnt: Int = 7
@@ -32,7 +30,6 @@ interface WeatherApi {
     suspend fun getHourlyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("appid") apiKey: String,
         @Query("units") units: String,
         @Query("lang") lang: String
     ): HourlyForecastResponse

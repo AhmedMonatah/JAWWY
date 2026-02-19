@@ -1,9 +1,10 @@
 package com.example.weatherapp.ui.home.view
 
-import com.example.weatherapp.data.local.entity.ForecastEntity
-import com.example.weatherapp.data.local.entity.HourlyForecastEntity
-import com.example.weatherapp.data.local.entity.WeatherEntity
-import com.example.weatherapp.utils.Resource
+import com.example.weatherapp.model.ForecastEntity
+import com.example.weatherapp.model.HourlyForecastEntity
+import com.example.weatherapp.model.WeatherEntity
+import com.example.weatherapp.model.HomeDisplayState
+import com.example.weatherapp.utils.state.Resource
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt

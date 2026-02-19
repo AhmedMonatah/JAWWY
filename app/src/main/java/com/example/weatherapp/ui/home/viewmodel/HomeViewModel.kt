@@ -2,13 +2,12 @@ package com.example.weatherapp.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.local.entity.ForecastEntity
-import com.example.weatherapp.data.local.entity.WeatherEntity
-import com.example.weatherapp.data.local.entity.HourlyForecastEntity
+import com.example.weatherapp.model.ForecastEntity
+import com.example.weatherapp.model.WeatherEntity
+import com.example.weatherapp.model.HourlyForecastEntity
 import com.example.weatherapp.data.repository.AppRepository
 import com.example.weatherapp.observer.WeatherData
-import com.example.weatherapp.utils.Config
-import com.example.weatherapp.utils.Resource
+import com.example.weatherapp.utils.state.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -86,19 +85,18 @@ class HomeViewModel @Inject constructor(
                 old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
             }.collect { input ->
                 input.coords?.let { (lat, lon) ->
-                    val apiKey = Config.API_KEY
                     _refreshStatus.value = Resource.Loading()
                     
                     coroutineScope {
-                        val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, apiKey, input.unit, input.lang) }
-                        val hourlyDeferred = async { repository.refreshHourlyForecast(lat, lon, apiKey, input.unit, input.lang) }
+                        val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, input.unit, input.lang) }
+                        val hourlyDeferred = async { repository.refreshHourlyForecast(lat, lon, input.unit, input.lang) }
                         
                         val currentResult = currentDeferred.await()
                         _refreshStatus.value = currentResult
                         
                         if (currentResult is Resource.Success<WeatherEntity>) {
                             currentResult.data?.let { 
-                                repository.refreshForecast(lat, lon, apiKey, input.unit, input.lang)
+                                repository.refreshForecast(lat, lon, input.unit, input.lang)
                             }
                         }
                         hourlyDeferred.await()
@@ -107,7 +105,6 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        // Trigger GPS if needed
         viewModelScope.launch {
             repository.locationModeFlow.collect { mode ->
                 if (mode == "gps" && !isManualOverride) {
@@ -148,14 +145,5 @@ class HomeViewModel @Inject constructor(
         _lastCoords.value = lat to lon
     }
 
-    fun refreshForecast(lat: Double, lon: Double) {
-        viewModelScope.launch {
-             val apiKey = Config.API_KEY
-             val currentUnits = units.value
-             val currentLang = language.value
-             repository.refreshForecast(lat, lon, apiKey, currentUnits, currentLang)
-        }
-    }
 
-    fun isOnline() = repository.isOnline()
 }

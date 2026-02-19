@@ -1,7 +1,7 @@
 package com.example.weatherapp.data.local.dao
 
 import androidx.room.*
-import com.example.weatherapp.data.local.entity.FavoriteLocation
+import com.example.weatherapp.model.FavoriteLocation
 import kotlinx.coroutines.flow.Flow
 
 @Dao
