@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.map.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,11 +19,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherapp.ui.map.viewmodel.MapViewModel
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.TranslucentBlack
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.*
-
+import kotlinx.coroutines.launch
+import com.example.weatherapp.R
 @Composable
 fun MapScreen(
     viewModel: MapViewModel = hiltViewModel(),
@@ -36,26 +39,32 @@ fun MapScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val scope = rememberCoroutineScope()
+        val isDark = isSystemInDarkTheme()
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(
                 isMyLocationEnabled = false,
-                mapStyleOptions = null
+                mapStyleOptions = if (isDark) {
+                    MapStyleOptions.loadRawResourceStyle(context, R.raw.map_dark_style)
+                } else null
             ),
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
-            onMapClick = { selectedPoint = it }
-        ) {
-            selectedPoint?.let {
-                Marker(
-                    state = MarkerState(position = it),
-                    title = "Selected Location",
-                    snippet = "Lat: ${it.latitude}, Lon: ${it.longitude}"
-                )
+            onMapClick = { point ->
+                selectedPoint = point
+                scope.launch {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(point, 10f)
+                    )
+                }
+                println("Selected point: $point")
             }
+        ) {
+            selectedPoint?.let { Marker(state = MarkerState(it), title = "Selected Location") }
         }
 
-        // Modern Header
+        // Header
         Surface(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -79,14 +88,13 @@ fun MapScreen(
             }
         }
 
-        // Sleek Floating Button
-        if (selectedPoint != null) {
+        // Floating Button
+        selectedPoint?.let { point ->
             Button(
                 onClick = {
-                    selectedPoint?.let {
-                        viewModel.selectLocation(it.latitude, it.longitude, source)
-                        onLocationSelected(source)
-                    }
+                    println("Button clicked, saving: $point")
+                    viewModel.selectLocation(point.latitude, point.longitude, source)
+                    onLocationSelected(source)
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

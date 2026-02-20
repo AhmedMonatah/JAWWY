@@ -98,6 +98,13 @@ fun AlertsScreen(
                             color = Color.White.copy(alpha = 0.4f),
                             style = MaterialTheme.typography.titleMedium
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = stringResource(R.string.add_first_alert),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.2f)
+                        )
                     }
                 }
             } else {

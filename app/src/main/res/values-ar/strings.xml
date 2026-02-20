@@ -25,7 +25,7 @@
     <string name="no_data">لا توجد بيانات</string>
     <string name="loading">جاري التحميل...</string>
     <string name="today">اليوم</string>
-
+    <string name="add_first_alert">أضف إشعارك الأول الآن</string>
     <string name="settings_title">الإعدادات</string>
     <string name="settings_location">الموقع</string>
     <string name="gps">GPS</string>
@@ -110,5 +110,9 @@
     <string name="weather_content">%1$d°م · %2$s</string>
     <string name="start_time_label">البدء</string>
     <string name="end_time_label">الانتهاء</string>
-
+    <string name="permission_required">مطلوب إذن</string>
+    <string name="overlay_permission_desc">
+يحتاج هذا التطبيق إلى إذن لعرض التنبيهات فوق التطبيقات الأخرى.  </string>
+    <string name="grant">حسنا</string>
+    <string name="cancel">الغاء</string>
 </resources>
