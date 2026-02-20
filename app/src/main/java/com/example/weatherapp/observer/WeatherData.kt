@@ -6,13 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * WeatherData (Head First Design Patterns style).
- *
- * This is the concrete Subject that holds weather measurements.
- * When measurements change, all registered Observers are notified.
- * Also exposes a Compose-friendly StateFlow for reactive UI.
- */
+
 @Singleton
 class WeatherData @Inject constructor() : Subject {
 
@@ -59,10 +53,7 @@ class WeatherData @Inject constructor() : Subject {
         }
     }
 
-    /**
-     * Called when new weather data arrives.
-     * Updates measurements and notifies all observers.
-     */
+
     fun setMeasurements(
         temperature: Double,
         humidity: Int,
@@ -82,7 +73,6 @@ class WeatherData @Inject constructor() : Subject {
         this.cityName = cityName
         this.icon = icon
 
-        // Update reactive state for Compose
         _state.value = WeatherDataSnapshot(
             temperature = temperature,
             humidity = humidity,
@@ -94,14 +84,11 @@ class WeatherData @Inject constructor() : Subject {
             icon = icon
         )
 
-        // Notify classic observers
         notifyObservers()
     }
 }
 
-/**
- * Immutable snapshot of weather data for Compose StateFlow consumption.
- */
+
 data class WeatherDataSnapshot(
     val temperature: Double = 0.0,
     val humidity: Int = 0,

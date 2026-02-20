@@ -120,4 +120,6 @@
     <string name="weather_title_default">🌤 Weather Update</string>
     <string name="weather_content">%1$d°C · %2$s</string>
     <string name="splash_subtitle">Ramadan Edition</string>
+
+    <string name="add_first_alert">Add your first alert now</string>
 </resources>

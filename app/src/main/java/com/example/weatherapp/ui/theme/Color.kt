@@ -2,7 +2,6 @@ package com.example.weatherapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Ramadan-inspired color palette
 val RamadanGold = Color(0xFFD4A843)
 val RamadanDeepNavy = Color(0xFF0A1628)
 val RamadanDarkBlue = Color(0xFF142238)

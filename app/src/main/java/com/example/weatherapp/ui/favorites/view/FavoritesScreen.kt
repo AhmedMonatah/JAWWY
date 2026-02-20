@@ -1,7 +1,6 @@
 package com.example.weatherapp.ui.favorites.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,10 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +23,9 @@ import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.filled.Favorite
+import com.example.weatherapp.R
+import com.example.weatherapp.ui.components.fav.FavoriteItem
+import com.example.weatherapp.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,51 +51,54 @@ fun FavoritesScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = stringResource(com.example.weatherapp.R.string.saved_locations),
+                text = stringResource(R.string.saved_locations),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-            
             if (favoritesList.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(bottom = 100.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 100.dp),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Surface(
-                            modifier = Modifier.size(120.dp),
-                            shape = CircleShape,
-                            color = RamadanGold.copy(alpha = 0.1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                tint = RamadanGold.copy(alpha = 0.3f),
-                                modifier = Modifier.padding(30.dp).size(60.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = null,
+                            tint = RamadanGold.copy(alpha = 0.3f),
+                            modifier = Modifier.size(120.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         Text(
-                            text = stringResource(com.example.weatherapp.R.string.no_favorites),
+                            text = stringResource(R.string.no_favorites),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White.copy(alpha = 0.4f),
                             fontWeight = FontWeight.Medium
                         )
+
                         Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
-                            text = stringResource(com.example.weatherapp.R.string.add_fav_description),
+                            text = stringResource(R.string.add_fav_description),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.2f)
                         )
                     }
                 }
-            } else {
+            }
+
+
+            else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 120.dp)
@@ -154,8 +155,11 @@ fun FavoritesScreen(
                                 location = location,
                                 onNavigate = {
                                     navController.navigate(
-                                        com.example.weatherapp.ui.navigation.Screen.Home
-                                            .createRoute(location.lat, location.lon, location.name)
+                                        Screen.Home.createRoute(
+                                            location.lat,
+                                            location.lon,
+                                            location.name
+                                        )
                                     )
                                 }
                             )
@@ -168,7 +172,7 @@ fun FavoritesScreen(
         FloatingActionButton(
             onClick = {
                 navController.navigate(
-                    com.example.weatherapp.ui.navigation.Screen.Map.createRoute("favorites")
+                    Screen.Map.createRoute("favorites")
                 )
             },
             modifier = Modifier
@@ -193,83 +197,3 @@ fun FavoritesScreen(
     }
 }
 
-
-@Composable
-fun FavoriteItem(location: com.example.weatherapp.model.FavoriteLocation, onNavigate: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().height(140.dp).clickable { onNavigate() },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = AccentPurple)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-        ) {
-            // Top Left: Section label
-            Text(
-                text = stringResource(com.example.weatherapp.R.string.weather),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.align(Alignment.TopStart)
-            )
-            Text(
-                text = location.name,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-
-            Text(
-                text = location.condition,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.align(Alignment.BottomStart)
-            )
-
-            Surface(
-                modifier = Modifier.size(50.dp).align(Alignment.TopEnd),
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White.copy(alpha = 0.15f)
-            ) {
-                // Use the icon code directly if available, fallback to condition string
-                val weatherIcon = when {
-                    location.icon.startsWith("01") -> Icons.Default.WbSunny
-                    location.icon.startsWith("02") || location.icon.startsWith("03") -> Icons.Default.Cloud
-                    location.icon.startsWith("04") -> Icons.Default.Cloud
-                    location.icon.startsWith("09") || location.icon.startsWith("10") -> Icons.Default.WaterDrop
-                    location.icon.startsWith("11") -> Icons.Default.WaterDrop
-                    location.icon.startsWith("13") -> Icons.Default.AcUnit
-                    location.icon.startsWith("50") -> Icons.Default.Cloud
-                    // Fallback to text matching if icon code not useful
-                    location.condition.lowercase().contains("cloud") -> Icons.Default.Cloud
-                    location.condition.lowercase().contains("rain") -> Icons.Default.WaterDrop
-                    location.condition.lowercase().contains("snow") -> Icons.Default.AcUnit
-                    else -> Icons.Default.WbSunny
-                }
-
-                val iconColor = when {
-                    location.icon.startsWith("01") -> Color.Yellow
-                    location.icon.startsWith("10") || location.icon.startsWith("09") -> AccentBlue
-                    else -> Color.White
-                }
-
-                Icon(
-                    imageVector = weatherIcon,
-                    contentDescription = null,
-                    modifier = Modifier.padding(10.dp),
-                    tint = iconColor
-                )
-            }
-
-            Text(
-                text = "${location.currentTemp.toInt()}°",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            )
-        }
-    }
-}
