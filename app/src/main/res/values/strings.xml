@@ -85,7 +85,6 @@
     <string name="alerts_description">"Add weather alerts and alarms"</string>
     <string name="offline_mode">You are currently offline</string>
 
-    <string name="internet_required">Internet connection required</string>
 
     <string name="islamic_center">Islamic Center</string>
     <string name="prayer_schedule">Prayer Schedule</string>

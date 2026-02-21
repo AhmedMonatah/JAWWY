@@ -53,7 +53,7 @@ fun SettingsScreen(
 
             val snackbarHostState = LocalSnackbarHostState.current
             val scope = rememberCoroutineScope()
-            val offlineMsg = stringResource(R.string.internet_required)
+            val offlineMsg = stringResource(R.string.offline_mode)
 
             val locationMode by viewModel.locationMode.collectAsState()
 
@@ -84,17 +84,43 @@ fun SettingsScreen(
                 SettingsRadioButton(
                     text = stringResource(R.string.celsius), 
                     selected = currentUnits == "metric", 
-                    onClick = { viewModel.updateSettings("metric", currentLang) }
+                    onClick = {
+                        if(viewModel.isOnline()){
+                            viewModel.updateSettings("metric", currentLang)
+                        }else{
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
+
+                    }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.kelvin), 
                     selected = currentUnits == "standard", 
-                    onClick = { viewModel.updateSettings("standard", currentLang) }
+                    onClick = {
+                        if(viewModel.isOnline()){
+                            viewModel.updateSettings("standard", currentLang)
+                        }else{
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
+                    }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.fahrenheit), 
                     selected = currentUnits == "imperial", 
-                    onClick = { viewModel.updateSettings("imperial", currentLang) }
+                    onClick = {
+                        if(viewModel.isOnline()){
+                            viewModel.updateSettings("imperial", currentLang)
+                        }else{
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
+
+                    }
                 )
             }
 
@@ -104,16 +130,33 @@ fun SettingsScreen(
                 SettingsRadioButton(
                     text = stringResource(R.string.english),
                     selected = currentLang == "en",
-                    onClick = { viewModel.updateSettings(currentUnits, "en") }
+                    onClick = {
+                        if(viewModel.isOnline()){
+                            viewModel.updateSettings(currentUnits, "en")
+                        }else{
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
+
+                    }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.arabic),
                     selected = currentLang == "ar",
-                    onClick = { viewModel.updateSettings(currentUnits, "ar") }
+                    onClick = {
+                        if(viewModel.isOnline()) {
+                        viewModel.updateSettings(currentUnits, "ar")
+                        }else{
+                            scope.launch {
+                                snackbarHostState.showSnackbar(offlineMsg)
+                            }
+                        }
+                    }
                 )
             }
 
-            Spacer(modifier = Modifier.height(110.dp))
+            Spacer(modifier = Modifier.height(90.dp))
         }
 
 

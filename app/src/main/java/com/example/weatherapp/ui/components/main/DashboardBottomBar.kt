@@ -24,7 +24,7 @@ fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp),
+            .height(65.dp),
         color = DashboardBackground.copy(alpha = 0.9f),
         shadowElevation = 12.dp
     ) {

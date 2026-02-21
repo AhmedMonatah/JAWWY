@@ -42,7 +42,7 @@ fun IslamicScreen(
                     .statusBarsPadding()
                     .padding(horizontal = 25.dp)
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 
                 Text(
                     text = stringResource(R.string.islamic_center),
@@ -55,7 +55,7 @@ fun IslamicScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(bottom = 100.dp)
+                    contentPadding = PaddingValues(bottom = 90.dp)
                 ) {
 
                     islamicInfo?.let { info ->

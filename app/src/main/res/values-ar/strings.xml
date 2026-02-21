@@ -115,4 +115,5 @@
 يحتاج هذا التطبيق إلى إذن لعرض التنبيهات فوق التطبيقات الأخرى.  </string>
     <string name="grant">حسنا</string>
     <string name="cancel">الغاء</string>
+
 </resources>
