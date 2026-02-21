@@ -23,7 +23,7 @@ fun NetworkMonitor(
         if (!isOnline) {
             snackbarHostState.showSnackbar(
                 message = offlineMessage,
-                duration = SnackbarDuration.Indefinite
+                duration = SnackbarDuration.Short
             )
         } else {
             snackbarHostState.currentSnackbarData?.dismiss()

@@ -36,6 +36,7 @@ fun FavoritesScreen(
 ) {
     val favoritesList by viewModel.favorites.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
+    val offlineMessage = stringResource(R.string.offline_mode)
     val scope = rememberCoroutineScope()
 
     Box(
@@ -49,7 +50,7 @@ fun FavoritesScreen(
                 .padding(horizontal = 25.dp)
         ) {
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
                 text = stringResource(R.string.saved_locations),
@@ -170,11 +171,19 @@ fun FavoritesScreen(
             }
         }
 
+
         FloatingActionButton(
             onClick = {
-                navController.navigate(
-                    Screen.Map.createRoute("favorites")
-                )
+                if (viewModel.isOnline()) {
+                    navController.navigate(Screen.Map.createRoute("favorites"))
+                } else {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = offlineMessage,
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

@@ -57,7 +57,7 @@ fun AlertsScreen(
                 .statusBarsPadding()
                 .padding(horizontal = 25.dp)
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
             
 
             Row(
