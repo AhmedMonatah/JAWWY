@@ -2,18 +2,10 @@ package com.example.weatherapp.ui.main.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Nightlight
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -21,19 +13,15 @@ import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherapp.ui.components.background.WeatherBackground
-import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
 import com.example.weatherapp.ui.theme.RamadanGold
 import androidx.compose.foundation.background
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import com.example.weatherapp.ui.home.view.HomeScreen
-import com.example.weatherapp.ui.favorites.view.FavoritesScreen
-import com.example.weatherapp.ui.settings.view.SettingsScreen
+import com.example.weatherapp.ui.components.main.DashboardBottomBar
+import com.example.weatherapp.ui.main.view.viewmodel.MainViewModel
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.utils.network.NetworkMonitor
 import com.example.weatherapp.utils.weather.WeatherTypeUtil
@@ -82,8 +70,7 @@ fun MainScreen(
 
     val scope = rememberCoroutineScope()
     val currentWeather by viewModel.repository.getCurrentWeather().collectAsState(initial = null)
-    val isOnline by viewModel.repository.connectivityFlow.collectAsState(initial = true)
-    
+
     NetworkMonitor(
         connectivityFlow = viewModel.repository.connectivityFlow as StateFlow<Boolean>,
         snackbarHostState = snackbarHostState
@@ -145,70 +132,5 @@ fun MainScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun DashboardPager(
-    navController: NavHostController,
-    pagerState: androidx.compose.foundation.pager.PagerState
-) {
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.fillMaxSize(),
-    ) { page ->
-        when (page) {
-            0 -> HomeScreen(navController = navController)
-            1 -> com.example.weatherapp.ui.alerts.view.AlertsScreen(navController = navController)
-            2 -> com.example.weatherapp.ui.islamic.view.IslamicScreen(navController = navController)
-            3 -> FavoritesScreen(navController = navController)
-            4 -> SettingsScreen(navController = navController)
-        }
-    }
-}
 
-@Composable
-fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp),
-        color = DashboardBackground.copy(alpha = 0.9f),
-        shadowElevation = 12.dp
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomNavItem(Icons.Default.Dashboard, "DASH", currentPage == 0) { onPageSelected(0) }
-            BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 1) { onPageSelected(1) }
-            BottomNavItem(Icons.Default.Nightlight, "ISLAMIC", currentPage == 2) { onPageSelected(2) }
-            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 3) { onPageSelected(3) }
-            BottomNavItem(Icons.Default.Settings, "SET", currentPage == 4) { onPageSelected(4) }
-        }
-    }
-}
 
-@Composable
-fun BottomNavItem(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier.size(50.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                icon,
-                contentDescription = label,
-                tint = if (selected) AccentPurple else Color.White.copy(alpha = 0.5f),
-                modifier = Modifier.size(if (selected) 28.dp else 24.dp)
-            )
-            if (selected) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .size(4.dp)
-                        .background(AccentPurple, CircleShape)
-                )
-            }
-        }
-    }
-}

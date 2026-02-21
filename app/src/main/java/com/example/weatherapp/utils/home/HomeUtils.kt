@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.home.view
+package com.example.weatherapp.utils.home
 
 import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.HourlyForecastEntity

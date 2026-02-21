@@ -23,6 +23,7 @@ import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.components.fav.FavoriteItem
 import com.example.weatherapp.ui.navigation.Screen
@@ -73,7 +74,7 @@ fun FavoritesScreen(
                         Icon(
                             imageVector = Icons.Default.Favorite,
                             contentDescription = null,
-                            tint = RamadanGold.copy(alpha = 0.3f),
+                            tint = RamadanGold.copy(alpha = 0.1f),
                             modifier = Modifier.size(120.dp)
                         )
 
@@ -188,7 +189,7 @@ fun FavoritesScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.Favorite,
+                    imageVector = Icons.Outlined.FavoriteBorder,
                     contentDescription = "Add Favorite",
                     tint = RamadanDeepNavy
                 )
