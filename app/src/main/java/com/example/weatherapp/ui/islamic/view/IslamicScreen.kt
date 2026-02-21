@@ -15,9 +15,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.islamic.viewmodel.IslamicViewModel
-import com.example.weatherapp.ui.components.islamic.RamadanHeroCard
-import com.example.weatherapp.ui.components.islamic.NextPrayerLargeCard
-import com.example.weatherapp.ui.components.islamic.PrayerRowItem
+import com.example.weatherapp.ui.islamic.view.components.RamadanHeroCard
+import com.example.weatherapp.ui.islamic.view.components.NextPrayerLargeCard
+import com.example.weatherapp.ui.islamic.view.components.PrayerRowItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

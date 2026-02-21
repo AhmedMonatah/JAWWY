@@ -26,8 +26,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.alerts.viewmodel.AlertsViewModel
-import com.example.weatherapp.ui.components.alert.AddAlertDialog
-import com.example.weatherapp.ui.components.alert.AlertItem
+import com.example.weatherapp.ui.alerts.view.components.AddAlertDialog
+import com.example.weatherapp.ui.alerts.view.components.AlertItem
+import com.example.weatherapp.ui.components.NoInternetConnectionDialog
+import com.example.weatherapp.ui.components.AppFloatingActionButton
 import java.util.*
 
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
@@ -45,6 +47,7 @@ fun AlertsScreen(
     val locale = remember(language) { Locale(language) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showNoInternetDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Box(
@@ -123,33 +126,22 @@ fun AlertsScreen(
             }
         }
         
-        FloatingActionButton(
-            onClick = { 
-                if (!Settings.canDrawOverlays(context)) {
-                    showPermissionDialog = true
+        AppFloatingActionButton(
+            icon = Icons.Default.Alarm,
+            contentDescription = stringResource(R.string.add_alert),
+            onClick = {
+                if (viewModel.isOnline()) {
+                    if (!Settings.canDrawOverlays(context)) {
+                        showPermissionDialog = true
+                    } else {
+                        showBottomSheet = true
+                    }
                 } else {
-                    showBottomSheet = true 
+                    showNoInternetDialog = true
                 }
             },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(30.dp),
-            containerColor = Color.Transparent,
-            elevation = FloatingActionButtonDefaults.elevation(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(RamadanGold, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Alarm, 
-                    contentDescription = stringResource(R.string.add_alert), 
-                    tint = RamadanDeepNavy
-                )
-            }
-        }
+            modifier = Modifier.align(Alignment.BottomEnd)
+        )
 
         if (showPermissionDialog) {
             AlertDialog(
@@ -188,6 +180,9 @@ fun AlertsScreen(
                     showBottomSheet = false
                 }
             )
+        }
+        if (showNoInternetDialog) {
+            NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
         }
     }
 }

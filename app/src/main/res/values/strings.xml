@@ -84,6 +84,7 @@
     <string name="end_time_label">End</string>
     <string name="alerts_description">"Add weather alerts and alarms"</string>
     <string name="offline_mode">You are currently offline</string>
+    <string name="ok">ok</string>
 
 
     <string name="islamic_center">Islamic Center</string>
@@ -91,7 +92,7 @@
     <string name="days_remaining">days remaining</string>
     <string name="ramadan_countdown">Ramadan Countdown</string>
     <string name="ramadan_kareem">Ramadan Kareem</string>
-    <string name="ramadan_hero_subtitle">A month of blessings and spiritual growth</string>
+    <string name="ramadan_hero_subtitle">The month of blessings and closeness to Allah</string>
     <string name="upcoming_prayer">UPCOMING PRAYER</string>
     <string name="prayer_fajr">Fajr</string>
     <string name="prayer_sunrise">Sunrise</string>
@@ -121,4 +122,6 @@
     <string name="splash_subtitle">Ramadan Edition</string>
 
     <string name="add_first_alert">Add your first alert now</string>
+    <string name="no_internet_title">No Internet Connection</string>
+    <string name="no_internet_message">Please check your connection and try again.</string>
 </resources>
