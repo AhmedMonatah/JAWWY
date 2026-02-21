@@ -1,20 +1,16 @@
 package com.example.weatherapp.ui.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.weatherapp.ui.alerts.view.AlertsScreen
-import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.home.view.HomeScreen
-import com.example.weatherapp.ui.settings.view.SettingsScreen
-import com.example.weatherapp.ui.onboarding.view.OnboardingScreen
 
 import android.net.Uri
 import androidx.compose.foundation.pager.PagerState
+import com.example.weatherapp.ui.components.main.DashboardPager
 
 sealed class Screen(val route: String) {
     object Dashboard : Screen("dashboard?page={page}") {
@@ -42,7 +38,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun WeatherNavGraph(
     navController: NavHostController,
-    pagerState: androidx.compose.foundation.pager.PagerState,
+    pagerState: PagerState,
     startDestination: String,
     modifier: Modifier = Modifier
 ) {
@@ -58,7 +54,7 @@ fun WeatherNavGraph(
             )
         ) { backStackEntry ->
             val page = backStackEntry.arguments?.getString("page")?.toIntOrNull() ?: 0
-            com.example.weatherapp.ui.main.view.DashboardPager(
+            DashboardPager(
                 navController = navController,
                 pagerState = pagerState
             )

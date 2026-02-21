@@ -24,6 +24,8 @@ import com.example.weatherapp.ui.components.home.HeaderSection
 import com.example.weatherapp.ui.components.home.HourlyForecastSection
 import com.example.weatherapp.ui.components.home.TemperatureSection
 import com.example.weatherapp.ui.components.background.WeatherStatsSection
+import com.example.weatherapp.utils.home.computeDisplayState
+import com.example.weatherapp.utils.home.filterHourlyForDay
 import com.example.weatherapp.utils.weather.WeatherTypeUtil
 
 @Composable
@@ -82,7 +84,14 @@ fun HomeScreen(
     val isDetailMode = lat != null
     
     val displayState = remember(currentWeather, forecast, selectedDayIndex, locale, refreshStatus, cityName) {
-        computeDisplayState(currentWeather, forecast, selectedDayIndex, locale, refreshStatus, cityName)
+        computeDisplayState(
+            currentWeather,
+            forecast,
+            selectedDayIndex,
+            locale,
+            refreshStatus,
+            cityName
+        )
     }
 
     val displayHourly = remember(hourlyForecast, selectedDayIndex, forecast) {

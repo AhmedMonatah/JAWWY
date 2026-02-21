@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.data.repository.AppRepository
 import com.example.weatherapp.ui.main.view.MainScreen
 import com.example.weatherapp.ui.navigation.Screen
+import com.example.weatherapp.ui.onboarding.view.OnboardingScreen
 import com.example.weatherapp.ui.splash.view.SplashScreen
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.DashboardBackground
@@ -70,9 +71,8 @@ class MainActivity : AppCompatActivity() {
                             startDestination = Screen.Dashboard.route
                         )
                     } else {
-                        com.example.weatherapp.ui.onboarding.view.OnboardingScreen(
+                        OnboardingScreen(
                             onFinish = {
-                                // The flow will automatically update when repository.setOnboardingShown() is called
                             }
                         )
                     }
