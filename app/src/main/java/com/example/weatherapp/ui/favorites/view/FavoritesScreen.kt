@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,16 +19,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.weatherapp.R
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import com.example.weatherapp.R
-import com.example.weatherapp.ui.components.fav.FavoriteItem
+import com.example.weatherapp.ui.favorites.view.components.FavoriteItem
 import com.example.weatherapp.ui.navigation.Screen
+import com.example.weatherapp.ui.components.NoInternetConnectionDialog
+import com.example.weatherapp.ui.components.AppFloatingActionButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,8 +38,8 @@ fun FavoritesScreen(
 ) {
     val favoritesList by viewModel.favorites.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
-    val offlineMessage = stringResource(R.string.offline_mode)
     val scope = rememberCoroutineScope()
+    var showNoInternetDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -97,10 +99,7 @@ fun FavoritesScreen(
                         )
                     }
                 }
-            }
-
-
-            else {
+            } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 120.dp)
@@ -113,20 +112,16 @@ fun FavoritesScreen(
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { value ->
                                 if (value != SwipeToDismissBoxValue.Settled) {
-
                                     viewModel.removeFavorite(location)
-
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
                                             message = "Deleted ${location.name}",
                                             actionLabel = "Undo"
                                         )
-
                                         if (result == SnackbarResult.ActionPerformed) {
                                             viewModel.addFavorite(location)
                                         }
                                     }
-
                                     true
                                 } else false
                             }
@@ -171,39 +166,21 @@ fun FavoritesScreen(
             }
         }
 
-
-        FloatingActionButton(
+        AppFloatingActionButton(
+            icon = Icons.Outlined.FavoriteBorder,
+            contentDescription = stringResource(R.string.add_favorite),
             onClick = {
                 if (viewModel.isOnline()) {
                     navController.navigate(Screen.Map.createRoute("favorites"))
                 } else {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = offlineMessage,
-                            duration = SnackbarDuration.Short
-                        )
-                    }
+                    showNoInternetDialog = true
                 }
             },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(30.dp),
-            containerColor = Color.Transparent,
-            elevation = FloatingActionButtonDefaults.elevation(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(RamadanGold, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Add Favorite",
-                    tint = RamadanDeepNavy
-                )
-            }
+            modifier = Modifier.align(Alignment.BottomEnd)
+        )
+
+        if (showNoInternetDialog) {
+            NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
         }
     }
 }
-

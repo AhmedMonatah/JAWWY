@@ -12,7 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.weatherapp.ui.components.background.WeatherBackground
+import com.example.weatherapp.ui.home.view.components.WeatherBackground
 import com.example.weatherapp.ui.theme.DashboardBackground
 import com.example.weatherapp.ui.theme.RamadanGold
 import androidx.compose.foundation.background
@@ -20,7 +20,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
-import com.example.weatherapp.ui.components.main.DashboardBottomBar
+import com.example.weatherapp.ui.main.view.components.DashboardBottomBar
 import com.example.weatherapp.ui.main.view.viewmodel.MainViewModel
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.utils.network.NetworkMonitor

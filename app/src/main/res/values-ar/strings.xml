@@ -81,7 +81,7 @@
     <string name="days_remaining">أيام متبقية</string>
     <string name="ramadan_countdown">العد التنازلي لرمضان</string>
     <string name="ramadan_kareem">رمضان كريم</string>
-    <string name="ramadan_hero_subtitle">شهر البركات والنمو الروحي</string>
+    <string name="ramadan_hero_subtitle">شهر البركات والقرب من الله</string>
     <string name="upcoming_prayer">الصلاة القادمة</string>
     <string name="prayer_fajr">الفجر</string>
     <string name="prayer_sunrise">الشروق</string>
@@ -115,5 +115,8 @@
 يحتاج هذا التطبيق إلى إذن لعرض التنبيهات فوق التطبيقات الأخرى.  </string>
     <string name="grant">حسنا</string>
     <string name="cancel">الغاء</string>
+    <string name="no_internet_title">لا يوجد اتصال بالإنترنت</string>
+    <string name="no_internet_message">يرجى التحقق من اتصالك والمحاولة مرة أخرى.</string>
+    <string name="ok">حسنا</string>
 
 </resources>

@@ -69,4 +69,6 @@ class AlertsViewModel @Inject constructor(
             )
         }
     }
+
+    fun isOnline() = repository.isOnline()
 }

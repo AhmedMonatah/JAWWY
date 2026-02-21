@@ -64,7 +64,7 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(RamadanDeepNavy), // لون واحد فقط
+            .background(RamadanDeepNavy),
         contentAlignment = Alignment.Center
     ) {
 

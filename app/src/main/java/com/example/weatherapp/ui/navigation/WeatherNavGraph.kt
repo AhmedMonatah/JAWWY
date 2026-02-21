@@ -10,7 +10,7 @@ import com.example.weatherapp.ui.home.view.HomeScreen
 
 import android.net.Uri
 import androidx.compose.foundation.pager.PagerState
-import com.example.weatherapp.ui.components.main.DashboardPager
+import com.example.weatherapp.ui.main.view.components.DashboardPager
 
 sealed class Screen(val route: String) {
     object Dashboard : Screen("dashboard?page={page}") {

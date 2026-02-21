@@ -18,10 +18,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.R
-import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.weatherapp.ui.theme.*
-import kotlinx.coroutines.launch
+import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +30,7 @@ fun SettingsScreen(
 ) {
     val currentUnits by viewModel.units.collectAsState()
     val currentLang by viewModel.language.collectAsState() 
+    var showNoInternetDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -51,10 +51,6 @@ fun SettingsScreen(
                 )
             }
 
-            val snackbarHostState = LocalSnackbarHostState.current
-            val scope = rememberCoroutineScope()
-            val offlineMsg = stringResource(R.string.offline_mode)
-
             val locationMode by viewModel.locationMode.collectAsState()
 
             SettingsGroup(title = stringResource(R.string.settings_location)) {
@@ -70,9 +66,7 @@ fun SettingsScreen(
                         if (viewModel.isOnline()) {
                             navController.navigate(com.example.weatherapp.ui.navigation.Screen.Map.createRoute("settings")) 
                         } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
                     }
                 )
@@ -88,11 +82,8 @@ fun SettingsScreen(
                         if(viewModel.isOnline()){
                             viewModel.updateSettings("metric", currentLang)
                         }else{
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
-
                     }
                 )
                 SettingsRadioButton(
@@ -102,9 +93,7 @@ fun SettingsScreen(
                         if(viewModel.isOnline()){
                             viewModel.updateSettings("standard", currentLang)
                         }else{
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
                     }
                 )
@@ -115,11 +104,8 @@ fun SettingsScreen(
                         if(viewModel.isOnline()){
                             viewModel.updateSettings("imperial", currentLang)
                         }else{
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
-
                     }
                 )
             }
@@ -134,11 +120,8 @@ fun SettingsScreen(
                         if(viewModel.isOnline()){
                             viewModel.updateSettings(currentUnits, "en")
                         }else{
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
-
                     }
                 )
                 SettingsRadioButton(
@@ -146,11 +129,9 @@ fun SettingsScreen(
                     selected = currentLang == "ar",
                     onClick = {
                         if(viewModel.isOnline()) {
-                        viewModel.updateSettings(currentUnits, "ar")
+                            viewModel.updateSettings(currentUnits, "ar")
                         }else{
-                            scope.launch {
-                                snackbarHostState.showSnackbar(offlineMsg)
-                            }
+                            showNoInternetDialog = true
                         }
                     }
                 )
@@ -159,7 +140,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(90.dp))
         }
 
-
+        if (showNoInternetDialog) {
+            NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
+        }
     }
 }
 
