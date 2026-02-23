@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit
 
 object NotificationHelper {
 
-    // ─── Public API ───────────────────────────────────────────────────────────
 
     fun scheduleAlert(context: Context, startTime: Long, endTime: Long, type: String, alertId: Int) {
         if (type == "alarm") {
@@ -38,7 +37,6 @@ object NotificationHelper {
         }
     }
 
-    // ─── Alarm (AlarmManager – fires exactly at startTime) ───────────────────
 
     private fun scheduleExactAlarm(context: Context, startTime: Long, alertId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -67,7 +65,6 @@ object NotificationHelper {
         pendingIntent?.let { alarmManager.cancel(it) }
     }
 
-    // ─── Notification (WorkManager – periodic from startTime until endTime) ──
 
     private fun scheduleNotificationWindow(context: Context, startTime: Long, endTime: Long, alertId: Int) {
         val delay = maxOf(0L, startTime - System.currentTimeMillis())
@@ -86,24 +83,12 @@ object NotificationHelper {
         )
     }
 
-    // ─── Show alarm notification ──────────────────────────────────────────────
 
     fun showAlarmNotification(context: Context, alertId: Int) {
         val channelId = "alarm_channel"
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "CloudX Alarm", NotificationManager.IMPORTANCE_HIGH).apply {
-                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
-                setSound(sound, android.media.AudioAttributes.Builder()
-                    .setUsage(android.media.AudioAttributes.USAGE_ALARM).build())
-                enableVibration(true)
-                vibrationPattern = longArrayOf(0, 400, 200, 400)
-            }
-            manager.createNotificationChannel(channel)
-        }
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -113,13 +98,29 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val channelName = context.getString(R.string.alarm_channel_name)
+        val title = "🌙 ${context.getString(R.string.alarm_title)}"
+        val text = "✨ ${context.getString(R.string.alarm_text)}"
+        val summary = context.getString(R.string.alarm_summary)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH).apply {
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+                setSound(sound, android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ALARM).build())
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 400, 200, 400)
+            }
+            manager.createNotificationChannel(channel)
+        }
+
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("🌙 ${context.getString(R.string.alarm_title)}")
-            .setContentText(context.getString(R.string.alarm_text))
+            .setContentTitle(title)
+            .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("✨ ${context.getString(R.string.alarm_text)}")
-                .setSummaryText("CloudX · Ramadan Alert"))
+                .bigText(text)
+                .setSummaryText(summary))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
@@ -127,39 +128,44 @@ object NotificationHelper {
             .setVibrate(longArrayOf(0, 400, 200, 400))
             .setContentIntent(pendingIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setColor(0xFFD4A843.toInt())   // RamadanGold as accent
+            .setColor(0xFFD4A843.toInt())
             .build()
 
         manager.notify(alertId, notification)
     }
 
-    // ─── Weather notification ─────────────────────────────────────────────────
-
     fun createWeatherNotification(context: Context, temp: Int, desc: String, city: String) {
         val channelId = "weather_channel"
-        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? NotificationManager // Fallback
-            ?: context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "CloudX Weather", NotificationManager.IMPORTANCE_HIGH)
-            manager.createNotificationChannel(channel)
-        }
-
-        val title = if (city.isNotEmpty()) "🌙 Weather in $city" else "🌙 CloudX Weather"
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        
         val intent = Intent(context, MainActivity::class.java)
         val pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        val channelName = context.getString(R.string.weather_channel_name)
+        val title = if (city.isNotEmpty()) {
+            "🌙 ${context.getString(R.string.weather_title_city, city)}"
+        } else {
+            "🌙 ${context.getString(R.string.weather_title_default)}"
+        }
+        val text = context.getString(R.string.weather_text, temp, desc)
+        val summary = context.getString(R.string.weather_summary)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
+            manager.createNotificationChannel(channel)
+        }
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
-            .setContentText("✨ $temp°C · $desc")
+            .setContentText("✨ $text")
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("✨ Current weather is $temp°C with $desc.")
-                .setSummaryText("CloudX · Daily Blessing"))
+                .bigText("✨ $text")
+                .setSummaryText(summary))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pi)
             .setAutoCancel(true)
-            .setColor(0xFFD4A843.toInt()) // RamadanGold
+            .setColor(0xFFD4A843.toInt())
             .build()
 
         manager.notify(System.currentTimeMillis().toInt(), notification)

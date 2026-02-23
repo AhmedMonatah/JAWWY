@@ -38,7 +38,7 @@ fun HeaderSection(
                 }
                 Spacer(Modifier.width(8.dp))
             } else {
-                // Location icon only on the home/main screen
+                // Location icon ONLY on Home
                 Surface(
                     modifier = Modifier.size(40.dp),
                     shape = CircleShape,
@@ -48,13 +48,12 @@ fun HeaderSection(
                 }
                 Spacer(Modifier.width(12.dp))
             }
-            
+
             Column {
                 Text(cityName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = textColor)
             }
         }
-        
+
+
     }
 }
-
-

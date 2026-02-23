@@ -111,19 +111,27 @@ fun FavoritesScreen(
                         key = { it.id }
                     ) { location ->
 
+                        val deletedText = stringResource(id = R.string.deleted)
+                        val undoText = stringResource(id = R.string.undo)
+
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { value ->
                                 if (value != SwipeToDismissBoxValue.Settled) {
+
                                     viewModel.removeFavorite(location)
+
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = "${R.string.deleted} ${location.name}",
-                                            actionLabel = "Undo"
+                                            message = "$deletedText ${location.name}",
+                                            actionLabel = undoText,
+                                            duration = SnackbarDuration.Short
                                         )
+
                                         if (result == SnackbarResult.ActionPerformed) {
                                             viewModel.addFavorite(location)
                                         }
                                     }
+
                                     true
                                 } else false
                             }
