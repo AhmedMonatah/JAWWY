@@ -1,7 +1,5 @@
 package com.example.weatherapp.ui.map.view
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,7 +38,7 @@ fun MapScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         val scope = rememberCoroutineScope()
-        val isDark = isSystemInDarkTheme()
+        val isDark = true
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -64,7 +62,7 @@ fun MapScreen(
             selectedPoint?.let { Marker(state = MarkerState(it), title = "Selected Location") }
         }
 
-        // Header
+
         Surface(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -88,7 +86,6 @@ fun MapScreen(
             }
         }
 
-        // Floating Button
         selectedPoint?.let { point ->
             Button(
                 onClick = {

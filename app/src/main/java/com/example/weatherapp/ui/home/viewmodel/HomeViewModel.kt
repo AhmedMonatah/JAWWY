@@ -5,8 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.data.repository.AppRepository
-import com.example.weatherapp.observer.WeatherData
+import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,13 +21,13 @@ import android.annotation.SuppressLint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: AppRepository,
-    private val locationClient: FusedLocationProviderClient,
-    val weatherData: WeatherData
+    private val repository: WeatherRepository,
+    private val locationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
     private val _refreshStatus = MutableStateFlow<Resource<WeatherEntity>?>(null)
@@ -53,33 +52,23 @@ class HomeViewModel @Inject constructor(
     private var isManualOverride = false
 
     init {
-        // Observe current weather from DB and push to WeatherData (Subject)
-        viewModelScope.launch {
-            currentWeather.collect { weather ->
-                weather?.let {
-                    weatherData.setMeasurements(
-                        temperature = it.temp,
-                        humidity = it.humidity,
-                        pressure = it.pressure,
-                        windSpeed = it.windSpeed,
-                        clouds = it.clouds,
-                        description = it.description,
-                        cityName = it.cityName,
-                        icon = it.icon
-                    )
-                }
-            }
-        }
 
         viewModelScope.launch {
-            kotlinx.coroutines.flow.combine(
-                repository.unitsFlow, 
+            combine(
+                repository.unitsFlow,
                 repository.languageFlow, 
                 repository.locationModeFlow,
                 repository.manualLocationFlow,
                 _lastCoords
             ) { unit, lang, mode, manual, gps ->
-                val coords = if (isManualOverride) gps else if (mode == "map") manual else gps
+                val coords = if (isManualOverride){
+                gps
+                }
+                else if (mode == "map"){
+                    manual
+                } else {
+                    gps
+                }
                 DataInput(unit, lang, coords)
             }.distinctUntilChanged { old, new ->
                 old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
@@ -145,5 +134,37 @@ class HomeViewModel @Inject constructor(
         _lastCoords.value = lat to lon
     }
 
+    fun triggerManualRefresh() {
+        viewModelScope.launch {
+            val mode = repository.locationModeFlow.stateIn(viewModelScope).value
+            val coords = if (mode == "map") {
+                repository.manualLocationFlow.stateIn(viewModelScope).value
+            } else {
+                _lastCoords.value
+            }
 
+            if (coords != null) {
+                _refreshStatus.value = Resource.Loading()
+                val unit = repository.unitsFlow.stateIn(viewModelScope).value
+                val lang = repository.languageFlow.stateIn(viewModelScope).value
+
+                coroutineScope {
+                    val currentDeferred = async { repository.refreshCurrentWeather(coords.first, coords.second, unit, lang) }
+                    val hourlyDeferred = async { repository.refreshHourlyForecast(coords.first, coords.second, unit, lang) }
+
+                    val currentResult = currentDeferred.await()
+                    _refreshStatus.value = currentResult
+
+                    if (currentResult is Resource.Success<WeatherEntity>) {
+                        currentResult.data?.let {
+                            repository.refreshForecast(coords.first, coords.second, unit, lang)
+                        }
+                    }
+                    hourlyDeferred.await()
+                }
+            } else {
+                requestCurrentLocation()
+            }
+        }
+    }
 }

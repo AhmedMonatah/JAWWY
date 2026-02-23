@@ -14,7 +14,8 @@ data class CurrentWeatherResponse(
     val sys: Sys,
     val clouds: Clouds?,
     val name: String,
-    val id: Int
+    val id: Int,
+    val timezone: Int = 0
 ) : Parcelable
 
 @Parcelize

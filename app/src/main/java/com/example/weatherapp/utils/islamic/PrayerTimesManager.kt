@@ -2,13 +2,13 @@ package com.example.weatherapp.utils.islamic
 
 import com.batoulapps.adhan.CalculationMethod
 import com.batoulapps.adhan.Coordinates
+import com.batoulapps.adhan.HighLatitudeRule
 import com.batoulapps.adhan.Madhab
 import com.batoulapps.adhan.PrayerTimes
 import com.batoulapps.adhan.data.DateComponents
 import com.github.msarhan.ummalqura.calendar.UmmalquraCalendar
 import java.text.SimpleDateFormat
 import java.util.*
-
 import com.example.weatherapp.R
 
 data class PrayerTimeInfo(
@@ -27,16 +27,49 @@ data class IslamicDateInfo(
 
 object PrayerTimesManager {
 
-    fun getPrayerTimes(lat: Double, lon: Double): List<PrayerTimeInfo> {
+    private fun resolveCalculationMethod(countryCode: String): CalculationMethod {
+        return when (countryCode.uppercase()) {
+
+            "EG", "LY", "DZ", "TN", "MA", "SD", "SS" -> CalculationMethod.EGYPTIAN
+
+            "SA", "AE", "QA", "KW", "BH", "OM", "YE" -> CalculationMethod.UMM_AL_QURA
+
+            "TR" -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+
+            "MY", "ID", "SG", "BN" -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+
+            "IR" -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+
+            "US", "CA" -> CalculationMethod.NORTH_AMERICA
+
+            "GB", "FR", "DE", "IT", "ES", "NL", "BE", "CH", "SE", "NO", "DK", "FI", "AT", "IE", "PT" -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+
+            "RO", "BG", "GR", "AL", "MK", "RS" -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+
+            else -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+        }
+    }
+
+    fun getPrayerTimes(
+        lat: Double,
+        lon: Double,
+        countryCode: String,
+        timezoneOffsetSeconds: Int = 0
+    ): List<PrayerTimeInfo> {
+
         val coordinates = Coordinates(lat, lon)
-        val params = CalculationMethod.MUSLIM_WORLD_LEAGUE.parameters
+
+        val method = resolveCalculationMethod(countryCode)
+        val params = method.parameters
         params.madhab = Madhab.SHAFI
+        params.highLatitudeRule = HighLatitudeRule.MIDDLE_OF_THE_NIGHT
 
         val date = DateComponents.from(Date())
         val prayerTimes = PrayerTimes(coordinates, date, params)
 
         val format = SimpleDateFormat("h:mm a", Locale.getDefault())
-        
+        format.timeZone = SimpleTimeZone(timezoneOffsetSeconds * 1000, "LocationTZ")
+
         val now = Date()
         val prayers = listOf(
             R.string.prayer_fajr to prayerTimes.fajr,
@@ -61,23 +94,23 @@ object PrayerTimesManager {
 
     fun getIslamicDateInfo(): IslamicDateInfo {
         val uCal = UmmalquraCalendar()
-        
+
         val day = uCal.get(UmmalquraCalendar.DAY_OF_MONTH)
         val monthResId = getHijriMonthNameResId(uCal.get(UmmalquraCalendar.MONTH))
         val year = uCal.get(UmmalquraCalendar.YEAR)
-        
-        val currentMonth = uCal.get(UmmalquraCalendar.MONTH) 
-        val isRamadan = currentMonth == 8 
-        
+
+        val currentMonth = uCal.get(UmmalquraCalendar.MONTH)
+        val isRamadan = currentMonth == 8
+
         var daysToRamadan = 0
         if (!isRamadan) {
             val targetCal = UmmalquraCalendar()
-            if (currentMonth >= 8) { 
+            if (currentMonth >= 8) {
                 targetCal.set(UmmalquraCalendar.YEAR, uCal.get(UmmalquraCalendar.YEAR) + 1)
             }
-            targetCal.set(UmmalquraCalendar.MONTH, 8) 
+            targetCal.set(UmmalquraCalendar.MONTH, 8)
             targetCal.set(UmmalquraCalendar.DAY_OF_MONTH, 1)
-            
+
             val diff = targetCal.timeInMillis - uCal.timeInMillis
             daysToRamadan = (diff / (1000 * 60 * 60 * 24)).toInt()
         }

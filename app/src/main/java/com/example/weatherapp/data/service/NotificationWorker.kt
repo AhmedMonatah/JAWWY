@@ -4,8 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.example.weatherapp.data.repository.AppRepository
+import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.firstOrNull
 class NotificationWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: AppRepository
+    private val repository: WeatherRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
@@ -27,7 +28,7 @@ class NotificationWorker @AssistedInject constructor(
         val alertId = inputData.getInt("alertId", -1)
 
         if (endTime != 0L && System.currentTimeMillis() > endTime) {
-            if (alertId != -1) NotificationHelper.cancelUniqueWork(appContext, alertId)
+            if (alertId != -1) WorkManager.getInstance(appContext).cancelUniqueWork("notif_$alertId")
             return Result.success()
         }
 

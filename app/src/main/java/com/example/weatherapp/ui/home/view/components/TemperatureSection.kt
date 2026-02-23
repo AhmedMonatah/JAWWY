@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.sp
 import com.example.weatherapp.ui.home.view.components.getWeatherIconRes
 import com.example.weatherapp.ui.home.view.components.getWeatherIconTint
 import com.example.weatherapp.ui.theme.TextSecondary
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 
 @Composable
@@ -26,7 +29,7 @@ fun TemperatureSection(
     textColor: Color = Color.White,
     weatherType: String = "clear"
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = true
     val iconRes = getWeatherIconRes(weatherType, condition)
     val iconTint = getWeatherIconTint(weatherType, condition)
 
@@ -44,7 +47,9 @@ fun TemperatureSection(
             )
         }
         Spacer(Modifier.height(16.dp))
-        Text("$temp°", fontSize = 100.sp, fontWeight = FontWeight.Light, color = textColor)
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Text("$temp°", fontSize = 100.sp, fontWeight = FontWeight.Light, color = textColor)
+        }
         Text(condition, style = MaterialTheme.typography.headlineSmall, color = textColor)
         Text("$date | $time", style = MaterialTheme.typography.bodyLarge, color = if (isDark) TextSecondary else Color.Gray)
     }

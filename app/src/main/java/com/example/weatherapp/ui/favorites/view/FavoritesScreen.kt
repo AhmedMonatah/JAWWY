@@ -29,6 +29,8 @@ import com.example.weatherapp.ui.favorites.view.components.FavoriteItem
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 import com.example.weatherapp.ui.components.AppFloatingActionButton
+import com.example.weatherapp.utils.network.runIfOnline
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,7 +117,7 @@ fun FavoritesScreen(
                                     viewModel.removeFavorite(location)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = "Deleted ${location.name}",
+                                            message = "${R.string.deleted} ${location.name}",
                                             actionLabel = "Undo"
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -148,17 +150,22 @@ fun FavoritesScreen(
                                 }
                             }
                         ) {
+                            val onNavigate = runIfOnline(
+                                connectivityFlow = viewModel.connectivityFlow as StateFlow<Boolean>,
+                                onOffline = { showNoInternetDialog = true }
+                            ) {
+                                navController.navigate(
+                                    Screen.Home.createRoute(
+                                        location.lat,
+                                        location.lon,
+                                        location.name
+                                    )
+                                )
+                            }
+
                             FavoriteItem(
                                 location = location,
-                                onNavigate = {
-                                    navController.navigate(
-                                        Screen.Home.createRoute(
-                                            location.lat,
-                                            location.lon,
-                                            location.name
-                                        )
-                                    )
-                                }
+                                onNavigate = onNavigate
                             )
                         }
                     }
@@ -166,16 +173,17 @@ fun FavoritesScreen(
             }
         }
 
+        val onFabClick = runIfOnline(
+            connectivityFlow = viewModel.connectivityFlow as StateFlow<Boolean>,
+            onOffline = { showNoInternetDialog = true }
+        ) {
+            navController.navigate(Screen.Map.createRoute("favorites"))
+        }
+
         AppFloatingActionButton(
             icon = Icons.Outlined.FavoriteBorder,
             contentDescription = stringResource(R.string.add_favorite),
-            onClick = {
-                if (viewModel.isOnline()) {
-                    navController.navigate(Screen.Map.createRoute("favorites"))
-                } else {
-                    showNoInternetDialog = true
-                }
-            },
+            onClick = onFabClick,
             modifier = Modifier.align(Alignment.BottomEnd)
         )
 

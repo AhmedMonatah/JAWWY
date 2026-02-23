@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.model.OnboardingPageData
@@ -62,7 +63,7 @@ fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
         Spacer(modifier = Modifier.height(60.dp))
 
         Text(
-            text = data.title,
+            text = stringResource(data.titleResId),
             fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold,
             color = RamadanGold,
@@ -76,7 +77,7 @@ fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = data.description,
+            text = stringResource(data.descriptionResId),
             fontSize = 18.sp,
             color = Color.White.copy(alpha = 0.9f),
             textAlign = TextAlign.Center,

@@ -1,8 +1,11 @@
 package com.example.weatherapp.model
 
+import androidx.annotation.StringRes
+import com.example.weatherapp.R
+
 data class OnboardingPageData(
-    val title: String,
-    val description: String,
+    @StringRes val titleResId: Int,
+    @StringRes val descriptionResId: Int,
     val type: PageType
 )
 
@@ -14,19 +17,18 @@ enum class PageType {
 
 val onboardingPages = listOf(
     OnboardingPageData(
-        title = "Accurate Forecast",
-        description = "Plan your day with precise weather updates. Know exactly when to seek shade or enjoy the sun.",
+        titleResId = R.string.onboarding_title_1,
+        descriptionResId = R.string.onboarding_desc_1,
         type = PageType.WEATHER_DAY
     ),
-
     OnboardingPageData(
-        title = "Stay Informed",
-        description = "Get timely weather alerts to keep you and your family safe during sudden weather changes.",
+        titleResId = R.string.onboarding_title_2,
+        descriptionResId = R.string.onboarding_desc_2,
         type = PageType.ALERTS
-    )
-   ,OnboardingPageData(
-        title = "Ramadan Blessings",
-        description = "Experience the holy month with accurate prayer times and weather guidance for your spiritual journey.",
+    ),
+    OnboardingPageData(
+        titleResId = R.string.onboarding_title_3,
+        descriptionResId = R.string.onboarding_desc_3,
         type = PageType.RAMADAN_NIGHT
-  )
-  )
+    )
+)

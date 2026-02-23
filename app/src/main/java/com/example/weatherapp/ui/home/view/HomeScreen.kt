@@ -5,7 +5,6 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.home.view.components.WeatherEffects
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
+import com.example.weatherapp.ui.components.AppPullToRefresh
+import com.example.weatherapp.utils.state.Resource
 import com.example.weatherapp.ui.home.view.components.DailyForecastSection
 import com.example.weatherapp.ui.home.view.components.HeaderSection
 import com.example.weatherapp.ui.home.view.components.HourlyForecastSection
@@ -43,8 +44,8 @@ fun HomeScreen(
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-            permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+        if (permissions[ACCESS_FINE_LOCATION] == true ||
+            permissions[ACCESS_COARSE_LOCATION] == true) {
             viewModel.requestCurrentLocation()
         }
     }
@@ -77,8 +78,8 @@ fun HomeScreen(
     val refreshStatus by viewModel.refreshStatus.collectAsState()
     val currentLang by viewModel.language.collectAsState()
     val locale = remember(currentLang) { Locale(currentLang) }
-    val isDark = isSystemInDarkTheme()
-    val contentColor = if (isDark) Color.White else Color.Black
+    val isDark = true
+    val contentColor = Color.White
 
     var selectedDayIndex by remember { mutableStateOf(0) }
     val isDetailMode = lat != null
@@ -102,65 +103,82 @@ fun HomeScreen(
         WeatherTypeUtil.determineWeatherType(currentWeather?.description, currentWeather?.icon)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 25.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
-        ) {
-            HeaderSection(
-                cityName = displayState.cityName,
-                isDetailMode = isDetailMode,
-                navController = navController,
-                textColor = contentColor
-            )
-            
-            TemperatureSection(
-                temp = displayState.temp,
-                condition = displayState.condition,
-                date = displayState.date,
-                time = displayState.time,
-                textColor = contentColor,
-                weatherType = weatherType
-            )
-            
-            DailyForecastSection(
-                forecast = forecast.take(7),
-                currentWeather = currentWeather,
-                selectedIndex = selectedDayIndex,
-                onDaySelected = { selectedDayIndex = it },
-                isDark = isDark,
-                locale = locale
-            )
+    val isRefreshing = refreshStatus is Resource.Loading
+    AppPullToRefresh(
+        isRefreshing = isRefreshing,
+        onRefresh = { viewModel.triggerManualRefresh() }
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            if (displayHourly.isNotEmpty()) {
-                HourlyForecastSection(displayHourly, locale, isDark)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 25.dp)
+            ) {
+
+                HeaderSection(
+                    cityName = displayState.cityName,
+                    isDetailMode = isDetailMode,
+                    navController = navController,
+                    textColor = contentColor
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+
+                    TemperatureSection(
+                        temp = displayState.temp,
+                        condition = displayState.condition,
+                        date = displayState.date,
+                        time = displayState.time,
+                        textColor = contentColor,
+                        weatherType = weatherType
+                    )
+
+                    DailyForecastSection(
+                        forecast = forecast.take(7),
+                        currentWeather = currentWeather,
+                        selectedIndex = selectedDayIndex,
+                        onDaySelected = { selectedDayIndex = it },
+                        isDark = isDark,
+                        locale = locale
+                    )
+
+                    if (displayHourly.isNotEmpty()) {
+                        HourlyForecastSection(displayHourly, locale, isDark)
+                    }
+
+                    WeatherStatsSection(
+                        pressure = displayState.pressure,
+                        humidity = displayState.humidity,
+                        wind = displayState.wind,
+                        clouds = displayState.clouds
+                    )
+
+                    Spacer(modifier = Modifier.height(50.dp))
+                }
             }
-            
-            WeatherStatsSection(
-                pressure = displayState.pressure,
-                humidity = displayState.humidity,
-                wind = displayState.wind,
-                clouds = displayState.clouds
-            )
-            
-            Spacer(modifier = Modifier.height(50.dp))
-        }
-        
-        val currentTemp = currentWeather?.temp ?: 0.0
-        val showSnow = weatherType == "snow" || currentTemp <= 0.0
-        
-        if (showSnow) {
-            WeatherEffects(
-                weatherType = "snow", modifier = Modifier.fillMaxSize()
-            )
-        } else if (weatherType == "rain" || weatherType.contains("thunder")) {
-            WeatherEffects(
-                weatherType = "rain", modifier = Modifier.fillMaxSize()
-            )
+
+            val currentTemp = currentWeather?.temp ?: 0.0
+            val showSnow = weatherType == "snow" || currentTemp <= 0.0
+
+            if (showSnow) {
+                WeatherEffects(
+                    weatherType = "snow",
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else if (weatherType == "rain" || weatherType.contains("thunder")) {
+                WeatherEffects(
+                    weatherType = "rain",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
-

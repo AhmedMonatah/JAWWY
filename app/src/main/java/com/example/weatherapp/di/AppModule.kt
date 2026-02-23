@@ -2,11 +2,16 @@ package com.example.weatherapp.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.weatherapp.BuildConfig
+import com.example.weatherapp.data.local.LocalDataSource
+import com.example.weatherapp.data.local.LocalDataSourceImpl
 import com.example.weatherapp.data.local.WeatherDatabase
 import com.example.weatherapp.data.local.dao.AlertDao
 import com.example.weatherapp.data.local.dao.WeatherDao
+import com.example.weatherapp.data.remote.RemoteDataSource
+import com.example.weatherapp.data.remote.RemoteDataSourceImpl
 import com.example.weatherapp.data.remote.WeatherApi
+import com.example.weatherapp.data.repository.AppRepository
+import com.example.weatherapp.data.repository.WeatherRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -28,43 +33,21 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             WeatherDatabase::class.java,
-            "weather_db"
-        ).fallbackToDestructiveMigration()
-        .build()
+            "weather_database"
+        ).build()
     }
 
     @Provides
-    @Singleton
-    fun provideWeatherDao(db: WeatherDatabase): WeatherDao {
-        return db.weatherDao()
-    }
+    fun provideWeatherDao(database: WeatherDatabase): WeatherDao = database.weatherDao()
 
     @Provides
-    @Singleton
-    fun provideAlertDao(db: WeatherDatabase): AlertDao {
-        return db.alertDao()
-    }
+    fun provideAlertDao(database: WeatherDatabase): AlertDao = database.alertDao()
 
     @Provides
     @Singleton
     fun provideWeatherApi(): WeatherApi {
-        val apiKeyInterceptor = okhttp3.Interceptor { chain ->
-            val original = chain.request()
-            val originalHttpUrl = original.url
-            val url = originalHttpUrl.newBuilder()
-                .addQueryParameter("appid", BuildConfig.API_KEY)
-                .build()
-            val requestBuilder = original.newBuilder().url(url)
-            chain.proceed(requestBuilder.build())
-        }
-
-        val client = okhttp3.OkHttpClient.Builder()
-            .addInterceptor(apiKeyInterceptor)
-            .build()
-
         return Retrofit.Builder()
-            .baseUrl("https://api.openweathermap.org/")
-            .client(client)
+            .baseUrl("https://api.openweathermap.org/data/2.5/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherApi::class.java)
@@ -72,19 +55,32 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideRemoteDataSource(api: WeatherApi): RemoteDataSource {
+        return RemoteDataSourceImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocalDataSource(
+        @ApplicationContext context: Context,
+        database: WeatherDatabase
+    ): LocalDataSource {
+        return LocalDataSourceImpl(context, database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWeatherRepository(
+        @ApplicationContext context: Context,
+        remoteDataSource: RemoteDataSource,
+        localDataSource: LocalDataSource
+    ): WeatherRepository {
+        return AppRepository(context, remoteDataSource, localDataSource)
+    }
+
+    @Provides
+    @Singleton
     fun provideFusedLocationProviderClient(@ApplicationContext context: Context): FusedLocationProviderClient {
         return LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideRemoteDataSource(api: WeatherApi): com.example.weatherapp.data.remote.RemoteDataSource {
-        return com.example.weatherapp.data.remote.RemoteDataSourceImpl(api)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLocalDataSource(@ApplicationContext context: Context, db: WeatherDatabase): com.example.weatherapp.data.local.LocalDataSource {
-        return com.example.weatherapp.data.local.LocalDataSourceImpl(context, db)
     }
 }

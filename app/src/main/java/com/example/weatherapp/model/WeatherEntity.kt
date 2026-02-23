@@ -20,5 +20,7 @@ data class WeatherEntity(
     val humidity: Int,
     val pressure: Int,
     val windSpeed: Double,
-    val clouds: Int
+    val clouds: Int,
+    val countryCode: String? = null,
+    val timezoneOffset: Int = 0
 ) : Parcelable

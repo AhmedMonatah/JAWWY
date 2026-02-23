@@ -30,7 +30,6 @@ class LocalDataSourceImpl @Inject constructor(
     private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
     private val ONBOARDING_KEY = booleanPreferencesKey("onboarding_shown")
 
-    // Weather
     override fun getCurrentWeather(): Flow<WeatherEntity?> = weatherDao.getCurrentWeather()
     override suspend fun insertCurrentWeather(weather: WeatherEntity) = weatherDao.insertCurrentWeather(weather)
     override fun getForecast(): Flow<List<ForecastEntity>> = weatherDao.getForecast()
@@ -40,13 +39,11 @@ class LocalDataSourceImpl @Inject constructor(
     override suspend fun insertHourlyForecast(hourly: List<HourlyForecastEntity>) = weatherDao.insertHourlyForecast(hourly)
     override suspend fun clearHourlyForecast() = weatherDao.clearHourlyForecast()
 
-    // Favorites
     override fun getFavorites(): Flow<List<FavoriteLocation>> = favoriteDao.getAllFavorites()
     override suspend fun insertFavorite(favorite: FavoriteLocation) = favoriteDao.insertFavorite(favorite)
     override suspend fun deleteFavorite(favorite: FavoriteLocation) = favoriteDao.deleteFavorite(favorite)
     override suspend fun getFavoriteByCoords(lat: Double, lon: Double): FavoriteLocation? = favoriteDao.getFavoriteByCoords(lat, lon)
 
-    // Alerts
     override fun getAllAlerts(): Flow<List<Alert>> = alertDao.getAllAlerts()
     override suspend fun insertAlert(alert: Alert): Long = alertDao.insertAlert(alert)
     override suspend fun deleteAlert(alert: Alert) = alertDao.deleteAlert(alert)
@@ -54,7 +51,6 @@ class LocalDataSourceImpl @Inject constructor(
     override suspend fun getAlertById(id: Int): Alert? = alertDao.getAlertById(id)
     override suspend fun deleteAllAlerts() = alertDao.deleteAllAlerts()
 
-    // Settings (DataStore)
     override fun getUnits(): Flow<String> = context.dataStore.data.map { it[UNITS_KEY] ?: "metric" }
     override suspend fun setUnits(units: String) { context.dataStore.edit { it[UNITS_KEY] = units } }
     override fun getLanguage(): Flow<String> = context.dataStore.data.map { it[LANG_KEY] ?: "en" }
