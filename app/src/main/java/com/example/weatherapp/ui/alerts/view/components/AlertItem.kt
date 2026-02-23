@@ -1,27 +1,14 @@
 package com.example.weatherapp.ui.alerts.view.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,75 +23,87 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
 @Composable
-fun AlertItem(alert: Alert, locale: Locale, onDelete: () -> Unit) {
-    val isNotification = alert.type.lowercase() == "notification"
+fun AlertItem(
+    alert: Alert,
+    locale: Locale,
+    onToggle: () -> Unit
+) {
+    val isAlarm = alert.type.lowercase() == "alarm"
+    val timeFormatter = remember(locale) { SimpleDateFormat("h:mm a", locale) }
+    val dateFormatter = remember(locale) { SimpleDateFormat("MMM d", locale) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = RamadanDarkBlue.copy(alpha = 0.8f)),
-        elevation = CardDefaults.cardElevation(4.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = RamadanDarkBlue.copy(alpha = if (alert.isEnabled) 1f else 0.5f)
+        ),
+        elevation = CardDefaults.cardElevation(if (alert.isEnabled) 4.dp else 1.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon badge
             Box(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(44.dp)
                     .background(
-                        if (isNotification) Color(0xFF4CC9F0).copy(alpha = 0.2f) else Color(0xFFF72585).copy(alpha = 0.2f),
-                        RoundedCornerShape(16.dp)
+                        RamadanGold.copy(alpha = if (alert.isEnabled) 0.18f else 0.08f),
+                        RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (isNotification) Icons.Default.NotificationsActive else Icons.Default.Alarm,
+                    imageVector = if (isAlarm) Icons.Default.Alarm else Icons.Default.NotificationsActive,
                     contentDescription = null,
-                    tint = RamadanGold,
-                    modifier = Modifier.size(24.dp)
+                    tint = if (alert.isEnabled) RamadanGold else RamadanGold.copy(alpha = 0.4f),
+                    modifier = Modifier.size(22.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
+            // Text info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isNotification) stringResource(R.string.notification) else stringResource(R.string.alarm),
-                    style = MaterialTheme.typography.titleMedium,
+                    text = if (isAlarm) stringResource(R.string.alarm)
+                           else stringResource(R.string.notification),
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = if (alert.isEnabled) Color.White else Color.White.copy(alpha = 0.45f)
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                val startStr = SimpleDateFormat("h:mm a", locale).format(Date(alert.startTime))
-                val endStr = SimpleDateFormat("h:mm a", locale).format(Date(alert.endTime))
-                val dateStr = SimpleDateFormat("MMM d", locale).format(Date(alert.startTime))
-
+                Spacer(modifier = Modifier.height(3.dp))
+                val startStr = timeFormatter.format(Date(alert.startTime))
+                val subtitle = if (isAlarm) {
+                    // Alarm: show date + time
+                    "${dateFormatter.format(Date(alert.startTime))}  ·  $startStr"
+                } else {
+                    // Notification: show start–end
+                    val endStr = timeFormatter.format(Date(alert.endTime))
+                    "$startStr → $endStr"
+                }
                 Text(
-                    text = "$startStr - $endStr",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-                Text(
-                    text = dateStr,
+                    text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.White.copy(alpha = if (alert.isEnabled) 0.6f else 0.3f)
                 )
             }
 
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.DeleteSweep,
-                    contentDescription = "Delete",
-                    tint = Color.White.copy(alpha = 0.3f)
+            // Toggle switch
+            Switch(
+                checked = alert.isEnabled,
+                onCheckedChange = { onToggle() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = RamadanDarkBlue,
+                    checkedTrackColor = RamadanGold,
+                    uncheckedThumbColor = Color.White.copy(alpha = 0.5f),
+                    uncheckedTrackColor = Color.White.copy(alpha = 0.15f)
                 )
-            }
+            )
         }
     }
 }

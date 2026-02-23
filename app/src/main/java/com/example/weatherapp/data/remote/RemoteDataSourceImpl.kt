@@ -12,21 +12,24 @@ class RemoteDataSourceImpl @Inject constructor(
         lat: Double,
         lon: Double,
         units: String,
-        lang: String
-    ): CurrentWeatherResponse = api.getCurrentWeather(lat, lon, units, lang)
+        lang: String,
+        apiKey: String
+    ): CurrentWeatherResponse = api.getCurrentWeather(lat, lon, units, lang, apiKey)
 
     override suspend fun getDailyForecast(
         lat: Double,
         lon: Double,
         units: String,
         lang: String,
+        apiKey: String,
         cnt: Int
-    ): DailyForecastResponse = api.getDailyForecast(lat, lon, units, lang, cnt)
+    ): DailyForecastResponse = api.getDailyForecast(lat, lon, units, lang, apiKey, cnt)
 
     override suspend fun getHourlyForecast(
         lat: Double,
         lon: Double,
         units: String,
-        lang: String
-    ): HourlyForecastResponse = api.getHourlyForecast(lat, lon, units, lang)
+        lang: String,
+        apiKey: String
+    ): HourlyForecastResponse = api.getHourlyForecast(lat, lon, units, lang, apiKey)
 }

@@ -39,6 +39,8 @@ fun SegmentedArcIndicator(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
+        val isDark = true
+        val activeArcColor = if (isDark) AccentPurple else Color(0xFF1565C0)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 8f
             val dashCount = 20
@@ -65,7 +67,7 @@ fun SegmentedArcIndicator(
                 val endY = center.y + (outerRadius * sin(angleInRad)).toFloat()
 
                 drawLine(
-                    color = if (isActive) AccentPurple else AccentPurple.copy(alpha = 0.2f),
+                    color = if (isActive) activeArcColor else activeArcColor.copy(alpha = 0.2f),
                     start = Offset(startX, startY),
                     end = Offset(endX, endY),
                     strokeWidth = strokeWidth,
@@ -73,7 +75,6 @@ fun SegmentedArcIndicator(
                 )
             }
         }
-        val isDark = isSystemInDarkTheme()
         val labelColor = if (isDark) Color.White else Color.Black
         val unitColor = if (isDark) TextSecondary else Color.Gray
 

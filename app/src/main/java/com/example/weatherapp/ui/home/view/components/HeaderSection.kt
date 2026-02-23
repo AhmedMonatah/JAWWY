@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.theme.RamadanGold
 
@@ -36,19 +37,24 @@ fun HeaderSection(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = textColor)
                 }
                 Spacer(Modifier.width(8.dp))
+            } else {
+                // Location icon only on the home/main screen
+                Surface(
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    color = RamadanGold.copy(alpha = 0.2f)
+                ) {
+                    Icon(Icons.Default.LocationOn, null, Modifier.padding(8.dp), RamadanGold)
+                }
+                Spacer(Modifier.width(12.dp))
             }
             
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = RamadanGold.copy(alpha = 0.2f)
-            ) {
-                Icon(Icons.Default.LocationOn, null, Modifier.padding(8.dp), RamadanGold)
-            }
-            Spacer(Modifier.width(12.dp))
             Column {
                 Text(cityName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = textColor)
             }
         }
+        
     }
 }
+
+

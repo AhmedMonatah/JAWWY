@@ -28,10 +28,10 @@ interface WeatherDao {
     suspend fun clearForecast()
 
     @Query("SELECT * FROM hourly_forecast ORDER BY dt ASC")
-    fun getHourlyForecast(): Flow<List<com.example.weatherapp.model.HourlyForecastEntity>>
+    fun getHourlyForecast(): Flow<List<HourlyForecastEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHourlyForecast(hourly: List<com.example.weatherapp.model.HourlyForecastEntity>)
+    suspend fun insertHourlyForecast(hourly: List<HourlyForecastEntity>)
 
     @Query("DELETE FROM hourly_forecast")
     suspend fun clearHourlyForecast()

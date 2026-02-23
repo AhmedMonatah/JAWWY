@@ -22,6 +22,7 @@ import com.example.weatherapp.model.Alert
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
+import com.example.weatherapp.BuildConfig
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -30,8 +31,8 @@ class AppRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource
-) {
-    fun isOnline(): Boolean {
+) : WeatherRepository {
+    override fun isOnline(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
@@ -43,7 +44,7 @@ class AppRepository @Inject constructor(
         }
     }
 
-    val connectivityFlow: Flow<Boolean> = callbackFlow {
+    override val connectivityFlow: Flow<Boolean> = callbackFlow {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: android.net.Network) { trySend(true) }
@@ -61,33 +62,33 @@ class AppRepository @Inject constructor(
         initialValue = isOnline()
     )
 
-    val onboardingShownFlow: Flow<Boolean> = localDataSource.getOnboardingShown()
+    override val onboardingShownFlow: Flow<Boolean> = localDataSource.getOnboardingShown()
 
-    suspend fun setOnboardingShown() = localDataSource.setOnboardingShown()
+    override suspend fun setOnboardingShown() = localDataSource.setOnboardingShown()
 
-    fun getAllAlerts(): Flow<List<Alert>> = localDataSource.getAllAlerts()
-    suspend fun insertAlert(alert: Alert): Long = localDataSource.insertAlert(alert)
-    suspend fun deleteAlert(alert: Alert) = localDataSource.deleteAlert(alert)
+    override fun getAllAlerts(): Flow<List<Alert>> = localDataSource.getAllAlerts()
+    override suspend fun insertAlert(alert: Alert): Long = localDataSource.insertAlert(alert)
+    override suspend fun deleteAlert(alert: Alert) = localDataSource.deleteAlert(alert)
 
-    suspend fun deleteAllAlerts() = localDataSource.deleteAllAlerts()
+    override suspend fun deleteAllAlerts() = localDataSource.deleteAllAlerts()
 
-    val unitsFlow: Flow<String> = localDataSource.getUnits()
-    val languageFlow: Flow<String> = localDataSource.getLanguage()
-    val locationModeFlow: Flow<String> = localDataSource.getLocationMode()
-    val manualLocationFlow: Flow<Pair<Double, Double>?> = localDataSource.getManualLocation()
+    override val unitsFlow: Flow<String> = localDataSource.getUnits()
+    override val languageFlow: Flow<String> = localDataSource.getLanguage()
+    override val locationModeFlow: Flow<String> = localDataSource.getLocationMode()
+    override val manualLocationFlow: Flow<Pair<Double, Double>?> = localDataSource.getManualLocation()
 
-    suspend fun setUnits(units: String) = localDataSource.setUnits(units)
-    suspend fun setLanguage(lang: String) = localDataSource.setLanguage(lang)
-    suspend fun setLocationMode(mode: String) = localDataSource.setLocationMode(mode)
-    suspend fun setManualLocation(lat: Double, lon: Double) = localDataSource.setManualLocation(lat, lon)
+    override suspend fun setUnits(units: String) = localDataSource.setUnits(units)
+    override suspend fun setLanguage(lang: String) = localDataSource.setLanguage(lang)
+    override suspend fun setLocationMode(mode: String) = localDataSource.setLocationMode(mode)
+    override suspend fun setManualLocation(lat: Double, lon: Double) = localDataSource.setManualLocation(lat, lon)
 
-    fun getCurrentWeather(): Flow<WeatherEntity?> = localDataSource.getCurrentWeather()
-    fun getForecast(): Flow<List<ForecastEntity>> = localDataSource.getForecast()
-    fun getHourlyForecast(): Flow<List<HourlyForecastEntity>> = localDataSource.getHourlyForecast()
+    override fun getCurrentWeather(): Flow<WeatherEntity?> = localDataSource.getCurrentWeather()
+    override fun getForecast(): Flow<List<ForecastEntity>> = localDataSource.getForecast()
+    override fun getHourlyForecast(): Flow<List<HourlyForecastEntity>> = localDataSource.getHourlyForecast()
 
-    suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
+    override suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
         return try {
-            val response = remoteDataSource.getCurrentWeather(lat, lon, units, lang)
+            val response = remoteDataSource.getCurrentWeather(lat, lon, units, lang, BuildConfig.API_KEY)
             val entity = WeatherEntity(
                 cityName = response.name,
                 temp = response.main.temp,
@@ -99,7 +100,9 @@ class AppRepository @Inject constructor(
                 humidity = response.main.humidity,
                 pressure = response.main.pressure,
                 windSpeed = response.wind.speed,
-                clouds = response.clouds?.all ?: 0
+                clouds = response.clouds?.all ?: 0,
+                countryCode = response.sys.country,
+                timezoneOffset = response.timezone
             )
             Resource.Success(entity)
         } catch (e: Exception) {
@@ -108,7 +111,7 @@ class AppRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
+    override suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
         val result = fetchWeather(lat, lon, units, lang)
         if (result is Resource.Success && result.data != null) {
             localDataSource.insertCurrentWeather(result.data)
@@ -116,9 +119,9 @@ class AppRepository @Inject constructor(
         return result
     }
 
-    suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
+    override suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
         return try {
-            val response = remoteDataSource.getDailyForecast(lat, lon, units, lang, 7)
+            val response = remoteDataSource.getDailyForecast(lat, lon, units, lang, BuildConfig.API_KEY, 7)
             val entities = response.list.map { item ->
                 ForecastEntity(
                     dt = item.dt,
@@ -139,9 +142,9 @@ class AppRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
+    override suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
         return try {
-            val response = remoteDataSource.getHourlyForecast(lat, lon, units, lang)
+            val response = remoteDataSource.getHourlyForecast(lat, lon, units, lang, BuildConfig.API_KEY)
             val entities = response.list.map { item ->
                 HourlyForecastEntity(
                     dt = item.dt,
@@ -160,8 +163,8 @@ class AppRepository @Inject constructor(
         }
     }
 
-    fun getFavorites(): Flow<List<FavoriteLocation>> = localDataSource.getFavorites()
-    suspend fun addFavorite(favorite: FavoriteLocation) = localDataSource.insertFavorite(favorite)
-    suspend fun removeFavorite(favorite: FavoriteLocation) = localDataSource.deleteFavorite(favorite)
-    suspend fun isFavorite(lat: Double, lon: Double): Boolean = localDataSource.getFavoriteByCoords(lat, lon) != null
+    override fun getFavorites(): Flow<List<FavoriteLocation>> = localDataSource.getFavorites()
+    override suspend fun addFavorite(favorite: FavoriteLocation) = localDataSource.insertFavorite(favorite)
+    override suspend fun removeFavorite(favorite: FavoriteLocation) = localDataSource.deleteFavorite(favorite)
+    override suspend fun isFavorite(lat: Double, lon: Double): Boolean = localDataSource.getFavoriteByCoords(lat, lon) != null
 }

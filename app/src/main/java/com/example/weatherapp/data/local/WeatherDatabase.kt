@@ -9,7 +9,7 @@ import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 
-@Database(entities = [WeatherEntity::class, ForecastEntity::class, FavoriteLocation::class, com.example.weatherapp.model.HourlyForecastEntity::class, com.example.weatherapp.model.Alert::class], version = 5, exportSchema = false)
+@Database(entities = [WeatherEntity::class, ForecastEntity::class, FavoriteLocation::class, com.example.weatherapp.model.HourlyForecastEntity::class, com.example.weatherapp.model.Alert::class], version = 6, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
     abstract fun favoriteDao(): FavoriteDao

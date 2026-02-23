@@ -17,15 +17,18 @@ import com.example.weatherapp.ui.theme.*
 
 @Composable
 fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, progress: Float, icon: ImageVector) {
-    val isDark = isSystemInDarkTheme()
-    val containerColor = if (isDark) RamadanMidnight.copy(alpha = 0.7f) else MaterialTheme.colorScheme.surface
+    val isDark = true
+    val containerColor = if (isDark) RamadanMidnight.copy(alpha = 0.7f) else MaterialTheme.colorScheme.surfaceContainerHigh
+    val borderStroke = if (isDark) BorderStroke(1.dp, RamadanGold.copy(alpha = 0.3f)) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    val iconBgColor = if (isDark) RamadanGold.copy(alpha = 0.15f) else MaterialTheme.colorScheme.primaryContainer
+    val iconTintColor = if (isDark) RamadanGold else MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 4.dp),
-        border = if (isDark) BorderStroke(1.dp, RamadanGold.copy(alpha = 0.3f)) else null
+        border = borderStroke
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
@@ -38,9 +41,9 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
                 Surface(
                     modifier = Modifier.size(35.dp),
                     shape = CircleShape,
-                    color = RamadanGold.copy(alpha = 0.15f)
+                    color = iconBgColor
                 ) {
-                    Icon(icon, null, Modifier.padding(8.dp), RamadanGold)
+                    Icon(icon, null, Modifier.padding(8.dp), iconTintColor)
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(title, style = MaterialTheme.typography.labelSmall, color = if (isDark) RamadanMoonGlow else Color.Gray)

@@ -38,7 +38,7 @@ fun RamadanHeroCard(info: IslamicDateInfo) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(
                 Brush.verticalGradient(
