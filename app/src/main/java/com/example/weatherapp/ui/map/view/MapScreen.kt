@@ -10,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import com.example.weatherapp.ui.map.viewmodel.MapViewModel
+import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.AccentPurple
 import com.example.weatherapp.ui.theme.TranslucentBlack
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,24 +29,28 @@ import kotlinx.coroutines.launch
 import com.example.weatherapp.R
 @Composable
 fun MapScreen(
-    viewModel: MapViewModel = hiltViewModel(),
+    viewModel: MapViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory),
     source: String = "favorites",
     onLocationSelected: (String) -> Unit
 ) {
     val context = LocalContext.current
     var selectedPoint by remember { mutableStateOf<LatLng?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(30.0444, 31.2357), 5f)
+        position = CameraPosition.fromLatLngZoom(LatLng(30.0444, 31.2357), 2f)
     }
 
+
     Box(modifier = Modifier.fillMaxSize()) {
-        val scope = rememberCoroutineScope()
         val isDark = true
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(
                 isMyLocationEnabled = false,
+                minZoomPreference = 2f,
+                maxZoomPreference = 20f,
                 mapStyleOptions = if (isDark) {
                     MapStyleOptions.loadRawResourceStyle(context, R.raw.map_dark_style)
                 } else null
@@ -73,16 +80,30 @@ fun MapScreen(
             tonalElevation = 8.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+
                 Text(
-                    "CHOOSE LOCATION",
+                    text = stringResource(R.string.choose_location),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.7f)
                 )
+
                 Text(
-                    if (source == "settings") "Set your home location" else "Tap on the map to select a city",
+                    text = if (source == "settings")
+                        stringResource(R.string.set_home_location)
+                    else
+                        stringResource(R.string.tap_to_select_city),
+
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.navigateToPrevious.collect {
+                isLoading = false
+
+                onLocationSelected(source)
             }
         }
 
@@ -90,9 +111,10 @@ fun MapScreen(
             Button(
                 onClick = {
                     println("Button clicked, saving: $point")
+                    isLoading = true
                     viewModel.selectLocation(point.latitude, point.longitude, source)
-                    onLocationSelected(source)
                 },
+                enabled = !isLoading,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 50.dp)
@@ -103,13 +125,21 @@ fun MapScreen(
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.MyLocation, null, tint = Color.White)
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        if (source == "settings") "SET THIS LOCATION" else "SAVE THIS LOCATION",
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(Icons.Default.MyLocation, null, tint = Color.White)
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            if (source == "settings") stringResource(R.string.set_this_location) else stringResource(R.string.save_this_location),
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
             }
         }

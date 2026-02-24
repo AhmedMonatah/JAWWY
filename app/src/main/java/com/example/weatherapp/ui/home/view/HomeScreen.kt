@@ -14,7 +14,8 @@ import androidx.compose.ui.graphics.Color
 import java.util.Locale
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.home.view.components.WeatherEffects
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
@@ -32,7 +33,7 @@ import com.example.weatherapp.utils.weather.WeatherTypeUtil
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory),
     lat: Double? = null,
     lon: Double? = null,
     cityName: String? = null
@@ -91,19 +92,20 @@ fun HomeScreen(
             selectedDayIndex,
             locale,
             refreshStatus,
-            cityName
+            cityName,
+            currentWeather?.timezoneOffset ?: 0
         )
     }
 
-    val displayHourly = remember(hourlyForecast, selectedDayIndex, forecast) {
-        filterHourlyForDay(hourlyForecast, selectedDayIndex, forecast)
+    val displayHourly = remember(hourlyForecast, selectedDayIndex, forecast, currentWeather) {
+        filterHourlyForDay(hourlyForecast, selectedDayIndex, forecast, currentWeather?.timezoneOffset ?: 0)
     }
 
     val weatherType = remember(currentWeather) {
         WeatherTypeUtil.determineWeatherType(currentWeather?.description, currentWeather?.icon)
     }
 
-    val isRefreshing = refreshStatus is Resource.Loading
+    val isRefreshing = refreshStatus is Resource.Loading<*>
     AppPullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { viewModel.triggerManualRefresh() }

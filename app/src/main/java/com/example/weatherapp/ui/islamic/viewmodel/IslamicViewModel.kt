@@ -8,7 +8,6 @@ import com.example.weatherapp.utils.state.Resource
 import com.example.weatherapp.utils.islamic.IslamicDateInfo
 import com.example.weatherapp.utils.islamic.PrayerTimeInfo
 import com.example.weatherapp.utils.islamic.PrayerTimesManager
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 data class IslamicScreenState(
     val prayerTimes: List<PrayerTimeInfo> = emptyList(),
@@ -26,8 +24,7 @@ data class IslamicScreenState(
     val error: String? = null
 )
 
-@HiltViewModel
-class IslamicViewModel @Inject constructor(
+class IslamicViewModel(
     private val repository: WeatherRepository,
     private val locationClient: com.google.android.gms.location.FusedLocationProviderClient
 ) : ViewModel() {

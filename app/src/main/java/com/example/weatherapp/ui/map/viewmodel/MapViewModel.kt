@@ -4,17 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MapViewModel @Inject constructor(
+class MapViewModel(
     private val repository: WeatherRepository
 ) : ViewModel() {
 
     private var currentUnits = "metric"
     private var currentLang = "en"
+    
+    private val _navigateToPrevious = MutableSharedFlow<Unit>()
+    val navigateToPrevious = _navigateToPrevious.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -48,6 +50,7 @@ class MapViewModel @Inject constructor(
                             )
                         )
                     }
+                    _navigateToPrevious.emit(Unit)
                 }
             }
         }

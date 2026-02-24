@@ -3,9 +3,8 @@ package com.example.weatherapp.data.remote
 import com.example.weatherapp.model.CurrentWeatherResponse
 import com.example.weatherapp.model.DailyForecastResponse
 import com.example.weatherapp.model.HourlyForecastResponse
-import javax.inject.Inject
 
-class RemoteDataSourceImpl @Inject constructor(
+class RemoteDataSourceImpl(
     private val api: WeatherApi
 ) : RemoteDataSource {
     override suspend fun getCurrentWeather(

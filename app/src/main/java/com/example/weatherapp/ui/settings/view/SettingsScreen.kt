@@ -15,7 +15,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
@@ -26,7 +27,7 @@ import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
     val currentUnits by viewModel.units.collectAsState()
     val currentLang by viewModel.language.collectAsState() 

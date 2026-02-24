@@ -15,7 +15,8 @@ fun computeDisplayState(
     selectedDayIndex: Int,
     locale: Locale,
     refreshStatus: Resource<WeatherEntity>?,
-    cityNameParam: String?
+    cityNameParam: String?,
+    timezoneOffset: Int = 0
 ): HomeDisplayState {
     val isToday = selectedDayIndex == 0
     
@@ -44,8 +45,19 @@ fun computeDisplayState(
         currentWeather?.cityName ?: cityNameParam ?: "..."
     }
 
-    val date = SimpleDateFormat("EEE, MMM d", locale).format(Date())
-    val time = SimpleDateFormat("h:mm a", locale).format(Date())
+    val utcTime = System.currentTimeMillis()
+    val localTime = utcTime + (timezoneOffset * 1000L)
+    val displayDate = Date(localTime)
+
+    val dateFormat = SimpleDateFormat("EEE, MMM d", locale).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    val timeFormat = SimpleDateFormat("h:mm a", locale).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+
+    val date = dateFormat.format(displayDate)
+    val time = timeFormat.format(displayDate)
 
     return HomeDisplayState(cityName, temp, condition, date, time, humidity, pressure, wind, clouds)
 }
@@ -53,9 +65,13 @@ fun computeDisplayState(
 fun filterHourlyForDay(
     hourlyForecast: List<HourlyForecastEntity>,
     selectedDayIndex: Int,
-    forecast: List<ForecastEntity>
+    forecast: List<ForecastEntity>,
+    timezoneOffset: Int = 0
 ): List<HourlyForecastEntity> {
-    val targetCal = Calendar.getInstance()
+    val utcZone = TimeZone.getTimeZone("UTC")
+    val targetCal = Calendar.getInstance(utcZone)
+    val currentUtcTime = System.currentTimeMillis()
+    targetCal.timeInMillis = currentUtcTime + (timezoneOffset * 1000L)
     if (selectedDayIndex != 0) {
         val targetDay = forecast.getOrNull(selectedDayIndex - 1)
         if (targetDay != null) {
@@ -66,7 +82,7 @@ fun filterHourlyForDay(
     val targetYear = targetCal.get(Calendar.YEAR)
 
     return hourlyForecast.filter {
-        val cal = Calendar.getInstance().apply { timeInMillis = it.dt * 1000 }
+        val cal = Calendar.getInstance(utcZone).apply { timeInMillis = (it.dt + timezoneOffset) * 1000L }
         cal.get(Calendar.YEAR) == targetYear && cal.get(Calendar.DAY_OF_YEAR) == targetDayOfYear
     }.sortedBy { it.dt }
 }

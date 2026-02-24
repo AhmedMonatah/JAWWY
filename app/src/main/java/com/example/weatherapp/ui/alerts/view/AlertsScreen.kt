@@ -23,7 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.alerts.viewmodel.AlertsViewModel
@@ -39,7 +40,7 @@ import java.util.*
 @Composable
 fun AlertsScreen(
     navController: NavController,
-    viewModel: AlertsViewModel = hiltViewModel()
+    viewModel: AlertsViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
     val alerts by viewModel.alerts.collectAsState()
     val language by viewModel.language.collectAsState()

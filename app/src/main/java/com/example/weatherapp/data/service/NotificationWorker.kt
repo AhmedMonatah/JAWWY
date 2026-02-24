@@ -2,22 +2,19 @@ package com.example.weatherapp.data.service
 
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
 
-@HiltWorker
-class NotificationWorker @AssistedInject constructor(
-    @Assisted private val appContext: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val repository: WeatherRepository
+class NotificationWorker(
+    appContext: Context,
+    workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private val repository = (appContext.applicationContext as com.example.weatherapp.WeatherApplication).container.weatherRepository
 
     companion object {
         private const val TAG = "NotificationWorker"
@@ -28,20 +25,20 @@ class NotificationWorker @AssistedInject constructor(
         val alertId = inputData.getInt("alertId", -1)
 
         if (endTime != 0L && System.currentTimeMillis() > endTime) {
-            if (alertId != -1) WorkManager.getInstance(appContext).cancelUniqueWork("notif_$alertId")
+            if (alertId != -1) WorkManager.getInstance(applicationContext).cancelUniqueWork("notif_$alertId")
             return Result.success()
         }
 
         try {
             val weather = fetchWeather()
             if (weather != null) {
-                NotificationHelper.createWeatherNotification(appContext, weather.temp.toInt(), weather.description, weather.cityName)
+                NotificationHelper.createWeatherNotification(applicationContext, weather.temp.toInt(), weather.description, weather.cityName)
             } else {
-                NotificationHelper.createWeatherNotification(appContext, 0, "Weather data unavailable", "")
+                NotificationHelper.createWeatherNotification(applicationContext, 0, "Weather data unavailable", "")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Work failed", e)
-            NotificationHelper.createWeatherNotification(appContext, 0, "Weather update error", "")
+            NotificationHelper.createWeatherNotification(applicationContext, 0, "Weather update error", "")
         }
 
         return Result.success()

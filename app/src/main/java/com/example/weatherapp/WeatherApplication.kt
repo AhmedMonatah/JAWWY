@@ -1,19 +1,15 @@
 package com.example.weatherapp
 
 import android.app.Application
-import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.Configuration
-import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
+import com.example.weatherapp.di.AppContainer
+import com.example.weatherapp.di.AppContainerImpl
 
-@HiltAndroidApp
-class WeatherApplication : Application(), Configuration.Provider {
+class WeatherApplication : Application() {
 
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+    lateinit var container: AppContainer
 
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+    override fun onCreate() {
+        super.onCreate()
+        container = AppContainerImpl(this)
+    }
 }

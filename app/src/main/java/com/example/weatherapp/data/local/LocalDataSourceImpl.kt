@@ -10,13 +10,11 @@ import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.HourlyForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 import com.example.weatherapp.data.repository.dataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class LocalDataSourceImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+class LocalDataSourceImpl(
+    private val context: Context,
     private val db: WeatherDatabase
 ) : LocalDataSource {
     private val weatherDao = db.weatherDao()
