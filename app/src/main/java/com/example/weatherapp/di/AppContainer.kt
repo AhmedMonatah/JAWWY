@@ -18,24 +18,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModelProvider
+import com.example.weatherapp.ui.ViewModelFactory
 
-val LocalAppContainer = staticCompositionLocalOf<AppContainer> {
+val LocalAppContainer = staticCompositionLocalOf<IAppContainer> {
     error("No AppContainer provided")
 }
 
-/**
- * Dependency injection container at the application level.
- */
-interface AppContainer {
-    val weatherRepository: WeatherRepository
-    val locationClient: FusedLocationProviderClient
-    val viewModelFactory: ViewModelProvider.Factory
-}
 
-/**
- * Implementation of the AppContainer that provides dependencies for the application.
- */
-class AppContainerImpl(private val context: Context) : AppContainer {
+class AppContainerImpl(private val context: Context) : IAppContainer {
 
     private val database: WeatherDatabase by lazy {
         Room.databaseBuilder(
@@ -66,7 +56,7 @@ class AppContainerImpl(private val context: Context) : AppContainer {
     }
 
     private val localDataSource: LocalDataSource by lazy {
-        LocalDataSourceImpl(context, database)
+        LocalDataSourceImpl(context, weatherDao, alertDao, database.favoriteDao())
     }
 
     override val weatherRepository: WeatherRepository by lazy {
@@ -78,6 +68,6 @@ class AppContainerImpl(private val context: Context) : AppContainer {
     }
 
     override val viewModelFactory: ViewModelProvider.Factory by lazy {
-        com.example.weatherapp.ui.ViewModelFactory(this, context)
+        ViewModelFactory(this, context)
     }
 }

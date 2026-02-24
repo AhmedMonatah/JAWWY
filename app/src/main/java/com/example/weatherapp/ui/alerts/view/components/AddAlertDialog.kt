@@ -2,6 +2,7 @@ package com.example.weatherapp.ui.alerts.view.components
 
 import android.Manifest
 import android.app.AlarmManager
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -31,77 +32,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
-// ─── Shared time-picker dialog ────────────────────────────────────────────────
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimePickerDialog(
-    label: String,
-    initialHour: Int,
-    initialMinute: Int,
-    onDismiss: () -> Unit,
-    onConfirm: (hour: Int, minute: Int) -> Unit
-) {
-    val state = rememberTimePickerState(initialHour = initialHour, initialMinute = initialMinute, is24Hour = false)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = RamadanDarkBlue,
-        title = { Text(label, color = Color.White, fontWeight = FontWeight.Bold) },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(state.hour, state.minute) }) {
-                Text(stringResource(R.string.yes), color = RamadanGold)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel), color = Color.Gray)
-            }
-        },
-        text = {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                TimePicker(
-                    state = state,
-                    colors = TimePickerDefaults.colors(
-                        clockDialColor = RamadanDeepNavy,
-                        clockDialSelectedContentColor = RamadanDeepNavy,
-                        clockDialUnselectedContentColor = RamadanGold.copy(alpha = 0.6f),
-                        selectorColor = RamadanGold,
-                        periodSelectorSelectedContainerColor = RamadanGold,
-                        periodSelectorUnselectedContainerColor = Color.Transparent,
-                        periodSelectorSelectedContentColor = RamadanDeepNavy,
-                        periodSelectorUnselectedContentColor = RamadanGold,
-                        timeSelectorSelectedContainerColor = RamadanGold,
-                        timeSelectorUnselectedContainerColor = RamadanDeepNavy,
-                        timeSelectorSelectedContentColor = RamadanDeepNavy,
-                        timeSelectorUnselectedContentColor = RamadanGold
-                    )
-                )
-            }
-        }
-    )
-}
-
-// ─── Bottom-sheet time button ─────────────────────────────────────────────────
-
-@Composable
-private fun TimeButton(label: String, time: Long, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val formatter = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, fontSize = 12.sp, color = Color.Gray)
-            Text(formatter.format(Date(time)), fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-// ─── Main bottom-sheet ────────────────────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAlertDialog(
@@ -166,14 +96,12 @@ fun AddAlertDialog(
                 }
             }
         }
-        // 2. Request POST_NOTIFICATIONS for both types (needed to show notification/alarm)
         requestNotifThenSave(context, notifPermLauncher, setPending = { pendingSave = true }) {
             onSave(startTime, if (type == "alarm") 0L else endTime, type)
             onDismiss()
         }
     }
 
-    // ── Time picker dialogs ──
     val cal = remember { Calendar.getInstance() }
 
     if (showStartPicker) {
@@ -206,7 +134,6 @@ fun AddAlertDialog(
         }
     }
 
-    // ── Bottom sheet ──
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = RamadanDarkBlue) {
         Column(
             modifier = Modifier
@@ -222,7 +149,6 @@ fun AddAlertDialog(
                 color = Color.White
             )
 
-            // ── Type selector ──
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.alert_type),
                     style = MaterialTheme.typography.titleMedium,
@@ -249,7 +175,6 @@ fun AddAlertDialog(
                 }
             }
 
-            // ── Time pickers ──
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.duration),
                     style = MaterialTheme.typography.titleMedium,
@@ -283,7 +208,6 @@ fun AddAlertDialog(
                 }
             }
 
-            // ── Action buttons ──
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -309,24 +233,3 @@ fun AddAlertDialog(
     }
 }
 
-// ─── Helper: request POST_NOTIFICATIONS then execute save ────────────────────
-
-private fun requestNotifThenSave(
-    context: Context,
-    launcher: androidx.activity.result.ActivityResultLauncher<String>,
-    setPending: () -> Unit,
-    onAlreadyGranted: () -> Unit
-) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val granted = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
-                android.content.pm.PackageManager.PERMISSION_GRANTED
-        if (granted) {
-            onAlreadyGranted()
-        } else {
-            setPending()
-            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    } else {
-        onAlreadyGranted()
-    }
-}

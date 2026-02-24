@@ -6,6 +6,10 @@ import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MapViewModel(
@@ -18,6 +22,12 @@ class MapViewModel(
     private val _navigateToPrevious = MutableSharedFlow<Unit>()
     val navigateToPrevious = _navigateToPrevious.asSharedFlow()
 
+    private val _selectedPoint = MutableStateFlow<LatLng?>(null)
+    val selectedPoint: StateFlow<LatLng?> = _selectedPoint.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     init {
         viewModelScope.launch {
             repository.unitsFlow.collect { currentUnits = it }
@@ -27,7 +37,12 @@ class MapViewModel(
         }
     }
 
+    fun updateSelectedPoint(point: LatLng) {
+        _selectedPoint.value = point
+    }
+
     fun selectLocation(lat: Double, lon: Double, source: String = "favorites") {
+        _isLoading.value = true
         viewModelScope.launch {
             val result = repository.fetchWeather(lat, lon, currentUnits, currentLang)
             
@@ -53,6 +68,7 @@ class MapViewModel(
                     _navigateToPrevious.emit(Unit)
                 }
             }
+            _isLoading.value = false
         }
     }
 }

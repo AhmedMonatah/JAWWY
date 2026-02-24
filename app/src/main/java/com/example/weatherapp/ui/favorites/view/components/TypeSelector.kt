@@ -18,7 +18,7 @@ import com.example.weatherapp.ui.theme.RamadanGold
 
 
 @Composable
-fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+public fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))

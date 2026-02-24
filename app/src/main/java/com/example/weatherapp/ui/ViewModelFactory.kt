@@ -2,7 +2,6 @@ package com.example.weatherapp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.di.AppContainer
 import com.example.weatherapp.ui.alerts.viewmodel.AlertsViewModel
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
@@ -12,9 +11,10 @@ import com.example.weatherapp.ui.onboarding.viewmodel.OnboardingViewModel
 import com.example.weatherapp.ui.map.viewmodel.MapViewModel
 import com.example.weatherapp.ui.main.view.viewmodel.MainViewModel
 import android.content.Context
+import com.example.weatherapp.di.IAppContainer
 
 class ViewModelFactory(
-    private val appContainer: AppContainer,
+    private val appContainer: IAppContainer,
     private val context: Context
 ) : ViewModelProvider.Factory {
 

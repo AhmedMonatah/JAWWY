@@ -9,12 +9,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Alert
 import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.data.service.NotificationHelper
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+sealed class AlertsUiEvent {
+    data class ShowSnackbar(val count: Int) : AlertsUiEvent()
+}
 
 class AlertsViewModel(
     private val repository: WeatherRepository,
@@ -24,12 +30,42 @@ class AlertsViewModel(
     private val _alerts = MutableStateFlow<List<Alert>>(emptyList())
     val alerts: StateFlow<List<Alert>> = _alerts.asStateFlow()
 
+    private val _selectedAlerts = MutableStateFlow<Set<Alert>>(emptySet())
+    val selectedAlerts = _selectedAlerts.asStateFlow()
+
+    private val _uiEvents = kotlinx.coroutines.flow.MutableSharedFlow<AlertsUiEvent>()
+    val uiEvents = _uiEvents.asSharedFlow()
+
     val language = repository.languageFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
 
     init {
         viewModelScope.launch {
             repository.getAllAlerts().collect { _alerts.value = it }
+        }
+    }
+
+    fun toggleSelection(alert: Alert) {
+        _selectedAlerts.value = if (_selectedAlerts.value.contains(alert)) {
+            _selectedAlerts.value - alert
+        } else {
+            _selectedAlerts.value + alert
+        }
+    }
+
+    fun clearSelection() {
+        _selectedAlerts.value = emptySet()
+    }
+
+    fun deleteSelectedAlerts() {
+        val toDelete = _selectedAlerts.value.toList()
+        viewModelScope.launch {
+            for (alert in toDelete) {
+                repository.deleteAlert(alert)
+                NotificationHelper.cancelAlert(context, alert.id, alert.type)
+            }
+            _uiEvents.emit(AlertsUiEvent.ShowSnackbar(toDelete.size))
+            clearSelection()
         }
     }
 

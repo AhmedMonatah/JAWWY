@@ -21,6 +21,22 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.combine
 import com.example.weatherapp.utils.state.Resource
+import com.example.weatherapp.model.HomeDisplayState
+import com.example.weatherapp.utils.home.computeDisplayState
+import com.example.weatherapp.utils.home.filterHourlyForDay
+import com.example.weatherapp.utils.weather.WeatherTypeUtil
+import java.util.Locale
+
+data class HomeUiState(
+    val displayState: HomeDisplayState = HomeDisplayState(),
+    val displayHourly: List<HourlyForecastEntity> = emptyList(),
+    val weatherType: String = "clear",
+    val isRefreshing: Boolean = false,
+    val selectedDayIndex: Int = 0,
+    val currentLang: String = "en",
+    val showSnow: Boolean = false,
+    val showRain: Boolean = false
+)
 
 class HomeViewModel(
     private val repository: WeatherRepository,
@@ -44,6 +60,59 @@ class HomeViewModel(
 
     val language = repository.languageFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
+
+    val locationMode = repository.locationModeFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "gps")
+
+    val manualLocation = repository.manualLocationFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    private val _selectedDayIndex = MutableStateFlow(0)
+    val selectedDayIndex = _selectedDayIndex.asStateFlow()
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        currentWeather,
+        forecast,
+        hourlyForecast,
+        language,
+        refreshStatus,
+        _selectedDayIndex
+    ) { args ->
+        val currentTyped = args[0] as? WeatherEntity
+        val dailyTyped = args[1] as List<ForecastEntity>
+        val hourlyTyped = args[2] as List<HourlyForecastEntity>
+        val langTyped = args[3] as String
+        val statusTyped = args[4] as? Resource<WeatherEntity>
+        val indexTyped = args[5] as Int
+
+        val locale = Locale(langTyped)
+        val timezoneOffset = currentTyped?.timezoneOffset ?: 0
+        
+        val displayState = computeDisplayState(
+            currentTyped, dailyTyped, indexTyped, locale, statusTyped, null, timezoneOffset
+        )
+        
+        val displayHourly = filterHourlyForDay(hourlyTyped, indexTyped, dailyTyped, timezoneOffset)
+        
+        val weatherType = WeatherTypeUtil.determineWeatherType(currentTyped?.description, currentTyped?.icon)
+        
+        val isRefreshing = statusTyped is Resource.Loading<*>
+        
+        val currentTemp = currentTyped?.temp ?: 0.0
+        val showSnow = weatherType == "snow" || currentTemp <= 0.0
+        val showRain = weatherType == "rain" || weatherType.contains("thunder")
+
+        HomeUiState(
+            displayState = displayState,
+            displayHourly = displayHourly,
+            weatherType = weatherType,
+            isRefreshing = isRefreshing,
+            selectedDayIndex = indexTyped,
+            currentLang = langTyped,
+            showSnow = showSnow,
+            showRain = showRain
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     private val _lastCoords = MutableStateFlow<Pair<Double, Double>?>(null)
     private var isManualOverride = false
@@ -131,19 +200,23 @@ class HomeViewModel(
         _lastCoords.value = lat to lon
     }
 
+    fun selectDay(index: Int) {
+        _selectedDayIndex.value = index
+    }
+
     fun triggerManualRefresh() {
         viewModelScope.launch {
-            val mode = repository.locationModeFlow.stateIn(viewModelScope).value
+            val mode = locationMode.value
             val coords = if (mode == "map") {
-                repository.manualLocationFlow.stateIn(viewModelScope).value
+                manualLocation.value
             } else {
                 _lastCoords.value
             }
 
             if (coords != null) {
-                _refreshStatus.value = Resource.Loading<WeatherEntity>()
-                val unit = repository.unitsFlow.stateIn(viewModelScope).value
-                val lang = repository.languageFlow.stateIn(viewModelScope).value
+                _refreshStatus.value = Resource.Loading()
+                val unit = units.value
+                val lang = language.value
 
                 coroutineScope {
                     val currentDeferred = async { repository.refreshCurrentWeather(coords.first, coords.second, unit, lang) }

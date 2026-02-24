@@ -24,6 +24,8 @@ import com.example.weatherapp.R
 import com.example.weatherapp.ui.theme.RamadanDeepNavy
 import com.example.weatherapp.ui.theme.RamadanGold
 import kotlinx.coroutines.delay
+import com.example.weatherapp.ui.splash.view.components.SplashContent
+
 @Composable
 fun SplashScreen() {
 
@@ -67,32 +69,12 @@ fun SplashScreen() {
             .background(RamadanDeepNavy),
         contentAlignment = Alignment.Center
     ) {
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Icon(
-                imageVector = Icons.Default.WbSunny,
-                contentDescription = null,
-                tint = RamadanGold,
-                modifier = Modifier
-                    .size(125.dp)
-                    .scale(scale)
-                    .alpha(alpha)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 3.sp
-                ),
-                color = Color.White.copy(alpha = textAlpha.value),
-                modifier = Modifier.offset(y = textOffset.value.dp)
-            )
-        }
+        SplashContent(
+            scale = scale,
+            alpha = alpha,
+            textAlpha = textAlpha,
+            textOffset = textOffset,
+            title = title
+        )
     }
 }

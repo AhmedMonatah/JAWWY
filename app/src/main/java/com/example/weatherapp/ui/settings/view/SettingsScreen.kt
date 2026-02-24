@@ -22,6 +22,11 @@ import com.example.weatherapp.R
 import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.weatherapp.ui.theme.*
 import com.example.weatherapp.ui.components.NoInternetConnectionDialog
+import com.example.weatherapp.ui.navigation.Screen
+
+import com.example.weatherapp.ui.settings.view.components.SettingsGroup
+import com.example.weatherapp.ui.settings.view.components.SettingsRadioButton
+import com.example.weatherapp.ui.settings.viewmodel.SettingsUiEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +36,22 @@ fun SettingsScreen(
 ) {
     val currentUnits by viewModel.units.collectAsState()
     val currentLang by viewModel.language.collectAsState() 
+    val locationMode by viewModel.locationMode.collectAsState()
     var showNoInternetDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collect { event ->
+            when (event) {
+                is SettingsUiEvent.NavigateToMap -> {
+                    navController.navigate(Screen.Map.createRoute("settings"))
+                }
+                is SettingsUiEvent.ShowNoInternet -> {
+                    showNoInternetDialog = true
+                }
+                else -> {}
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -52,8 +72,6 @@ fun SettingsScreen(
                 )
             }
 
-            val locationMode by viewModel.locationMode.collectAsState()
-
             SettingsGroup(title = stringResource(R.string.settings_location)) {
                 SettingsRadioButton(
                     text = stringResource(R.string.gps),
@@ -63,13 +81,7 @@ fun SettingsScreen(
                 SettingsRadioButton(
                     text = stringResource(R.string.map),
                     selected = locationMode == "map",
-                    onClick = { 
-                        if (viewModel.isOnline()) {
-                            navController.navigate(com.example.weatherapp.ui.navigation.Screen.Map.createRoute("settings")) 
-                        } else {
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateLocationMode("map") }
                 )
             }
 
@@ -79,35 +91,17 @@ fun SettingsScreen(
                 SettingsRadioButton(
                     text = stringResource(R.string.celsius), 
                     selected = currentUnits == "metric", 
-                    onClick = {
-                        if(viewModel.isOnline()){
-                            viewModel.updateSettings("metric", currentLang)
-                        }else{
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateTemperatureUnit("metric") }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.kelvin), 
                     selected = currentUnits == "standard", 
-                    onClick = {
-                        if(viewModel.isOnline()){
-                            viewModel.updateSettings("standard", currentLang)
-                        }else{
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateTemperatureUnit("standard") }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.fahrenheit), 
                     selected = currentUnits == "imperial", 
-                    onClick = {
-                        if(viewModel.isOnline()){
-                            viewModel.updateSettings("imperial", currentLang)
-                        }else{
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateTemperatureUnit("imperial") }
                 )
             }
 
@@ -117,24 +111,12 @@ fun SettingsScreen(
                 SettingsRadioButton(
                     text = stringResource(R.string.english),
                     selected = currentLang == "en",
-                    onClick = {
-                        if(viewModel.isOnline()){
-                            viewModel.updateSettings(currentUnits, "en")
-                        }else{
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateLanguage("en") }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.arabic),
                     selected = currentLang == "ar",
-                    onClick = {
-                        if(viewModel.isOnline()) {
-                            viewModel.updateSettings(currentUnits, "ar")
-                        }else{
-                            showNoInternetDialog = true
-                        }
-                    }
+                    onClick = { viewModel.updateLanguage("ar") }
                 )
             }
 
@@ -144,55 +126,5 @@ fun SettingsScreen(
         if (showNoInternetDialog) {
             NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
         }
-    }
-}
-
-@Composable
-fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Column {
-        Text(
-            text = title.uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            color = TextSecondary,
-            letterSpacing = 1.sp,
-            modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = TranslucentBlack)
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsRadioButton(text: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = selected,
-                role = Role.RadioButton,
-                onClick = onClick
-            )
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = AccentPurple, 
-                unselectedColor = Color.White.copy(alpha=0.5f)
-            )
-        )
-        Spacer(Modifier.width(16.dp))
-        Text(text = text, style = MaterialTheme.typography.titleMedium, color = Color.White)
     }
 }

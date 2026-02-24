@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sahab</string>
+    <string name="app_name">Dima</string>
 
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
@@ -55,15 +55,15 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="search_hint">Search for a city...</string>
-    <string name="alarm_channel_name">Sahab Alarm</string>
+    <string name="alarm_channel_name">Dima Alarm</string>
     <string name="alarm_title">Ramadan Alert</string>
     <string name="alarm_text">It\'s time for your scheduled alert</string>
-    <string name="alarm_summary">Sahab · Ramadan Alert</string>
-    <string name="weather_channel_name">Sahab Weather</string>
+    <string name="alarm_summary">Dima · Ramadan Alert</string>
+    <string name="weather_channel_name">Dima Weather</string>
     <string name="weather_title_city">Weather in %1$s</string>
-    <string name="weather_title_default">Sahab Weather</string>
+    <string name="weather_title_default">Dima Weather</string>
     <string name="weather_text">Current weather is %1$d°C with %2$s.</string>
-    <string name="weather_summary">Sahab · Daily Blessing</string>
+    <string name="weather_summary">Dima · Daily Blessing</string>
     <string name="alerts_title">Weather Alerts</string>
     <string name="add_alert">Add Alert</string>
     <string name="alert_type">Alert Type</string>

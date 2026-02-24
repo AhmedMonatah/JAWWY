@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.example.weatherapp.WeatherApplication
 import com.example.weatherapp.data.repository.WeatherRepository
 import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.flow.firstOrNull
@@ -14,7 +15,7 @@ class NotificationWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    private val repository = (appContext.applicationContext as com.example.weatherapp.WeatherApplication).container.weatherRepository
+    private val repository = (appContext.applicationContext as WeatherApplication).container.weatherRepository
 
     companion object {
         private const val TAG = "NotificationWorker"
