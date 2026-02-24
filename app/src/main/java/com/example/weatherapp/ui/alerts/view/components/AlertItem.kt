@@ -1,6 +1,9 @@
 package com.example.weatherapp.ui.alerts.view.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,22 +26,30 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AlertItem(
     alert: Alert,
     locale: Locale,
-    onToggle: () -> Unit
+    selected: Boolean = false,
+    onToggle: () -> Unit,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
 ) {
     val isAlarm = alert.type.lowercase() == "alarm"
     val timeFormatter = remember(locale) { SimpleDateFormat("h:mm a", locale) }
     val dateFormatter = remember(locale) { SimpleDateFormat("MMM d", locale) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick
+        ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = RamadanDarkBlue.copy(alpha = if (alert.isEnabled) 1f else 0.5f)
+            containerColor = RamadanDarkBlue.copy(alpha = if (alert.isEnabled) { if (selected) 0.8f else 1f } else 0.5f)
         ),
+        border = if (selected) BorderStroke(3.dp, RamadanGold) else null,
         elevation = CardDefaults.cardElevation(if (alert.isEnabled) 4.dp else 1.dp)
     ) {
         Row(
@@ -47,7 +58,6 @@ fun AlertItem(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon badge
             Box(
                 modifier = Modifier
                     .size(44.dp)
@@ -67,7 +77,6 @@ fun AlertItem(
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            // Text info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (isAlarm) stringResource(R.string.alarm)
@@ -79,10 +88,8 @@ fun AlertItem(
                 Spacer(modifier = Modifier.height(3.dp))
                 val startStr = timeFormatter.format(Date(alert.startTime))
                 val subtitle = if (isAlarm) {
-                    // Alarm: show date + time
                     "${dateFormatter.format(Date(alert.startTime))}  ·  $startStr"
                 } else {
-                    // Notification: show start–end
                     val endStr = timeFormatter.format(Date(alert.endTime))
                     "$startStr → $endStr"
                 }
@@ -93,7 +100,6 @@ fun AlertItem(
                 )
             }
 
-            // Toggle switch
             Switch(
                 checked = alert.isEnabled,
                 onCheckedChange = { onToggle() },

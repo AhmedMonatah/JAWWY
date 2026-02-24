@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">سحاب</string>
+    <string name="app_name">دِيمَة</string>
 
     <string name="nav_home">الرئيسية</string>
     <string name="nav_settings">الإعدادات</string>
@@ -107,15 +107,15 @@
     <string name="month_10">شوال</string>
     <string name="month_11">ذو القعدة</string>
     <string name="month_12">ذو الحجة</string>
-    <string name="alarm_channel_name">تنبيھات سحاب</string>
+    <string name="alarm_channel_name">تنبيھات دِيمَة</string>
     <string name="alarm_title">تنبيه رمضان</string>
     <string name="alarm_text">حان وقت التنبيه المحدد</string>
-    <string name="alarm_summary">سحاب · تنبيه رمضان</string>
-    <string name="weather_channel_name">طقس سحاب</string>
+    <string name="alarm_summary">دِيمَة · تنبيه رمضان</string>
+    <string name="weather_channel_name">طقس دِيمَة</string>
     <string name="weather_title_city">الطقس في %1$s</string>
-    <string name="weather_title_default">طقس سحاب</string>
+    <string name="weather_title_default">طقس دِيمَة</string>
     <string name="weather_text">الطقس الحالي %1$d°م مع %2$s.</string>
-    <string name="weather_summary">سحاب · بركة يومية</string>
+    <string name="weather_summary">دِيمَة · بركة يومية</string>
     <string name="start_time_label">البدء</string>
     <string name="end_time_label">الانتهاء</string>
     <string name="permission_required">مطلوب إذن</string>
@@ -133,5 +133,9 @@
     <string name="onboarding_title_2">ابقَ على اطلاع</string>
     <string name="onboarding_desc_2">احصل على تنبيهات الطقس في الوقت المناسب للحفاظ على سلامتك وسلامة عائلتك أثناء التغيرات المفاجئة.</string>
     <string name="onboarding_title_3">بركات رمضان</string>
+    <string name="splash_subtitle">اصدار رمضان</string>
     <string name="onboarding_desc_3">عش أجواء الشهر الفضيل مع مواقيت صلاة دقيقة وتوجيهات الطقس لرحلتك الروحانية.</string>
+    <string name="delete_all">مسح الكل</string>
+    <string name="start_time">بدايه الوقت</string>
+    <string name="end_time">نهايه الوقت</string>
 </resources>

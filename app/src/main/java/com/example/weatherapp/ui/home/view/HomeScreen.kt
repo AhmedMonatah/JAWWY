@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import java.util.Locale
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -40,7 +41,7 @@ fun HomeScreen(
 ) {
     val currentWeather by viewModel.currentWeather.collectAsState()
     val forecast by viewModel.forecast.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -75,39 +76,16 @@ fun HomeScreen(
         }
     }
     
-    val hourlyForecast by viewModel.hourlyForecast.collectAsState(initial = emptyList())
-    val refreshStatus by viewModel.refreshStatus.collectAsState()
-    val currentLang by viewModel.language.collectAsState()
-    val locale = remember(currentLang) { Locale(currentLang) }
+    val uiState by viewModel.uiState.collectAsState()
+
     val isDark = true
     val contentColor = Color.White
-
-    var selectedDayIndex by remember { mutableStateOf(0) }
     val isDetailMode = lat != null
     
-    val displayState = remember(currentWeather, forecast, selectedDayIndex, locale, refreshStatus, cityName) {
-        computeDisplayState(
-            currentWeather,
-            forecast,
-            selectedDayIndex,
-            locale,
-            refreshStatus,
-            cityName,
-            currentWeather?.timezoneOffset ?: 0
-        )
-    }
+    val locale = remember(uiState.currentLang) { Locale(uiState.currentLang) }
 
-    val displayHourly = remember(hourlyForecast, selectedDayIndex, forecast, currentWeather) {
-        filterHourlyForDay(hourlyForecast, selectedDayIndex, forecast, currentWeather?.timezoneOffset ?: 0)
-    }
-
-    val weatherType = remember(currentWeather) {
-        WeatherTypeUtil.determineWeatherType(currentWeather?.description, currentWeather?.icon)
-    }
-
-    val isRefreshing = refreshStatus is Resource.Loading<*>
     AppPullToRefresh(
-        isRefreshing = isRefreshing,
+        isRefreshing = uiState.isRefreshing,
         onRefresh = { viewModel.triggerManualRefresh() }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -119,7 +97,7 @@ fun HomeScreen(
             ) {
 
                 HeaderSection(
-                    cityName = displayState.cityName,
+                    cityName = uiState.displayState.cityName,
                     isDetailMode = isDetailMode,
                     navController = navController,
                     textColor = contentColor
@@ -135,47 +113,44 @@ fun HomeScreen(
                 ) {
 
                     TemperatureSection(
-                        temp = displayState.temp,
-                        condition = displayState.condition,
-                        date = displayState.date,
-                        time = displayState.time,
+                        temp = uiState.displayState.temp,
+                        condition = uiState.displayState.condition,
+                        date = uiState.displayState.date,
+                        time = uiState.displayState.time,
                         textColor = contentColor,
-                        weatherType = weatherType
+                        weatherType = uiState.weatherType
                     )
 
                     DailyForecastSection(
                         forecast = forecast.take(7),
                         currentWeather = currentWeather,
-                        selectedIndex = selectedDayIndex,
-                        onDaySelected = { selectedDayIndex = it },
+                        selectedIndex = uiState.selectedDayIndex,
+                        onDaySelected = { viewModel.selectDay(it) },
                         isDark = isDark,
                         locale = locale
                     )
 
-                    if (displayHourly.isNotEmpty()) {
-                        HourlyForecastSection(displayHourly, locale, isDark)
+                    if (uiState.displayHourly.isNotEmpty()) {
+                        HourlyForecastSection(uiState.displayHourly, locale, isDark)
                     }
 
                     WeatherStatsSection(
-                        pressure = displayState.pressure,
-                        humidity = displayState.humidity,
-                        wind = displayState.wind,
-                        clouds = displayState.clouds
+                        pressure = uiState.displayState.pressure,
+                        humidity = uiState.displayState.humidity,
+                        wind = uiState.displayState.wind,
+                        clouds = uiState.displayState.clouds
                     )
 
                     Spacer(modifier = Modifier.height(50.dp))
                 }
             }
 
-            val currentTemp = currentWeather?.temp ?: 0.0
-            val showSnow = weatherType == "snow" || currentTemp <= 0.0
-
-            if (showSnow) {
+            if (uiState.showSnow) {
                 WeatherEffects(
                     weatherType = "snow",
                     modifier = Modifier.fillMaxSize()
                 )
-            } else if (weatherType == "rain" || weatherType.contains("thunder")) {
+            } else if (uiState.showRain) {
                 WeatherEffects(
                     weatherType = "rain",
                     modifier = Modifier.fillMaxSize()

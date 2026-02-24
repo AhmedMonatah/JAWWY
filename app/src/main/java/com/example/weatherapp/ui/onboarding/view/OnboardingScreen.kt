@@ -52,23 +52,40 @@ import com.example.weatherapp.ui.theme.TranslucentBlack
 import kotlinx.coroutines.launch
 
 
+import com.example.weatherapp.ui.onboarding.view.components.LanguageToggle
+import com.example.weatherapp.ui.onboarding.view.components.OnboardingIndicators
+import com.example.weatherapp.ui.onboarding.view.components.OnboardingNextButton
+import com.example.weatherapp.ui.onboarding.viewmodel.OnboardingUiEvent
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
     viewModel: OnboardingViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
-    val pagerMapper = remember {
-        object : Saver<PagerState, Int> {
-            override fun restore(value: Int): PagerState = PagerState(currentPage = value, pageCount = { 3 })
-            override fun SaverScope.save(value: PagerState): Int = value.currentPage
-        }
-    }
-    val pagerState = rememberSaveable(saver = pagerMapper) { 
-        PagerState(currentPage = 0, pageCount = { 3 }) 
-    }
+    val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
     val currentLang by viewModel.language.collectAsState()
+
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.updateCurrentPage(pagerState.currentPage)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collect { event ->
+            when (event) {
+                is OnboardingUiEvent.ScrollToPage -> {
+                    scope.launch {
+                        pagerState.animateScrollToPage(event.page)
+                    }
+                }
+                is OnboardingUiEvent.Finish -> {
+                    onFinish()
+                }
+                else -> {}
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -119,113 +136,15 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                repeat(3) { i ->
-                    val isSelected = pagerState.currentPage == i
-                    val width by animateDpAsState(
-                        targetValue = if (isSelected) 36.dp else 12.dp,
-                        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
-                        label = ""
-                    )
-                    val color by animateColorAsState(
-                        targetValue = if (isSelected) RamadanGold else Color.White.copy(alpha = 0.2f),
-                        label = ""
-                    )
-                    Box(
-                        modifier = Modifier
-                            .height(10.dp)
-                            .width(width)
-                            .clip(CircleShape)
-                            .background(color)
-                    )
-                }
-            }
+            OnboardingIndicators(
+                currentPage = pagerState.currentPage,
+                pageCount = 3
+            )
 
-            val isLast = pagerState.currentPage == 2
-            Button(
-                onClick = {
-                    if (isLast) {
-                        viewModel.completeOnboarding()
-                        onFinish()
-                    } else {
-                        scope.launch {
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .width(220.dp)
-                    .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),
-                shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 12.dp)
-            ) {
-                AnimatedContent(
-                    targetState = isLast,
-                    transitionSpec = {
-                        fadeIn(tween(400)) + scaleIn(initialScale = 0.8f) togetherWith
-                                 fadeOut(tween(300)) + scaleOut(targetScale = 0.8f)
-                    },
-                    label = ""
-                ) { last ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            if (last) stringResource(R.string.get_started) else stringResource(R.string.continue_btn),
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp,
-                            color = RamadanDeepNavy,
-                            letterSpacing = 1.sp
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = RamadanDeepNavy
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun LanguageToggle(
-    currentLang: String,
-    onLangChange: (String) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.1f))
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val languages = listOf("en" to "EN", "ar" to "عربي")
-        languages.forEach { (code, label) ->
-            val isSelected = currentLang == code
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) RamadanGold else Color.Transparent)
-                    .clickable { onLangChange(code) }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = label,
-                    color = if (isSelected) RamadanMidnight else Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
+            OnboardingNextButton(
+                isLast = pagerState.currentPage == 2,
+                onClick = { viewModel.onNextClicked() }
+            )
         }
     }
 }

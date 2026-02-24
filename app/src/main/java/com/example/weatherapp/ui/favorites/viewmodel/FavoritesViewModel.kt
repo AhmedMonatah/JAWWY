@@ -8,7 +8,15 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+
+sealed class FavoritesUiEvent {
+    data class ShowUndoSnackbar(val deletedItems: List<FavoriteLocation>) : FavoritesUiEvent()
+}
 
 class FavoritesViewModel(
     private val repository: WeatherRepository
@@ -20,6 +28,15 @@ class FavoritesViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    private val _selectedFavorites = MutableStateFlow<Set<FavoriteLocation>>(emptySet())
+    val selectedFavorites = _selectedFavorites.asStateFlow()
+
+    val units = repository.unitsFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "metric")
+
+    private val _uiEvents = MutableSharedFlow<FavoritesUiEvent>()
+    val uiEvents = _uiEvents.asSharedFlow()
 
     val connectivityFlow: Flow<Boolean> = repository.connectivityFlow
 
@@ -36,10 +53,10 @@ class FavoritesViewModel(
         
         viewModelScope.launch {
             val currentFavorites = favorites.value
-            val units = repository.unitsFlow.stateIn(viewModelScope).value
+            val currentUnits = units.value
             
             currentFavorites.forEach { location ->
-                refreshFavorite(location, units, lang)
+                refreshFavorite(location, currentUnits, lang)
             }
         }
     }
@@ -60,6 +77,29 @@ class FavoritesViewModel(
     fun removeFavorite(location: FavoriteLocation) {
         viewModelScope.launch {
             repository.removeFavorite(location)
+        }
+    }
+
+    fun toggleSelection(location: FavoriteLocation) {
+        _selectedFavorites.value = if (_selectedFavorites.value.contains(location)) {
+            _selectedFavorites.value - location
+        } else {
+            _selectedFavorites.value + location
+        }
+    }
+
+    fun clearSelection() {
+        _selectedFavorites.value = emptySet<FavoriteLocation>()
+    }
+
+    fun deleteSelectedFavorites() {
+        val toDelete: List<FavoriteLocation> = _selectedFavorites.value.toList()
+        viewModelScope.launch {
+            for (location in toDelete) {
+                repository.removeFavorite(location)
+            }
+            _uiEvents.emit(FavoritesUiEvent.ShowUndoSnackbar(toDelete))
+            clearSelection()
         }
     }
 

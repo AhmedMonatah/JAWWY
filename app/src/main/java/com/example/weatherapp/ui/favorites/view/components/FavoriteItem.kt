@@ -1,6 +1,8 @@
 package com.example.weatherapp.ui.favorites.view.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,14 +35,27 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.ui.theme.AccentBlue
 import com.example.weatherapp.ui.theme.AccentPurple
+import com.example.weatherapp.ui.theme.RamadanGold
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FavoriteItem(location: FavoriteLocation, onNavigate: () -> Unit) {
+fun FavoriteItem(
+    location: FavoriteLocation,
+    selected: Boolean = false,
+    onNavigate: () -> Unit,
+    onLongClick: (() -> Unit)? = null
+) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(140.dp).clickable { onNavigate() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .combinedClickable(
+                onClick = onNavigate,
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = AccentPurple)
+        colors = CardDefaults.cardColors(containerColor = if (selected) AccentPurple.copy(alpha = 0.8f) else AccentPurple),
+        border = if (selected) BorderStroke(3.dp, RamadanGold) else null
     ) {
         Box(
             modifier = Modifier

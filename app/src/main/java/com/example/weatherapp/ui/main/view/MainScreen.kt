@@ -34,6 +34,10 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
 }
 
+val LocalSelectionMode = compositionLocalOf<MutableState<Boolean>> {
+    error("No SelectionMode provided")
+}
+
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,6 +51,7 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
+    val selectionMode = remember { mutableStateOf(false) }
 
     val pagerState = rememberPagerState(pageCount = { 5 })
     
@@ -85,10 +90,10 @@ fun MainScreen(
     
     val isCold = (currentWeather?.temp ?: 20.0) < 5.0
 
-    val showBottomBar = remember(currentRoute) {
+    val showBottomBar = remember(currentRoute, selectionMode.value) {
         val onDashboard = currentRoute == Screen.Dashboard.route || currentRoute == null
         val onMap = currentRoute?.startsWith(Screen.Map.route.substringBefore("{")) == true
-        onDashboard && !onMap
+        onDashboard && !onMap && !selectionMode.value
     }
 
     Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
@@ -119,7 +124,10 @@ fun MainScreen(
             },
 
         ) { paddingValues ->
-            CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+            CompositionLocalProvider(
+                LocalSnackbarHostState provides snackbarHostState,
+                LocalSelectionMode provides selectionMode
+            ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)

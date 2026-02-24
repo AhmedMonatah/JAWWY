@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.favorites.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,12 +27,20 @@ import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.ui.favorites.view.components.FavoriteItem
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 import com.example.weatherapp.ui.components.AppFloatingActionButton
+import com.example.weatherapp.ui.components.SelectionDeleteBar
+import com.example.weatherapp.ui.main.view.LocalSelectionMode
+import com.example.weatherapp.ui.favorites.view.components.FavoritesContent
+import com.example.weatherapp.ui.favorites.view.components.FavoritesDeleteBar
+import com.example.weatherapp.ui.favorites.view.components.FavoritesFab
+import com.example.weatherapp.ui.favorites.view.components.FavoritesSelectionHandler
 import com.example.weatherapp.utils.network.runIfOnline
-import kotlinx.coroutines.flow.StateFlow
+import com.example.weatherapp.ui.favorites.viewmodel.FavoritesUiEvent
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,165 +48,65 @@ fun FavoritesScreen(
     navController: NavController,
     viewModel: FavoritesViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
-    val favoritesList by viewModel.favorites.collectAsState()
-    val snackbarHostState = LocalSnackbarHostState.current
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val globalSelectionMode = LocalSelectionMode.current
+    
+    val favorites by viewModel.favorites.collectAsState()
+    val selectedFavorites by viewModel.selectedFavorites.collectAsState(initial = emptySet<FavoriteLocation>())
     var showNoInternetDialog by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = 25.dp)
-        ) {
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Text(
-                text = stringResource(R.string.saved_locations),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            if (favoritesList.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 100.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = null,
-                            tint = RamadanGold.copy(alpha = 0.1f),
-                            modifier = Modifier.size(120.dp)
+    
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collect { event ->
+            when (event) {
+                is FavoritesUiEvent.ShowUndoSnackbar -> {
+                    scope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = "${context.getString(R.string.deleted)} ${event.deletedItems.size}",
+                            actionLabel = context.getString(R.string.undo),
+                            duration = SnackbarDuration.Short
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = stringResource(R.string.no_favorites),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White.copy(alpha = 0.4f),
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = stringResource(R.string.add_fav_description),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.2f)
-                        )
-                    }
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 120.dp)
-                ) {
-                    items(
-                        items = favoritesList,
-                        key = { it.id }
-                    ) { location ->
-
-                        val deletedText = stringResource(id = R.string.deleted)
-                        val undoText = stringResource(id = R.string.undo)
-
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value != SwipeToDismissBoxValue.Settled) {
-
-                                    viewModel.removeFavorite(location)
-
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = "$deletedText ${location.name}",
-                                            actionLabel = undoText,
-                                            duration = SnackbarDuration.Short
-                                        )
-
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            viewModel.addFavorite(location)
-                                        }
-                                    }
-
-                                    true
-                                } else false
-                            }
-                        )
-
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            Color.Red.copy(alpha = 0.5f),
-                                            RoundedCornerShape(24.dp)
-                                        ),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.padding(horizontal = 24.dp)
-                                    )
-                                }
-                            }
-                        ) {
-                            val onNavigate = runIfOnline(
-                                connectivityFlow = viewModel.connectivityFlow as StateFlow<Boolean>,
-                                onOffline = { showNoInternetDialog = true }
-                            ) {
-                                navController.navigate(
-                                    Screen.Home.createRoute(
-                                        location.lat,
-                                        location.lon,
-                                        location.name
-                                    )
-                                )
-                            }
-
-                            FavoriteItem(
-                                location = location,
-                                onNavigate = onNavigate
-                            )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            event.deletedItems.forEach { viewModel.addFavorite(it) }
                         }
                     }
                 }
             }
         }
+    }
 
-        val onFabClick = runIfOnline(
-            connectivityFlow = viewModel.connectivityFlow as StateFlow<Boolean>,
+    FavoritesSelectionHandler(selectedFavorites, globalSelectionMode, onClear = { viewModel.clearSelection() })
+
+    Box(Modifier.fillMaxSize()) {
+
+        FavoritesContent(
+            favorites = favorites,
+            selectedFavorites = selectedFavorites,
+            navController = navController,
+            viewModel = viewModel,
             onOffline = { showNoInternetDialog = true }
-        ) {
-            navController.navigate(Screen.Map.createRoute("favorites"))
-        }
-
-        AppFloatingActionButton(
-            icon = Icons.Outlined.FavoriteBorder,
-            contentDescription = stringResource(R.string.add_favorite),
-            onClick = onFabClick,
-            modifier = Modifier.align(Alignment.BottomEnd)
         )
 
+        FavoritesDeleteBar(
+            selectedCount = selectedFavorites.size,
+            onClear = { viewModel.clearSelection() },
+            onDelete = { viewModel.deleteSelectedFavorites() },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+        if (!globalSelectionMode.value) {
+            FavoritesFab(
+                navController = navController,
+                viewModel = viewModel,
+                onOffline = { showNoInternetDialog = true },
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+        }
+
         if (showNoInternetDialog) {
-            NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
+            NoInternetConnectionDialog { showNoInternetDialog = false }
         }
     }
 }
+

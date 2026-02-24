@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.alerts.view
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,11 +33,17 @@ import com.example.weatherapp.ui.alerts.view.components.AddAlertDialog
 import com.example.weatherapp.ui.alerts.view.components.AlertItem
 import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 import com.example.weatherapp.ui.components.AppFloatingActionButton
+import com.example.weatherapp.ui.components.SelectionDeleteBar
+import com.example.weatherapp.ui.main.view.LocalSelectionMode
+import kotlinx.coroutines.launch
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.ui.theme.RamadanGold
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+import com.example.weatherapp.ui.alerts.viewmodel.AlertsUiEvent
+import com.example.weatherapp.ui.alerts.view.components.EmptyAlertsState
+import com.example.weatherapp.ui.alerts.view.components.OverlayPermissionDialog
+
 @Composable
 fun AlertsScreen(
     navController: NavController,
@@ -50,6 +57,35 @@ fun AlertsScreen(
     var showPermissionDialog  by remember { mutableStateOf(false) }
     var showNoInternetDialog  by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val globalSelectionMode = LocalSelectionMode.current
+    val snackbarHostState = com.example.weatherapp.ui.main.view.LocalSnackbarHostState.current
+    val selectedAlerts by viewModel.selectedAlerts.collectAsState()
+    val scope = rememberCoroutineScope()
+    
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collect { event ->
+            when (event) {
+                is AlertsUiEvent.ShowSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "${context.getString(R.string.deleted)} ${event.count}",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    BackHandler(enabled = selectedAlerts.isNotEmpty()) {
+        viewModel.clearSelection()
+    }
+    
+    LaunchedEffect(selectedAlerts.size) {
+        globalSelectionMode.value = selectedAlerts.isNotEmpty()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -74,85 +110,42 @@ fun AlertsScreen(
             )
 
             if (alerts.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(bottom = 100.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.NotificationsActive,
-                            contentDescription = null,
-                            tint = RamadanGold.copy(alpha = 0.12f),
-                            modifier = Modifier.size(110.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(stringResource(R.string.no_alerts),
-                            color = Color.White.copy(alpha = 0.4f),
-                            style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(stringResource(R.string.add_first_alert),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.2f))
-                    }
-                }
+                EmptyAlertsState()
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     contentPadding = PaddingValues(bottom = 110.dp)
                 ) {
                     items(alerts, key = { it.id }) { alert ->
-                        // ── Swipe to delete ──────────────────────────────────
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value != SwipeToDismissBoxValue.Settled) {
-                                    viewModel.deleteAlert(alert)
-                                    true
-                                } else false
+                        val isSelected = selectedAlerts.contains(alert)
+                        AlertItem(
+                            alert = alert,
+                            locale = locale,
+                            selected = isSelected,
+                            onToggle = { viewModel.toggleAlert(alert) },
+                            onClick = {
+                                if (globalSelectionMode.value) {
+                                    viewModel.toggleSelection(alert)
+                                }
+                            },
+                            onLongClick = {
+                                viewModel.toggleSelection(alert)
                             }
                         )
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            enableDismissFromStartToEnd = true,
-                            enableDismissFromEndToStart = true,
-                            backgroundContent = {
-                                val isSettled = dismissState.currentValue == SwipeToDismissBoxValue.Settled &&
-                                               dismissState.targetValue == SwipeToDismissBoxValue.Settled
-                                
-                                // Only show background if NOT settled (actively swiping or dismissing)
-                                if (!isSettled) {
-                                    val alignment = when (dismissState.targetValue) {
-                                        SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                        else -> Alignment.CenterEnd
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
-                                            .background(Color(0xFFE53935)),
-                                        contentAlignment = alignment
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete",
-                                            tint = Color.White,
-                                            modifier = Modifier.padding(horizontal = 24.dp).size(28.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        ) {
-                            AlertItem(
-                                alert = alert,
-                                locale = locale,
-                                onToggle = { viewModel.toggleAlert(alert) }
-                            )
-                        }
                     }
                 }
             }
         }
 
-        AppFloatingActionButton(
+        SelectionDeleteBar(
+            selectedCount = selectedAlerts.size,
+            onClearSelection = { viewModel.clearSelection() },
+            onDeleteSelected = { viewModel.deleteSelectedAlerts() },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+        if (!globalSelectionMode.value) {
+            AppFloatingActionButton(
             icon = Icons.Default.Alarm,
             contentDescription = stringResource(R.string.add_alert),
             onClick = {
@@ -168,35 +161,12 @@ fun AlertsScreen(
             },
             modifier = Modifier.align(Alignment.BottomEnd)
         )
-
-        // ── Overlay permission dialog ─────────────────────────────────────────
-        if (showPermissionDialog) {
-            AlertDialog(
-                onDismissRequest = { showPermissionDialog = false },
-                containerColor = RamadanDarkBlue,
-                title = { Text(stringResource(R.string.permission_required), color = Color.White) },
-                text = { Text(stringResource(R.string.overlay_permission_desc), color = Color.White.copy(alpha = 0.7f)) },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            context.startActivity(Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:${context.packageName}")
-                            ))
-                            showPermissionDialog = false
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = RamadanGold)
-                    ) { Text(stringResource(R.string.grant)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showPermissionDialog = false }) {
-                        Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.6f))
-                    }
-                }
-            )
         }
 
-        // ── Bottom sheet ──────────────────────────────────────────────────────
+        if (showPermissionDialog) {
+            OverlayPermissionDialog(onDismiss = { showPermissionDialog = false })
+        }
+
         if (showBottomSheet) {
             AddAlertDialog(
                 onDismiss = { showBottomSheet = false },

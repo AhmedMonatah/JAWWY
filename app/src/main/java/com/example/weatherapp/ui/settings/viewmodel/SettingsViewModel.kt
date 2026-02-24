@@ -5,7 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+
+sealed class SettingsUiEvent {
+    object NavigateToMap : SettingsUiEvent()
+    object ShowNoInternet : SettingsUiEvent()
+}
 
 class SettingsViewModel(
     private val repository: WeatherRepository
@@ -20,16 +27,52 @@ class SettingsViewModel(
     val locationMode = repository.locationModeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "gps")
 
+    private val _uiEvents = MutableSharedFlow<SettingsUiEvent>()
+    val uiEvents = _uiEvents.asSharedFlow()
+
     fun updateSettings(newUnits: String, newLang: String) {
+        if (!repository.isOnline()) {
+            viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
+            return
+        }
         viewModelScope.launch {
             repository.setUnits(newUnits)
             repository.setLanguage(newLang)
         }
     }
 
-    fun updateLocationMode(mode: String) {
+    fun updateTemperatureUnit(unit: String) {
+        if (!repository.isOnline()) {
+            viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
+            return
+        }
         viewModelScope.launch {
-            repository.setLocationMode(mode)
+            repository.setUnits(unit)
+        }
+    }
+
+    fun updateLanguage(lang: String) {
+        if (!repository.isOnline()) {
+            viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
+            return
+        }
+        viewModelScope.launch {
+            repository.setLanguage(lang)
+        }
+    }
+
+    fun updateLocationMode(mode: String) {
+        if (mode == "map" && !repository.isOnline()) {
+            viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
+            return
+        }
+        
+        viewModelScope.launch {
+            if (mode == "map") {
+                _uiEvents.emit(SettingsUiEvent.NavigateToMap)
+            } else {
+                repository.setLocationMode(mode)
+            }
         }
     }
 
