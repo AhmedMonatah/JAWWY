@@ -73,6 +73,11 @@
     <string name="save_alert">Save Alert</string>
     <string name="stop_alarm">Stop Alarm</string>
     <string name="no_alerts">No active alerts</string>
+    <string name="choose_location">CHOOSE LOCATION</string>
+    <string name="set_home_location">Set your home location</string>
+    <string name="tap_to_select_city">Tap on the map to select a city</string>
+    <string name="save_this_location">SAVE THIS LOCATION</string>
+    <string name="set_this_location">SET THIS LOCATION</string>
 
     <string name="map_title">Select Location</string>
     <string name="confirm_location">Confirm Location</string>

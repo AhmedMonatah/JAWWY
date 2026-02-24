@@ -1,6 +1,8 @@
 package com.example.weatherapp.ui.onboarding.view
 
 import com.example.weatherapp.ui.onboarding.viewmodel.OnboardingViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import com.example.weatherapp.model.onboardingPages
 import com.example.weatherapp.R
 
@@ -18,7 +20,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.example.weatherapp.ui.onboarding.view.components.OnboardingPageContent
 import com.example.weatherapp.ui.onboarding.view.components.RamadanSkyEffect
 import com.example.weatherapp.ui.theme.RamadanDeepNavy
@@ -49,9 +56,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
-    viewModel: OnboardingViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    viewModel: OnboardingViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerMapper = remember {
+        object : Saver<PagerState, Int> {
+            override fun restore(value: Int): PagerState = PagerState(currentPage = value, pageCount = { 3 })
+            override fun SaverScope.save(value: PagerState): Int = value.currentPage
+        }
+    }
+    val pagerState = rememberSaveable(saver = pagerMapper) { 
+        PagerState(currentPage = 0, pageCount = { 3 }) 
+    }
     val scope = rememberCoroutineScope()
     val currentLang by viewModel.language.collectAsState()
 
@@ -99,7 +114,8 @@ fun OnboardingScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(bottom = 60.dp),
+                .padding(bottom = 60.dp)
+                .zIndex(1.0f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {

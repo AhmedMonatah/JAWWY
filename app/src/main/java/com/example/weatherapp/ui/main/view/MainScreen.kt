@@ -11,7 +11,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.weatherapp.data.repository.WeatherRepository
+import com.example.weatherapp.model.WeatherEntity
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import com.example.weatherapp.ui.home.view.components.WeatherBackground
 import com.example.weatherapp.ui.theme.DashboardBackground
 import com.example.weatherapp.ui.theme.RamadanGold
@@ -38,7 +41,7 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
 fun MainScreen(
     navController: NavHostController,
     startDestination: String,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

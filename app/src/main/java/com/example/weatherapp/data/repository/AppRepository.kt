@@ -12,10 +12,7 @@ import com.example.weatherapp.model.HourlyForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 import com.example.weatherapp.data.remote.RemoteDataSource
 import com.example.weatherapp.utils.state.Resource
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.example.weatherapp.model.Alert
@@ -26,9 +23,8 @@ import com.example.weatherapp.BuildConfig
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-@Singleton
-class AppRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AppRepository(
+    private val context: Context,
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource
 ) : WeatherRepository {

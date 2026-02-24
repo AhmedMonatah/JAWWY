@@ -6,7 +6,11 @@
     <string name="nav_favorites">المفضلة</string>
     <string name="nav_alerts">تنبيهات</string>
     <string name="nav_map">الخريطة</string>
-
+    <string name="choose_location">اختار المكان</string>
+    <string name="set_home_location">حدد موقع المنزل</string>
+    <string name="tap_to_select_city">اضغط على الخريطة لاختيار مدينة</string>
+    <string name="save_this_location">حفظ هذا الموقع</string>
+    <string name="set_this_location">تحديد هذا الموقع</string>
     <string name="home_title">اكتشف الطقس</string>
     <string name="current_location_label">الموقع الحالي</string>
     <string name="weather_now">الطقس الآن</string>
@@ -124,12 +128,10 @@
     <string name="get_started">ابدأ الآن</string>
     <string name="continue_btn">استمرار</string>
     <string name="ok">حسنا</string>
-
     <string name="onboarding_title_1">توقعات دقيقة</string>
     <string name="onboarding_desc_1">خطط ليومك مع تحديثات الطقس الدقيقة. اعرف بالضبط متى تبحث عن الظل أو تستمتع بالشمس.</string>
     <string name="onboarding_title_2">ابقَ على اطلاع</string>
     <string name="onboarding_desc_2">احصل على تنبيهات الطقس في الوقت المناسب للحفاظ على سلامتك وسلامة عائلتك أثناء التغيرات المفاجئة.</string>
     <string name="onboarding_title_3">بركات رمضان</string>
     <string name="onboarding_desc_3">عش أجواء الشهر الفضيل مع مواقيت صلاة دقيقة وتوجيهات الطقس لرحلتك الروحانية.</string>
-
 </resources>

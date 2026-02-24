@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     id("kotlin-parcelize")
 
@@ -71,14 +70,9 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation(libs.androidx.compose.animation.core)
-    
-    implementation(libs.hilt.android)
     implementation(libs.androidx.appcompat)
-    ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("androidx.hilt:hilt-work:1.2.0")
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

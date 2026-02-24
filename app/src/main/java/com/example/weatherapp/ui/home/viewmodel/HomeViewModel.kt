@@ -6,8 +6,6 @@ import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 import com.example.weatherapp.model.HourlyForecastEntity
 import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.utils.state.Resource
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +20,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.combine
-import javax.inject.Inject
+import com.example.weatherapp.utils.state.Resource
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val repository: WeatherRepository,
     private val locationClient: FusedLocationProviderClient
 ) : ViewModel() {
@@ -74,7 +71,7 @@ class HomeViewModel @Inject constructor(
                 old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
             }.collect { input ->
                 input.coords?.let { (lat, lon) ->
-                    _refreshStatus.value = Resource.Loading()
+                    _refreshStatus.value = Resource.Loading<WeatherEntity>()
                     
                     coroutineScope {
                         val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, input.unit, input.lang) }
@@ -144,7 +141,7 @@ class HomeViewModel @Inject constructor(
             }
 
             if (coords != null) {
-                _refreshStatus.value = Resource.Loading()
+                _refreshStatus.value = Resource.Loading<WeatherEntity>()
                 val unit = repository.unitsFlow.stateIn(viewModelScope).value
                 val lang = repository.languageFlow.stateIn(viewModelScope).value
 

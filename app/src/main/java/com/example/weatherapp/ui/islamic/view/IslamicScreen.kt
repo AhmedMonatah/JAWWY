@@ -11,7 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.islamic.viewmodel.IslamicViewModel
@@ -23,7 +24,7 @@ import com.example.weatherapp.ui.islamic.view.components.PrayerRowItem
 @Composable
 fun IslamicScreen(
     navController: NavController,
-    viewModel: IslamicViewModel = hiltViewModel()
+    viewModel: IslamicViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

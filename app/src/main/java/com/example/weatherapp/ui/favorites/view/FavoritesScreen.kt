@@ -17,7 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
@@ -36,7 +37,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    viewModel: FavoritesViewModel = hiltViewModel()
+    viewModel: FavoritesViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
     val favoritesList by viewModel.favorites.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
