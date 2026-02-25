@@ -8,7 +8,6 @@ import com.example.weatherapp.model.WeatherEntity
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
-    // Weather
     fun getCurrentWeather(): Flow<WeatherEntity?>
     suspend fun insertCurrentWeather(weather: WeatherEntity)
     fun getForecast(): Flow<List<ForecastEntity>>

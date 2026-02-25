@@ -36,13 +36,14 @@ import com.example.weatherapp.ui.components.AppFloatingActionButton
 import com.example.weatherapp.ui.components.SelectionDeleteBar
 import com.example.weatherapp.ui.main.view.LocalSelectionMode
 import kotlinx.coroutines.launch
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanGold
+
 import java.util.*
 
 import com.example.weatherapp.ui.alerts.viewmodel.AlertsUiEvent
 import com.example.weatherapp.ui.alerts.view.components.EmptyAlertsState
 import com.example.weatherapp.ui.alerts.view.components.OverlayPermissionDialog
+import com.example.weatherapp.ui.components.CommonScreenLayout
+import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
 
 @Composable
 fun AlertsScreen(
@@ -53,132 +54,127 @@ fun AlertsScreen(
     val language by viewModel.language.collectAsState()
     val locale = remember(language) { Locale(language) }
 
-    var showBottomSheet       by remember { mutableStateOf(false) }
-    var showPermissionDialog  by remember { mutableStateOf(false) }
-    var showNoInternetDialog  by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    val showBottomSheet by viewModel.showBottomSheet.collectAsState()
+    val showPermissionDialog by viewModel.showPermissionDialog.collectAsState()
+    val showNoInternetDialog by viewModel.showNoInternetDialog.collectAsState()
 
+    val context = LocalContext.current
     val globalSelectionMode = LocalSelectionMode.current
-    val snackbarHostState = com.example.weatherapp.ui.main.view.LocalSnackbarHostState.current
+    val snackbarHostState = LocalSnackbarHostState.current
     val selectedAlerts by viewModel.selectedAlerts.collectAsState()
     val scope = rememberCoroutineScope()
-    
+
+    val deletedString = stringResource(R.string.deleted)
+
+
     LaunchedEffect(Unit) {
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is AlertsUiEvent.ShowSnackbar -> {
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "${context.getString(R.string.deleted)} ${event.count}",
+                            message = deletedString + " " + event.count,
                             duration = SnackbarDuration.Short
                         )
                     }
                 }
-                else -> {}
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearSelection()
         }
     }
 
     BackHandler(enabled = selectedAlerts.isNotEmpty()) {
         viewModel.clearSelection()
     }
-    
+
     LaunchedEffect(selectedAlerts.size) {
         globalSelectionMode.value = selectedAlerts.isNotEmpty()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = 24.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.alerts_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+    CommonScreenLayout(
+        title = stringResource(R.string.alerts_title),
+        description = stringResource(R.string.alerts_description),
+        isEmpty = alerts.isEmpty(),
+        emptyContent = { EmptyAlertsState() },
+        floatingActionButton = {
+            if (!globalSelectionMode.value) {
+                AppFloatingActionButton(
+                    icon = Icons.Default.Alarm,
+                    contentDescription = stringResource(R.string.add_alert),
+                    onClick = {
+                        if (viewModel.isOnline()) {
+                            if (!Settings.canDrawOverlays(context)) {
+                                viewModel.setShowPermissionDialog(true)
+                            } else {
+                                viewModel.setShowBottomSheet(true)
+                            }
+                        } else {
+                            viewModel.setShowNoInternetDialog(true)
+                        }
+                    }
+                )
+            }
+        },
+        selectionBar = {
+            SelectionDeleteBar(
+                selectedCount = selectedAlerts.size,
+                onClearSelection = { viewModel.clearSelection() },
+                onDeleteSelected = {
+                    if (viewModel.isOnline()) {
+                        viewModel.deleteSelectedAlerts()
+                    } else {
+                        viewModel.setShowNoInternetDialog(true)
+                    }
+                }
             )
-            Text(
-                text = stringResource(R.string.alerts_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.55f),
-                modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
-            )
-
-            if (alerts.isEmpty()) {
-                EmptyAlertsState()
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding = PaddingValues(bottom = 110.dp)
-                ) {
-                    items(alerts, key = { it.id }) { alert ->
-                        val isSelected = selectedAlerts.contains(alert)
-                        AlertItem(
-                            alert = alert,
-                            locale = locale,
-                            selected = isSelected,
-                            onToggle = { viewModel.toggleAlert(alert) },
-                            onClick = {
-                                if (globalSelectionMode.value) {
-                                    viewModel.toggleSelection(alert)
-                                }
-                            },
-                            onLongClick = {
+        },
+        content = {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(bottom = 110.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(alerts, key = { it.id }) { alert ->
+                    val isSelected = selectedAlerts.contains(alert)
+                    AlertItem(
+                        alert = alert,
+                        locale = locale,
+                        selected = isSelected,
+                        onToggle = { viewModel.toggleAlert(alert) },
+                        onClick = {
+                            if (globalSelectionMode.value) {
                                 viewModel.toggleSelection(alert)
                             }
-                        )
-                    }
+                        },
+                        onLongClick = {
+                            viewModel.toggleSelection(alert)
+                        }
+                    )
                 }
             }
         }
+    )
 
-        SelectionDeleteBar(
-            selectedCount = selectedAlerts.size,
-            onClearSelection = { viewModel.clearSelection() },
-            onDeleteSelected = { viewModel.deleteSelectedAlerts() },
-            modifier = Modifier.align(Alignment.BottomCenter)
+    if (showPermissionDialog) {
+        OverlayPermissionDialog(onDismiss = { viewModel.setShowPermissionDialog(false) })
+    }
+
+    if (showBottomSheet) {
+        AddAlertDialog(
+            onDismiss = { viewModel.setShowBottomSheet(false) },
+            onSave = { start, end, type ->
+                viewModel.addAlert(start, end, type)
+                viewModel.setShowBottomSheet(false)
+            }
         )
+    }
 
-        if (!globalSelectionMode.value) {
-            AppFloatingActionButton(
-            icon = Icons.Default.Alarm,
-            contentDescription = stringResource(R.string.add_alert),
-            onClick = {
-                if (viewModel.isOnline()) {
-                    if (!Settings.canDrawOverlays(context)) {
-                        showPermissionDialog = true
-                    } else {
-                        showBottomSheet = true
-                    }
-                } else {
-                    showNoInternetDialog = true
-                }
-            },
-            modifier = Modifier.align(Alignment.BottomEnd)
-        )
-        }
-
-        if (showPermissionDialog) {
-            OverlayPermissionDialog(onDismiss = { showPermissionDialog = false })
-        }
-
-        if (showBottomSheet) {
-            AddAlertDialog(
-                onDismiss = { showBottomSheet = false },
-                onSave = { start, end, type ->
-                    viewModel.addAlert(start, end, type)
-                    showBottomSheet = false
-                }
-            )
-        }
-
-        if (showNoInternetDialog) {
-            NoInternetConnectionDialog(onDismiss = { showNoInternetDialog = false })
-        }
+    if (showNoInternetDialog) {
+        NoInternetConnectionDialog(onDismiss = { viewModel.setShowNoInternetDialog(false) })
     }
 }

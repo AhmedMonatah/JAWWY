@@ -46,10 +46,4 @@ class OnboardingViewModel(
             }
         }
     }
-
-    fun completeOnboarding() {
-        viewModelScope.launch {
-            repository.setOnboardingShown()
-        }
-    }
 }
