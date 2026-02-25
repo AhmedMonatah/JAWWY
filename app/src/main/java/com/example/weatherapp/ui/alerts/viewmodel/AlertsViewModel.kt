@@ -33,8 +33,17 @@ class AlertsViewModel(
     private val _selectedAlerts = MutableStateFlow<Set<Alert>>(emptySet())
     val selectedAlerts = _selectedAlerts.asStateFlow()
 
-    private val _uiEvents = kotlinx.coroutines.flow.MutableSharedFlow<AlertsUiEvent>()
+    private val _uiEvents = MutableSharedFlow<AlertsUiEvent>()
     val uiEvents = _uiEvents.asSharedFlow()
+
+    private val _showBottomSheet = MutableStateFlow(false)
+    val showBottomSheet = _showBottomSheet.asStateFlow()
+
+    private val _showPermissionDialog = MutableStateFlow(false)
+    val showPermissionDialog = _showPermissionDialog.asStateFlow()
+
+    private val _showNoInternetDialog = MutableStateFlow(false)
+    val showNoInternetDialog = _showNoInternetDialog.asStateFlow()
 
     val language = repository.languageFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
@@ -69,18 +78,26 @@ class AlertsViewModel(
         }
     }
 
-    /** Returns true if the app can schedule exact alarms (required for alarm type). */
-    fun canScheduleExactAlarms(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()
-        } else true
+
+
+    fun setShowBottomSheet(show: Boolean) {
+        _showBottomSheet.value = show
     }
 
-    /**
-     * Persists and schedules an alert.
-     * [endTime] is 0L for alarm type (ignored); used only for notification windows.
-     */
+    fun setShowPermissionDialog(show: Boolean) {
+        _showPermissionDialog.value = show
+    }
+
+    fun setShowNoInternetDialog(show: Boolean) {
+        _showNoInternetDialog.value = show
+    }
+
     fun addAlert(startTime: Long, endTime: Long, type: String) {
+        if (!isOnline()) {
+            _showNoInternetDialog.value = true
+            return
+        }
+
         viewModelScope.launch {
             val alert = Alert(startTime = startTime, endTime = endTime, type = type)
             val id = repository.insertAlert(alert)
@@ -96,18 +113,12 @@ class AlertsViewModel(
         }
     }
 
-    fun deleteAlert(alert: Alert) {
-        viewModelScope.launch {
-            repository.deleteAlert(alert)
-            NotificationHelper.cancelAlert(context, alert.id, alert.type)
-        }
-    }
 
-    /** Toggle enable/disable — reschedules or cancels without removing from DB. */
+
     fun toggleAlert(alert: Alert) {
         viewModelScope.launch {
             val updated = alert.copy(isEnabled = !alert.isEnabled)
-            repository.insertAlert(updated) // REPLACE strategy updates in place
+            repository.insertAlert(updated)
             if (updated.isEnabled) {
                 NotificationHelper.scheduleAlert(context, updated.startTime, updated.endTime, updated.type, updated.id)
             } else {

@@ -38,7 +38,13 @@ class FavoritesViewModel(
     private val _uiEvents = MutableSharedFlow<FavoritesUiEvent>()
     val uiEvents = _uiEvents.asSharedFlow()
 
-    val connectivityFlow: Flow<Boolean> = repository.connectivityFlow
+    private val _showNoInternetDialog = MutableStateFlow(false)
+    val showNoInternetDialog = _showNoInternetDialog.asStateFlow()
+
+    fun setShowNoInternetDialog(show: Boolean) {
+        _showNoInternetDialog.value = show
+    }
+
 
     init {
         viewModelScope.launch {
@@ -70,15 +76,11 @@ class FavoritesViewModel(
                 condition = result.data.description,
                 icon = result.data.icon
             )
-            repository.addFavorite(updated) // This will update because of PrimaryKey if it's not auto-gen 0
+            repository.addFavorite(updated)
         }
     }
 
-    fun removeFavorite(location: FavoriteLocation) {
-        viewModelScope.launch {
-            repository.removeFavorite(location)
-        }
-    }
+
 
     fun toggleSelection(location: FavoriteLocation) {
         _selectedFavorites.value = if (_selectedFavorites.value.contains(location)) {
@@ -89,7 +91,7 @@ class FavoritesViewModel(
     }
 
     fun clearSelection() {
-        _selectedFavorites.value = emptySet<FavoriteLocation>()
+        _selectedFavorites.value = emptySet()
     }
 
     fun deleteSelectedFavorites() {

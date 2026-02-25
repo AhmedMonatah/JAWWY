@@ -1,22 +1,17 @@
 package com.example.weatherapp.ui.favorites.view
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
+
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.di.LocalAppContainer
@@ -24,47 +19,42 @@ import androidx.navigation.NavController
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
-import com.example.weatherapp.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
-import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.ui.favorites.view.components.FavoriteItem
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 import com.example.weatherapp.ui.components.AppFloatingActionButton
 import com.example.weatherapp.ui.components.SelectionDeleteBar
 import com.example.weatherapp.ui.main.view.LocalSelectionMode
-import com.example.weatherapp.ui.favorites.view.components.FavoritesContent
-import com.example.weatherapp.ui.favorites.view.components.FavoritesDeleteBar
-import com.example.weatherapp.ui.favorites.view.components.FavoritesFab
-import com.example.weatherapp.ui.favorites.view.components.FavoritesSelectionHandler
-import com.example.weatherapp.utils.network.runIfOnline
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesUiEvent
 import androidx.compose.ui.platform.LocalContext
+import com.example.weatherapp.ui.components.CommonScreenLayout
+import com.example.weatherapp.ui.favorites.view.components.EmptyFavoritesState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
     navController: NavController,
     viewModel: FavoritesViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
     val globalSelectionMode = LocalSelectionMode.current
-    
     val favorites by viewModel.favorites.collectAsState()
-    val selectedFavorites by viewModel.selectedFavorites.collectAsState(initial = emptySet<FavoriteLocation>())
-    var showNoInternetDialog by remember { mutableStateOf(false) }
-    
+    val selectedFavorites by viewModel.selectedFavorites.collectAsState()
+    val showNoInternetDialog by viewModel.showNoInternetDialog.collectAsState()
+    val context = LocalContext.current
+    val delete= stringResource(R.string.deleted)
+    val undo=stringResource(R.string.undo)
+
     LaunchedEffect(Unit) {
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is FavoritesUiEvent.ShowUndoSnackbar -> {
                     scope.launch {
                         val result = snackbarHostState.showSnackbar(
-                            message = "${context.getString(R.string.deleted)} ${event.deletedItems.size}",
-                            actionLabel = context.getString(R.string.undo),
+                            message = delete + " " + event.deletedItems.size,
+                            actionLabel =undo,
                             duration = SnackbarDuration.Short
                         )
                         if (result == SnackbarResult.ActionPerformed) {
@@ -76,37 +66,88 @@ fun FavoritesScreen(
         }
     }
 
-    FavoritesSelectionHandler(selectedFavorites, globalSelectionMode, onClear = { viewModel.clearSelection() })
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearSelection()
+        }
+    }
 
-    Box(Modifier.fillMaxSize()) {
+    BackHandler(enabled = selectedFavorites.isNotEmpty()) {
+        viewModel.clearSelection()
+    }
 
-        FavoritesContent(
-            favorites = favorites,
-            selectedFavorites = selectedFavorites,
-            navController = navController,
-            viewModel = viewModel,
-            onOffline = { showNoInternetDialog = true }
-        )
+    LaunchedEffect(selectedFavorites.size) {
+        globalSelectionMode.value = selectedFavorites.isNotEmpty()
+    }
 
-        FavoritesDeleteBar(
-            selectedCount = selectedFavorites.size,
-            onClear = { viewModel.clearSelection() },
-            onDelete = { viewModel.deleteSelectedFavorites() },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
-
-        if (!globalSelectionMode.value) {
-            FavoritesFab(
-                navController = navController,
-                viewModel = viewModel,
-                onOffline = { showNoInternetDialog = true },
-                modifier = Modifier.align(Alignment.BottomEnd)
+    CommonScreenLayout(
+        title = stringResource(R.string.saved_locations),
+        description = stringResource(R.string.add_fav_description),
+        isEmpty = favorites.isEmpty(),
+        emptyContent = { EmptyFavoritesState() },
+        floatingActionButton = {
+            if (!globalSelectionMode.value) {
+                AppFloatingActionButton(
+                    icon = Icons.Outlined.FavoriteBorder,
+                    contentDescription = stringResource(R.string.add_favorite),
+                    onClick = {
+                        if (viewModel.isOnline()) {
+                            navController.navigate(Screen.Map.createRoute("favorites"))
+                        } else {
+                            viewModel.setShowNoInternetDialog(true)
+                        }
+                    }
+                )
+            }
+        },
+        selectionBar = {
+            SelectionDeleteBar(
+                selectedCount = selectedFavorites.size,
+                onClearSelection = { viewModel.clearSelection() },
+                onDeleteSelected = {
+                    if (viewModel.isOnline()) {
+                        viewModel.deleteSelectedFavorites()
+                    } else {
+                        viewModel.setShowNoInternetDialog(true)
+                    }
+                }
             )
+        },
+        content = {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 120.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(favorites, key = { it.id }) { location ->
+                    val isSelected = selectedFavorites.contains(location)
+                    FavoriteItem(
+                        location = location,
+                        selected = isSelected,
+                        onNavigate = {
+                            if (globalSelectionMode.value) {
+                                viewModel.toggleSelection(location)
+                            } else {
+                                navController.navigate(
+                                    Screen.Home.createRoute(
+                                        location.lat,
+                                        location.lon,
+                                        location.name
+                                    )
+                                )
+                            }
+                        },
+                        onLongClick = {
+                            viewModel.toggleSelection(location)
+                        }
+                    )
+                }
+            }
         }
+    )
 
-        if (showNoInternetDialog) {
-            NoInternetConnectionDialog { showNoInternetDialog = false }
-        }
+    if (showNoInternetDialog) {
+        NoInternetConnectionDialog { viewModel.setShowNoInternetDialog(false) }
     }
 }
 
