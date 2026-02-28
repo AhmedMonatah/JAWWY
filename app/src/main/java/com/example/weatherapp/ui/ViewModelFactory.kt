@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.ui.alerts.viewmodel.AlertsViewModel
 import com.example.weatherapp.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
-import com.example.weatherapp.ui.islamic.viewmodel.IslamicViewModel
 import com.example.weatherapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.weatherapp.ui.onboarding.viewmodel.OnboardingViewModel
 import com.example.weatherapp.ui.map.viewmodel.MapViewModel
@@ -33,9 +32,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(appContainer.weatherRepository) as T
             }
-            modelClass.isAssignableFrom(IslamicViewModel::class.java) -> {
-                IslamicViewModel(appContainer.weatherRepository, appContainer.locationClient) as T
-            }
+
             modelClass.isAssignableFrom(OnboardingViewModel::class.java) -> {
                 OnboardingViewModel(appContainer.weatherRepository) as T
             }
