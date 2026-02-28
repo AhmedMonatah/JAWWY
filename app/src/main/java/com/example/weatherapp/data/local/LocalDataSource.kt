@@ -16,22 +16,16 @@ interface LocalDataSource {
     fun getHourlyForecast(): Flow<List<HourlyForecastEntity>>
     suspend fun insertHourlyForecast(hourly: List<HourlyForecastEntity>)
     suspend fun clearHourlyForecast()
-
-    // Favorites
     fun getFavorites(): Flow<List<FavoriteLocation>>
     suspend fun insertFavorite(favorite: FavoriteLocation)
     suspend fun deleteFavorite(favorite: FavoriteLocation)
     suspend fun getFavoriteByCoords(lat: Double, lon: Double): FavoriteLocation?
-
-    // Alerts
     fun getAllAlerts(): Flow<List<Alert>>
     suspend fun insertAlert(alert: Alert): Long
     suspend fun deleteAlert(alert: Alert)
     suspend fun getActiveAlerts(): List<Alert>
     suspend fun getAlertById(id: Int): Alert?
     suspend fun deleteAllAlerts()
-
-    // Settings (DataStore)
     fun getUnits(): Flow<String>
     suspend fun setUnits(units: String)
     fun getLanguage(): Flow<String>
