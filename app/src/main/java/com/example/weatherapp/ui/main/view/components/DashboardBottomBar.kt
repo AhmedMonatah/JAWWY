@@ -34,10 +34,9 @@ fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             BottomNavItem(Icons.Default.Home, "HOME", currentPage == 0) { onPageSelected(0) }
-            BottomNavItem(Icons.Default.Nightlight, "ISLAMIC", currentPage == 1) { onPageSelected(1) }
-            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 2) { onPageSelected(2) }
-            BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 3) { onPageSelected(3) }
-            BottomNavItem(Icons.Default.Settings, "SETTING", currentPage == 4) { onPageSelected(4) }
+            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 1) { onPageSelected(1) }
+            BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 2) { onPageSelected(2) }
+            BottomNavItem(Icons.Default.Settings, "SETTING", currentPage == 3) { onPageSelected(3) }
         }
     }
 }

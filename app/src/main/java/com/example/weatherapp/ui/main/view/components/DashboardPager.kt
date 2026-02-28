@@ -10,7 +10,6 @@ import androidx.navigation.NavHostController
 import com.example.weatherapp.ui.alerts.view.AlertsScreen
 import com.example.weatherapp.ui.favorites.view.FavoritesScreen
 import com.example.weatherapp.ui.home.view.HomeScreen
-import com.example.weatherapp.ui.islamic.view.IslamicScreen
 import com.example.weatherapp.ui.settings.view.SettingsScreen
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -25,10 +24,9 @@ fun DashboardPager(
     ) { page ->
         when (page) {
             0 -> HomeScreen(navController = navController)
-            1 -> IslamicScreen(navController = navController)
-            2 -> FavoritesScreen (navController = navController)
-            3 -> AlertsScreen(navController = navController)
-            4 -> SettingsScreen(navController = navController)
+            1 -> FavoritesScreen (navController = navController)
+            2 -> AlertsScreen(navController = navController)
+            3 -> SettingsScreen(navController = navController)
         }
     }
 }

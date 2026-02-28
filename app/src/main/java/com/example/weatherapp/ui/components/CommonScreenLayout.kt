@@ -55,7 +55,7 @@ fun CommonScreenLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 16.dp, end = 16.dp),
+                .padding(bottom = 13.dp, end = 13.dp),
             contentAlignment = Alignment.BottomEnd
         ) {
             floatingActionButton()
