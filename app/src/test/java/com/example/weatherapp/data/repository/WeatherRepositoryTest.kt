@@ -7,8 +7,10 @@ import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.model.WeatherEntity
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import android.net.ConnectivityManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -21,12 +23,19 @@ import org.junit.Test
 class WeatherRepositoryTest {
 
     private lateinit var repository: AppRepository
-    private val context = mockk<Context>(relaxed = true)
-    private val remoteDataSource = mockk<RemoteDataSource>()
-    private val localDataSource = mockk<LocalDataSource>()
+    private lateinit var context: Context
+    private lateinit var remoteDataSource: RemoteDataSource
+    private lateinit var localDataSource: LocalDataSource
 
     @Before
     fun setup() {
+        context = mockk(relaxed = true)
+        remoteDataSource = mockk(relaxed = true)
+        localDataSource = mockk(relaxed = true)
+
+        val connectivityManager = mockk<ConnectivityManager>(relaxed = true)
+        every { context.getSystemService(Context.CONNECTIVITY_SERVICE) } returns connectivityManager
+        
         repository = AppRepository(context, remoteDataSource, localDataSource)
     }
 

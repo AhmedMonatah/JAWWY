@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-// Ramadan Light theme accents
 val LightBackground = Color(0xFFF8F5EB)
 val LightSurface = Color(0xFFFFFDF5)
 val SoftGold = Color(0xFFFFF3D6)

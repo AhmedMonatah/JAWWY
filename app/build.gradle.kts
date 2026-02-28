@@ -24,6 +24,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["MAPS_API_KEY"] =
             localProperties.getProperty("MAPS_API_KEY")
@@ -75,6 +76,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation(libs.androidx.junit.ktx)
     androidTestImplementation ("androidx.arch.core:core-testing:2.2.0")
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.androidx.appcompat)
@@ -101,10 +103,10 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.mockk.agent)
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk-agent:1.13.12")
     testImplementation(libs.turbine)
-    testImplementation(libs.arch.core.testing)
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.hamcrest)
     testImplementation(libs.robolectric)
 

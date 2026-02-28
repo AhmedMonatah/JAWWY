@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+
 import com.example.weatherapp.data.local.WeatherDatabase
 import com.example.weatherapp.model.FavoriteLocation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
