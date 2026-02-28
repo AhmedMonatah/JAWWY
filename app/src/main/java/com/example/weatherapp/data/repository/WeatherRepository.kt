@@ -22,11 +22,13 @@ interface WeatherRepository {
     val unitsFlow: Flow<String>
     val languageFlow: Flow<String>
     val locationModeFlow: Flow<String>
+    val themeModeFlow: Flow<String>
     val manualLocationFlow: Flow<Pair<Double, Double>?>
     
     suspend fun setUnits(units: String)
     suspend fun setLanguage(lang: String)
     suspend fun setLocationMode(mode: String)
+    suspend fun setThemeMode(mode: String)
     suspend fun setManualLocation(lat: Double, lon: Double)
     
     fun getCurrentWeather(): Flow<WeatherEntity?>

@@ -37,6 +37,7 @@ fun SettingsScreen(
     val currentUnits by viewModel.units.collectAsState()
     val currentLang by viewModel.language.collectAsState() 
     val locationMode by viewModel.locationMode.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
     var showNoInternetDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -67,10 +68,25 @@ fun SettingsScreen(
                 Text(
                     text = stringResource(R.string.settings_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            SettingsGroup(title = stringResource(R.string.theme_mode)) {
+                SettingsRadioButton(
+                    text = stringResource(R.string.theme_light),
+                    selected = themeMode == "light",
+                    onClick = { viewModel.updateThemeMode("light") }
+                )
+                SettingsRadioButton(
+                    text = stringResource(R.string.theme_dark),
+                    selected = themeMode == "dark",
+                    onClick = { viewModel.updateThemeMode("dark") }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             SettingsGroup(title = stringResource(R.string.settings_location)) {
                 SettingsRadioButton(

@@ -28,11 +28,11 @@ fun SettingsRadioButton(text: String, selected: Boolean, onClick: () -> Unit) {
             selected = selected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = AccentPurple, 
-                unselectedColor = Color.White.copy(alpha=0.5f)
+                selectedColor = MaterialTheme.colorScheme.primary, 
+                unselectedColor = MaterialTheme.colorScheme.onBackground.copy(alpha=0.5f)
             )
         )
         Spacer(Modifier.width(16.dp))
-        Text(text = text, style = MaterialTheme.typography.titleMedium, color = Color.White)
+        Text(text = text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
     }
 }

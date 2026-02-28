@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Dima</string>
+    <string name="app_name">Jawwy</string>
 
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
@@ -27,6 +27,10 @@
     <string name="settings_title">Settings</string>
     <string name="appearance">Appearance</string>
     <string name="dark_mode">Dark Mode</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="theme_light">Light Mode</string>
+    <string name="theme_dark">Dark Mode</string>
+    <string name="theme_system">System Default</string>
     <string name="settings_location">Location</string>
     <string name="gps">GPS</string>
     <string name="map">Map</string>
@@ -55,15 +59,15 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="search_hint">Search for a city...</string>
-    <string name="alarm_channel_name">Dima Alarm</string>
-    <string name="alarm_title">Ramadan Alert</string>
+    <string name="alarm_channel_name">Jawwy Alarm</string>
+    <string name="alarm_title">Weather Alert</string>
     <string name="alarm_text">It\'s time for your scheduled alert</string>
-    <string name="alarm_summary">Dima · Ramadan Alert</string>
-    <string name="weather_channel_name">Dima Weather</string>
+    <string name="alarm_summary">Jawwy · Weather Alert</string>
+    <string name="weather_channel_name">Jawwy Weather</string>
     <string name="weather_title_city">Weather in %1$s</string>
-    <string name="weather_title_default">Dima Weather</string>
+    <string name="weather_title_default">Jawwy Weather</string>
     <string name="weather_text">Current weather is %1$d°C with %2$s.</string>
-    <string name="weather_summary">Dima · Daily Blessing</string>
+    <string name="weather_summary">Jawwy · Daily Update</string>
     <string name="alerts_title">Weather Alerts</string>
     <string name="add_alert">Add Alert</string>
     <string name="alert_type">Alert Type</string>
@@ -130,7 +134,7 @@
     <string name="month_11">Dhu al-Qi‘dah</string>
     <string name="month_12">Dhu al-Hijjah</string>
 
-    <string name="splash_subtitle">Ramadan Edition</string>
+    <string name="splash_subtitle">Modern Weather</string>
 
     <string name="add_first_alert">Add your first alert now</string>
     <string name="no_internet_title">No Internet Connection</string>
@@ -142,6 +146,6 @@
     <string name="onboarding_desc_1">Plan your day with precise weather updates. Know exactly when to seek shade or enjoy the sun.</string>
     <string name="onboarding_title_2">Stay Informed</string>
     <string name="onboarding_desc_2">Get timely weather alerts to keep you and your family safe during sudden weather changes.</string>
-    <string name="onboarding_title_3">Ramadan Blessings</string>
-    <string name="onboarding_desc_3">Experience the holy month with accurate prayer times and weather guidance for your spiritual journey.</string>
+    <string name="onboarding_title_3">Global Forecasts</string>
+    <string name="onboarding_desc_3">Stay updated with precise weather data from any city around the world, anytime.</string>
 </resources>

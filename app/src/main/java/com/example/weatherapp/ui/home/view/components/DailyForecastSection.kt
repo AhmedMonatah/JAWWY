@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.home.view.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,10 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.WeatherEntity
-import com.example.weatherapp.ui.home.view.components.getWeatherIconRes
-import com.example.weatherapp.ui.home.view.components.getWeatherIconTint
-import com.example.weatherapp.ui.theme.AccentPurple
-import com.example.weatherapp.ui.theme.TranslucentBlack
+import com.example.weatherapp.ui.theme.LocalIsDark
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,7 +41,7 @@ fun DailyForecastSection(
             stringResource(R.string.daily_forecast),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = if (isDark) Color.White else Color.Black
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(16.dp))
         
@@ -55,7 +53,6 @@ fun DailyForecastSection(
                     icon = currentWeather?.icon,
                     isSelected = selectedIndex == 0,
                     onClick = { onDaySelected(0) },
-                    isDark = isDark,
                     isToday = true
                 )
             }
@@ -67,8 +64,7 @@ fun DailyForecastSection(
                     temp = item.tempDay.roundToInt(),
                     icon = item.icon,
                     isSelected = selectedIndex == index + 1,
-                    onClick = { onDaySelected(index + 1) },
-                    isDark = isDark
+                    onClick = { onDaySelected(index + 1) }
                 )
             }
         }
@@ -82,11 +78,16 @@ fun DailyCardItem(
     icon: String? = null,
     isSelected: Boolean,
     onClick: () -> Unit,
-    isDark: Boolean,
     isToday: Boolean = false
 ) {
-    val containerColor = if (isSelected) AccentPurple else if (isDark) TranslucentBlack.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.5f)
-    val contentColor = if (isSelected) Color.White else if (isDark) Color.White.copy(alpha = 0.7f) else Color.Gray
+    val isDark = LocalIsDark.current
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val containerColor = when {
+        isSelected -> primaryColor
+        isDark -> Color.Transparent
+        else -> MaterialTheme.colorScheme.surface
+    }
+    val contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
     
     Card(
         modifier = Modifier
@@ -95,7 +96,14 @@ fun DailyCardItem(
             .clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 0.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = when {
+                isSelected -> 4.dp
+                isDark -> 0.dp
+                else -> 2.dp
+            }
+        ),
+        border = if (isSelected && !isDark) null else BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(vertical = 12.dp),
@@ -114,7 +122,7 @@ fun DailyCardItem(
                     tint = iconTint
                 )
             } else {
-                 Icon(painterResource(id = R.drawable.ic_cloud), null, Modifier.size(28.dp), if (isSelected) Color.White else AccentPurple)
+                 Icon(painterResource(id = R.drawable.ic_cloud), null, Modifier.size(28.dp), if (isSelected) Color.White else primaryColor)
             }
 
             if (!isToday || temp != 0) {
@@ -123,7 +131,7 @@ fun DailyCardItem(
                         "$temp°",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (isSelected) Color.White else if (isDark) Color.White else Color.Black
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground
                     )
                 }
             } else {

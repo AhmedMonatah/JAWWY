@@ -33,9 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.model.FavoriteLocation
-import com.example.weatherapp.ui.theme.AccentBlue
-import com.example.weatherapp.ui.theme.AccentPurple
-import com.example.weatherapp.ui.theme.RamadanGold
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -54,26 +51,25 @@ fun FavoriteItem(
                 onLongClick = onLongClick
             ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = if (selected) AccentPurple.copy(alpha = 0.8f) else AccentPurple),
-        border = if (selected) BorderStroke(3.dp, RamadanGold) else null
+        colors = CardDefaults.cardColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary),
+        border = if (selected) BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary) else null
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            // Top Left: Section label
             Text(
                 text = stringResource(R.string.weather),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.TopStart)
             )
             Text(
                 text = location.name,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.align(Alignment.CenterStart).fillMaxWidth(0.7f)
@@ -82,14 +78,14 @@ fun FavoriteItem(
             Text(
                 text = location.condition,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.9f),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                 modifier = Modifier.align(Alignment.BottomStart)
             )
 
             Surface(
                 modifier = Modifier.size(50.dp).align(Alignment.TopEnd),
                 shape = RoundedCornerShape(12.dp),
-                color = Color.White.copy(alpha = 0.15f)
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f)
             ) {
                 val weatherIcon = when {
                     location.icon.startsWith("01") -> Icons.Default.WbSunny
@@ -99,7 +95,6 @@ fun FavoriteItem(
                     location.icon.startsWith("11") -> Icons.Default.WaterDrop
                     location.icon.startsWith("13") -> Icons.Default.AcUnit
                     location.icon.startsWith("50") -> Icons.Default.Cloud
-                    // Fallback to text matching if icon code not useful
                     location.condition.lowercase().contains("cloud") -> Icons.Default.Cloud
                     location.condition.lowercase().contains("rain") -> Icons.Default.WaterDrop
                     location.condition.lowercase().contains("snow") -> Icons.Default.AcUnit
@@ -107,9 +102,9 @@ fun FavoriteItem(
                 }
 
                 val iconColor = when {
-                    location.icon.startsWith("01") -> Color.Yellow
-                    location.icon.startsWith("10") || location.icon.startsWith("09") -> AccentBlue
-                    else -> Color.White
+                    location.icon.startsWith("01") -> Color(0xFFF59E0B)
+                    location.icon.startsWith("10") || location.icon.startsWith("09") -> Color(0xFF64B5F6)
+                    else -> MaterialTheme.colorScheme.onPrimary
                 }
 
                 Icon(
@@ -125,7 +120,7 @@ fun FavoriteItem(
                     text = "${location.currentTemp.toInt()}°",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.align(Alignment.BottomEnd)
                 )
             }

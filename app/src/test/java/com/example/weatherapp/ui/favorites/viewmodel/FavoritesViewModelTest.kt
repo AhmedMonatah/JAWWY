@@ -52,7 +52,7 @@ class FavoritesViewModelTest {
     @Test
     fun favorites_initialValueIsEmptyList() = runTest {
         viewModel.favorites.test {
-            assertThat(awaitItem(), `is`(emptyList<FavoriteLocation>()))
+            assertThat(awaitItem(), `is`(emptyList()))
         }
     }
 
@@ -75,13 +75,13 @@ class FavoritesViewModelTest {
         val favorite = FavoriteLocation(1, "Cairo", 30.0444, 31.2357, 25.0, "Sunny", "01d")
         
         viewModel.selectedFavorites.test {
-            assertThat(awaitItem(), `is`(emptySet<FavoriteLocation>()))
+            assertThat(awaitItem(), `is`(emptySet()))
             
             viewModel.toggleSelection(favorite)
             assertThat(awaitItem(), `is`(setOf(favorite)))
             
             viewModel.toggleSelection(favorite)
-            assertThat(awaitItem(), `is`(emptySet<FavoriteLocation>()))
+            assertThat(awaitItem(), `is`(emptySet()))
         }
     }
 }

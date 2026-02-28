@@ -9,5 +9,6 @@ data class Alert(
     val startTime: Long,
     val endTime: Long,
     val type: String,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val ringtoneUri: String? = null
 )

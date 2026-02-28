@@ -15,6 +15,7 @@ import com.example.weatherapp.ui.onboarding.view.OnboardingScreen
 import com.example.weatherapp.ui.splash.view.SplashScreen
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.isSystemInDarkTheme
 
 class MainActivity : AppCompatActivity() {
     private lateinit var repository: WeatherRepository
@@ -30,7 +31,12 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val isDark = true
+            val themeMode by repository.themeModeFlow.collectAsState(initial = "system")
+            val isDark = when (themeMode) {
+                "light" -> false
+                "dark" -> true
+                else -> isSystemInDarkTheme()
+            }
 
             val currentLang by repository.languageFlow.collectAsState(initial = "en")
             LaunchedEffect(currentLang) {

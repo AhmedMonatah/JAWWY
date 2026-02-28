@@ -32,7 +32,9 @@ class AppContainerImpl(private val context: Context) : IAppContainer {
             context,
             WeatherDatabase::class.java,
             "weather_database"
-        ).build()
+        )
+        .addMigrations(WeatherDatabase.MIGRATION_6_7)
+        .build()
     }
 
     private val weatherDao: WeatherDao by lazy {

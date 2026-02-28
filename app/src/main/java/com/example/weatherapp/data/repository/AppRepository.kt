@@ -71,11 +71,13 @@ class AppRepository(
     override val unitsFlow: Flow<String> = localDataSource.getUnits()
     override val languageFlow: Flow<String> = localDataSource.getLanguage()
     override val locationModeFlow: Flow<String> = localDataSource.getLocationMode()
+    override val themeModeFlow: Flow<String> = localDataSource.getThemeMode()
     override val manualLocationFlow: Flow<Pair<Double, Double>?> = localDataSource.getManualLocation()
 
     override suspend fun setUnits(units: String) = localDataSource.setUnits(units)
     override suspend fun setLanguage(lang: String) = localDataSource.setLanguage(lang)
     override suspend fun setLocationMode(mode: String) = localDataSource.setLocationMode(mode)
+    override suspend fun setThemeMode(mode: String) = localDataSource.setThemeMode(mode)
     override suspend fun setManualLocation(lat: Double, lon: Double) = localDataSource.setManualLocation(lat, lon)
 
     override fun getCurrentWeather(): Flow<WeatherEntity?> = localDataSource.getCurrentWeather()

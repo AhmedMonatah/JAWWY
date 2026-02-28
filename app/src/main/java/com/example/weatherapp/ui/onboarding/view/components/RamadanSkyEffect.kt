@@ -2,6 +2,7 @@ package com.example.weatherapp.ui.onboarding.view.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -12,6 +13,9 @@ import kotlin.random.Random
 
 @Composable
 fun RamadanSkyEffect() {
+    val isDark = MaterialTheme.colorScheme.background != Color.White
+    if (!isDark) return
+
     val particles = remember { List(20) { Random.nextFloat() to Random.nextFloat() } }
     Canvas(modifier = Modifier.fillMaxSize()) {
         particles.forEach { (x, y) ->

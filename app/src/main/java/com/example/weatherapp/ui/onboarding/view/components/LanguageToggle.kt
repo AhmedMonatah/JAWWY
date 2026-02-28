@@ -24,7 +24,7 @@ fun LanguageToggle(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.1f))
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -34,14 +34,14 @@ fun LanguageToggle(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) RamadanGold else Color.Transparent)
+                    .background(if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.primary else Color.Transparent)
                     .clickable { onLangChange(code) }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = label,
-                    color = if (isSelected) RamadanMidnight else Color.White,
+                    color = if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.onPrimary else androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )

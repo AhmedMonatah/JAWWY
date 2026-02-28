@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.model.Alert
+import com.example.weatherapp.ui.theme.LocalIsDark
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.ui.theme.RamadanGold
 import java.text.SimpleDateFormat
@@ -40,6 +41,7 @@ fun AlertItem(
     val timeFormatter = remember(locale) { SimpleDateFormat("h:mm a", locale) }
     val dateFormatter = remember(locale) { SimpleDateFormat("MMM d", locale) }
 
+    val isDark = LocalIsDark.current
     Card(
         modifier = Modifier.fillMaxWidth().combinedClickable(
             onClick = onClick,
@@ -47,10 +49,10 @@ fun AlertItem(
         ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = RamadanDarkBlue.copy(alpha = if (alert.isEnabled) { if (selected) 0.8f else 1f } else 0.5f)
+            containerColor = if (isDark) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (alert.isEnabled) { if (selected) 0.8f else 1f } else 0.5f)
         ),
-        border = if (selected) BorderStroke(3.dp, RamadanGold) else null,
-        elevation = CardDefaults.cardElevation(if (alert.isEnabled) 4.dp else 1.dp)
+        border = if (selected) BorderStroke(3.dp, RamadanGold) else BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+        elevation = CardDefaults.cardElevation(if (isDark) 0.dp else if (alert.isEnabled) 4.dp else 1.dp)
     ) {
         Row(
             modifier = Modifier
@@ -83,7 +85,7 @@ fun AlertItem(
                            else stringResource(R.string.notification),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = if (alert.isEnabled) Color.White else Color.White.copy(alpha = 0.45f)
+                    color = if (alert.isEnabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 val startStr = timeFormatter.format(Date(alert.startTime))
@@ -96,7 +98,7 @@ fun AlertItem(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = if (alert.isEnabled) 0.6f else 0.3f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (alert.isEnabled) 0.6f else 0.3f)
                 )
             }
 
@@ -106,8 +108,8 @@ fun AlertItem(
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = RamadanDarkBlue,
                     checkedTrackColor = RamadanGold,
-                    uncheckedThumbColor = Color.White.copy(alpha = 0.5f),
-                    uncheckedTrackColor = Color.White.copy(alpha = 0.15f)
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)
                 )
             )
         }

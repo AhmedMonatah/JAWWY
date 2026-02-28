@@ -167,8 +167,8 @@ fun AlertsScreen(
     if (showBottomSheet) {
         AddAlertDialog(
             onDismiss = { viewModel.setShowBottomSheet(false) },
-            onSave = { start, end, type ->
-                viewModel.addAlert(start, end, type)
+            onSave = { start, end, type, ringtoneUri ->
+                viewModel.addAlert(start, end, type, ringtoneUri)
                 viewModel.setShowBottomSheet(false)
             }
         )

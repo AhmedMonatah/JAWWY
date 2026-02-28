@@ -16,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
 
 @Composable
 fun SelectionDeleteBar(
@@ -35,7 +34,7 @@ fun SelectionDeleteBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            color = RamadanDarkBlue,
+            color = MaterialTheme.colorScheme.surfaceVariant,
             shape = MaterialTheme.shapes.extraLarge,
             shadowElevation = 8.dp
         ) {
@@ -51,13 +50,13 @@ fun SelectionDeleteBar(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.cancel),
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "$selectedCount",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )

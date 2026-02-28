@@ -66,7 +66,7 @@ fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
             text = stringResource(data.titleResId),
             fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = RamadanGold,
+            color = if (androidx.compose.material3.MaterialTheme.colorScheme.background != Color.White) com.example.weatherapp.ui.theme.RamadanGold else androidx.compose.material3.MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
                 translationY = (1 - enterAnim.value) * 40f
@@ -79,7 +79,7 @@ fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
         Text(
             text = stringResource(data.descriptionResId),
             fontSize = 18.sp,
-            color = Color.White.copy(alpha = 0.9f),
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
             textAlign = TextAlign.Center,
             lineHeight = 28.sp,
             modifier = Modifier.graphicsLayer {

@@ -32,6 +32,8 @@ interface LocalDataSource {
     suspend fun setLanguage(lang: String)
     fun getLocationMode(): Flow<String>
     suspend fun setLocationMode(mode: String)
+    fun getThemeMode(): Flow<String>
+    suspend fun setThemeMode(mode: String)
     fun getManualLocation(): Flow<Pair<Double, Double>?>
     suspend fun setManualLocation(lat: Double, lon: Double)
     fun getOnboardingShown(): Flow<Boolean>

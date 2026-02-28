@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
 
 
 @Composable
@@ -25,8 +27,13 @@ fun AlertsVisual() {
         label = ""
     )
 
-    Box {
-        Text(text = "⚡", fontSize = 120.sp, modifier = Modifier.align(Alignment.TopCenter))
-        Text(text = "⚠️", fontSize = 60.sp, modifier = Modifier.align(Alignment.BottomEnd).graphicsLayer { this.alpha = alpha })
+    Box(
+        modifier = Modifier.size(240.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = "⚡", fontSize = 120.sp, modifier = Modifier.align(Alignment.TopCenter))
+            Text(text = "⚠️", fontSize = 60.sp, modifier = Modifier.align(Alignment.BottomEnd).graphicsLayer { this.alpha = alpha })
+        }
     }
 }
