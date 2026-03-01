@@ -33,13 +33,13 @@ class NotificationWorker(
         try {
             val weather = fetchWeather()
             if (weather != null) {
-                NotificationHelper.createWeatherNotification(applicationContext, weather.temp.toInt(), weather.description, weather.cityName)
+                NotificationHelper.createWeatherNotification(applicationContext, weather.temp, weather.description, weather.cityName)
             } else {
-                NotificationHelper.createWeatherNotification(applicationContext, 0, "Weather data unavailable", "")
+                NotificationHelper.createWeatherNotification(applicationContext, 0.0, "Weather data unavailable", "")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Work failed", e)
-            NotificationHelper.createWeatherNotification(applicationContext, 0, "Weather update error", "")
+            NotificationHelper.createWeatherNotification(applicationContext, 0.0, "Weather update error", "")
         }
 
         return Result.success()

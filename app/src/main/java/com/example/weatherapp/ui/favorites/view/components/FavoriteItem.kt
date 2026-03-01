@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.favorites.view.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,7 +52,15 @@ fun FavoriteItem(
                 onLongClick = onLongClick
             ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSystemInDarkTheme()) {
+                Color.Transparent
+            } else if (selected) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            } else {
+                Color.White.copy(alpha = 0.15f)
+            }
+        ),
         border = if (selected) BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary) else null
     ) {
         Box(
