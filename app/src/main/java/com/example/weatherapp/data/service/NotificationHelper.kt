@@ -191,7 +191,7 @@ object NotificationHelper {
             .build()
     }
 
-    fun createWeatherNotification(context: Context, temp: Int, desc: String, city: String) {
+    fun createWeatherNotification(context: Context, temp: Double, desc: String, city: String) {
         val channelId = "weather_channel"
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         

@@ -43,10 +43,8 @@ fun AddAlertDialog(
     var showStartPicker by remember { mutableStateOf(false) }
     var showEndPicker   by remember { mutableStateOf(false) }
 
-    // Step 2: schedule after notification permission granted
     var pendingSave by remember { mutableStateOf(false) }
 
-    // POST_NOTIFICATIONS permission launcher
     val notifPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -57,7 +55,6 @@ fun AddAlertDialog(
         onDismiss()
     }
 
-    // Exact alarm permission launcher (alarm type on API 31+)
     val exactAlarmLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { _ ->

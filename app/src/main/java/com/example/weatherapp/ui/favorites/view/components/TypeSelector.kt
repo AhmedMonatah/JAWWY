@@ -23,8 +23,10 @@ fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier:
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
-            .then(
+            .background(
+                if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            ).then(
                 if (selected) Modifier.border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
                 else Modifier
             )

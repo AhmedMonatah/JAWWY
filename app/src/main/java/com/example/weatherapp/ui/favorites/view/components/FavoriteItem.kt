@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.favorites.view.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,6 +55,7 @@ fun FavoriteItem(
         colors = CardDefaults.cardColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary),
         border = if (selected) BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary) else null
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,7 +104,7 @@ fun FavoriteItem(
                 }
 
                 val iconColor = when {
-                    location.icon.startsWith("01") -> Color(0xFFF59E0B)
+                    location.icon.startsWith("01") -> Color.White
                     location.icon.startsWith("10") || location.icon.startsWith("09") -> Color(0xFF64B5F6)
                     else -> MaterialTheme.colorScheme.onPrimary
                 }
