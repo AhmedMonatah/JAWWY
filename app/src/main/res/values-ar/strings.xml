@@ -118,7 +118,11 @@
     <string name="weather_channel_name">طقس جوّي</string>
     <string name="weather_title_city">الطقس في %1$s</string>
     <string name="weather_title_default">طقس جوّي</string>
-    <string name="weather_text">الطقس الحالي %1$d°م مع %2$s.</string>
+    <string name="weather_text">الطقس الحالي %1$.1f°م مع %2$s.</string>
+    <string name="weather_personal_subtitle">الطقس اليوم %1$.1f°م و%2$s</string>
+    <string name="suggestion_wonderful_walk">رائع للمشي</string>
+    <string name="suggestion_stay_home">من الأفضل البقاء في المنزل</string>
+    <string name="suggestion_normal">أتمنى لك يوماً سعيداً</string>
     <string name="weather_summary">جوّي · تحديث يومي</string>
     <string name="start_time_label">البدء</string>
     <string name="end_time_label">الانتهاء</string>

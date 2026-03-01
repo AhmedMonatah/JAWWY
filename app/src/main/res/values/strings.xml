@@ -66,7 +66,11 @@
     <string name="weather_channel_name">Jawwy Weather</string>
     <string name="weather_title_city">Weather in %1$s</string>
     <string name="weather_title_default">Jawwy Weather</string>
-    <string name="weather_text">Current weather is %1$d°C with %2$s.</string>
+    <string name="weather_text">Current weather is %1$.1f°C with %2$s.</string>
+    <string name="weather_personal_subtitle">Weather today is %1$.1f°C and %2$s</string>
+    <string name="suggestion_wonderful_walk">wonderful for a walk</string>
+    <string name="suggestion_stay_home">better to stay home</string>
+    <string name="suggestion_normal">have a nice day</string>
     <string name="weather_summary">Jawwy · Daily Update</string>
     <string name="alerts_title">Weather Alerts</string>
     <string name="add_alert">Add Alert</string>

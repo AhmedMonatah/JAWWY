@@ -25,7 +25,7 @@ fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier:
             .clip(RoundedCornerShape(10.dp))
             .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
             .then(
-                if (selected) Modifier.border(1.dp, RamadanGold, RoundedCornerShape(10.dp))
+                if (selected) Modifier.border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
                 else Modifier
             )
             .clickable(onClick = onClick)

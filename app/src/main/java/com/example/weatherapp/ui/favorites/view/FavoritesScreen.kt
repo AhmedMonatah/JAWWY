@@ -43,7 +43,6 @@ fun FavoritesScreen(
     val favorites by viewModel.favorites.collectAsState()
     val selectedFavorites by viewModel.selectedFavorites.collectAsState()
     val showNoInternetDialog by viewModel.showNoInternetDialog.collectAsState()
-    val context = LocalContext.current
     val delete= stringResource(R.string.deleted)
     val undo=stringResource(R.string.undo)
 

@@ -104,13 +104,19 @@ object NotificationHelper {
 
 
     fun showAlarmNotification(context: Context, alertId: Int) {
+        android.util.Log.d("NotificationHelper", "showAlarmNotification: alertId=$alertId")
         val intent = Intent(context, AlarmService::class.java).apply {
             putExtra("alertId", alertId)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
-            context.startService(intent)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+            android.util.Log.d("NotificationHelper", "Service start command sent")
+        } catch (e: Exception) {
+            android.util.Log.e("NotificationHelper", "Failed to start AlarmService", e)
         }
     }
 
@@ -142,7 +148,19 @@ object NotificationHelper {
         }
         
         val text = if (weather != null) {
-            "✨ ${context.getString(R.string.weather_text, weather.temp, weather.description)}"
+            val description = weather.description.lowercase()
+            val temp = weather.temp
+            
+            // Logic for personal suggestion
+            val suggestion = when {
+                (description.contains("clear") || description.contains("clouds")) && temp > 15 -> 
+                    context.getString(R.string.suggestion_wonderful_walk)
+                description.contains("rain") || description.contains("snow") || description.contains("storm") || temp < 5 -> 
+                    context.getString(R.string.suggestion_stay_home)
+                else -> context.getString(R.string.suggestion_normal)
+            }
+            
+            "✨ ${context.getString(R.string.weather_personal_subtitle, temp, suggestion)}"
         } else {
             "✨ ${context.getString(R.string.alarm_text)}"
         }
