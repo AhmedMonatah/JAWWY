@@ -52,17 +52,10 @@ fun FavoriteItem(
                 onLongClick = onLongClick
             ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSystemInDarkTheme()) {
-                Color.Transparent
-            } else if (selected) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-            } else {
-                Color.White.copy(alpha = 0.15f)
-            }
-        ),
+        colors = CardDefaults.cardColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary),
         border = if (selected) BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary) else null
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,7 +104,7 @@ fun FavoriteItem(
                 }
 
                 val iconColor = when {
-                    location.icon.startsWith("01") -> Color(0xFFF59E0B)
+                    location.icon.startsWith("01") -> Color.White
                     location.icon.startsWith("10") || location.icon.startsWith("09") -> Color(0xFF64B5F6)
                     else -> MaterialTheme.colorScheme.onPrimary
                 }
