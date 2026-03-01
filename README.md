@@ -29,8 +29,17 @@ JAMMA App is an **Android mobile application** that displays the weather status 
 ---
 
 ## 🖼 Screenshots
-
 <table>
+  <tr>
+    <td align="center">Onboarding 1
+    <td align="center">Onboarding 2</td>
+    <td align="center">Onboarding1 3</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/984f2263-3f20-4b31-a7bd-522a6d44e26a" alt="OnBoarding 1" width="220"/></td>
+    <td><img src="https://github.com/user-attachments/assets/19f2c390-3c4b-477e-b1b8-e0392fefb19e" alt="OnBoarding 2" width="220"/></td>
+    <td><img src="https://github.com/user-attachments/assets/0aee0468-57d5-4300-b0c5-13c871238909" alt="OnBoarding 3" width="220"/></td>
+  </tr>
   <tr>
     <td align="center">Home</td>
     <td align="center">Favorites</td>
