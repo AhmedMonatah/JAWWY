@@ -16,12 +16,4 @@ abstract class WeatherDatabase : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun alertDao(): AlertDao
-
-    companion object {
-        val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE alerts ADD COLUMN ringtoneUri TEXT DEFAULT NULL")
-            }
-        }
-    }
 }

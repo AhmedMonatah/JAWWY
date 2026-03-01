@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -21,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class AlarmService : Service() {
 
@@ -28,13 +30,16 @@ class AlarmService : Service() {
     private var vibrator: Vibrator? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val TAG = "AlarmService"
 
     companion object {
         const val ACTION_STOP_ALARM = "ACTION_STOP_ALARM"
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        android.util.Log.d(TAG, "onStartCommand: action=${intent?.action} alertId=${intent?.getIntExtra("alertId", -1)}")
         if (intent?.action == ACTION_STOP_ALARM) {
+            android.util.Log.d(TAG, "Stopping alarm via action")
             stopAlarm()
             stopSelf()
             return START_NOT_STICKY
@@ -49,18 +54,41 @@ class AlarmService : Service() {
     }
 
     private fun startAlarmForeground(alertId: Int) {
+        android.util.Log.d(TAG, "startAlarmForeground: alertId=$alertId")
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WeatherApp:AlarmWakeLock")
         wakeLock?.acquire(10 * 60 * 1000L) // 10 minutes max
 
-        val notification = NotificationHelper.getAlarmNotification(this, alertId, null)
-        startForeground(alertId, notification)
+        val repository = (applicationContext as WeatherApplication).container.weatherRepository
+        val cachedWeather = runBlocking(Dispatchers.IO) {
+            repository.getCurrentWeather().firstOrNull()
+        }
+        
+        val notification = NotificationHelper.getAlarmNotification(this, alertId, cachedWeather)
+        
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(alertId, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            } else {
+                startForeground(alertId, notification)
+            }
+            android.util.Log.d(TAG, "startForeground called successfully")
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Error in startForeground", e)
+        }
 
         serviceScope.launch {
-            val weather = fetchWeather()
-            val updatedNotification = NotificationHelper.getAlarmNotification(this@AlarmService, alertId, weather)
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.notify(alertId, updatedNotification)
+            try {
+                android.util.Log.d(TAG, "Weather fetch started in coroutine")
+                val weather = fetchWeather()
+                android.util.Log.d(TAG, "Weather fetch completed: ${weather?.cityName}")
+                val updatedNotification = NotificationHelper.getAlarmNotification(this@AlarmService, alertId, weather)
+                val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.notify(alertId, updatedNotification)
+                android.util.Log.d(TAG, "Notification updated with weather")
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Error in weather fetch coroutine", e)
+            }
         }
     }
 
@@ -85,25 +113,53 @@ class AlarmService : Service() {
     }
 
     private fun playAlarm() {
-        if (mediaPlayer != null) return
+        android.util.Log.d(TAG, "playAlarm called")
+        if (mediaPlayer != null) {
+            android.util.Log.d(TAG, "mediaPlayer already exists, skipping")
+            return
+        }
         
         try {
-            mediaPlayer = MediaPlayer.create(this, R.raw.alarm).apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
+            android.util.Log.d(TAG, "Initializing MediaPlayer")
+            mediaPlayer = MediaPlayer().apply {
+                val attributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                setAudioAttributes(attributes)
+                
+                // Use setDataSource with raw resource URI for better stability
+                val assetFileDescriptor = resources.openRawResourceFd(R.raw.alarm)
+                setDataSource(assetFileDescriptor.fileDescriptor, assetFileDescriptor.startOffset, assetFileDescriptor.length)
+                assetFileDescriptor.close()
+                
                 isLooping = true
                 setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-                setOnCompletionListener { it.start() } // Explicitly restart for short files
                 setVolume(1.0f, 1.0f)
+                
+                prepare()
                 start()
+                android.util.Log.d(TAG, "MediaPlayer started successfully")
             }
             setupVibrator()
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e(TAG, "Failed to play alarm", e)
+            // Fallback to system alarm sound if raw resource fails
+            try {
+                val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(applicationContext, alarmUri)
+                    setAudioAttributes(AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build())
+                    isLooping = true
+                    prepare()
+                    start()
+                }
+            } catch (e2: Exception) {
+                e2.printStackTrace()
+            }
         }
     }
 

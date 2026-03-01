@@ -64,7 +64,7 @@ fun AlertItem(
                 modifier = Modifier
                     .size(44.dp)
                     .background(
-                        RamadanGold.copy(alpha = if (alert.isEnabled) 0.18f else 0.08f),
+                        MaterialTheme.colorScheme.primary.copy(alpha = if (alert.isEnabled) 0.18f else 0.08f),
                         RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -72,7 +72,7 @@ fun AlertItem(
                 Icon(
                     imageVector = if (isAlarm) Icons.Default.Alarm else Icons.Default.NotificationsActive,
                     contentDescription = null,
-                    tint = if (alert.isEnabled) RamadanGold else RamadanGold.copy(alpha = 0.4f),
+                    tint = if (alert.isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -106,8 +106,8 @@ fun AlertItem(
                 checked = alert.isEnabled,
                 onCheckedChange = { onToggle() },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = RamadanDarkBlue,
-                    checkedTrackColor = RamadanGold,
+                    checkedThumbColor = MaterialTheme.colorScheme.surface,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
                     uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)
                 )
