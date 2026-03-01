@@ -30,12 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.ui.home.view.components.getWeatherIconRes
-import com.example.weatherapp.ui.home.view.components.getWeatherIconTint
-import com.example.weatherapp.ui.theme.RamadanDeepNavy
-import com.example.weatherapp.ui.theme.RamadanGold
-import com.example.weatherapp.ui.theme.RamadanMidnight
-import com.example.weatherapp.ui.theme.RamadanMoonGlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,7 +47,7 @@ fun HourlyForecastSection(
             stringResource(R.string.hourly_forecast),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = if (isDark) Color.White else Color.Black
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         LazyRow(
@@ -70,15 +64,15 @@ fun HourlyForecastSection(
 
 @Composable
 fun HourlyForecastItem(time: String, temp: Int, description: String, icon: String, isDark: Boolean) {
-    val containerColor = if (isDark) RamadanMidnight.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.7f)
-    val contentColor = if (isDark) Color.White else RamadanDeepNavy
-    val timeColor = if (isDark) RamadanMoonGlow else Color.Gray
+    val containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val timeColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
     Card(
         shape = RoundedCornerShape(30.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         modifier = Modifier.width(70.dp).height(120.dp),
-        border = if (isDark) BorderStroke(1.dp, RamadanGold.copy(alpha = 0.2f)) else null
+        border = if (isDark) BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)) else null
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),

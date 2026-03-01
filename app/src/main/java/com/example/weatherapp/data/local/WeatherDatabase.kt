@@ -8,10 +8,20 @@ import com.example.weatherapp.data.local.dao.WeatherDao
 import com.example.weatherapp.model.FavoriteLocation
 import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.WeatherEntity
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [WeatherEntity::class, ForecastEntity::class, FavoriteLocation::class, com.example.weatherapp.model.HourlyForecastEntity::class, com.example.weatherapp.model.Alert::class], version = 6, exportSchema = false)
+@Database(entities = [WeatherEntity::class, ForecastEntity::class, FavoriteLocation::class, com.example.weatherapp.model.HourlyForecastEntity::class, com.example.weatherapp.model.Alert::class], version = 7, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun alertDao(): AlertDao
+
+    companion object {
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alerts ADD COLUMN ringtoneUri TEXT DEFAULT NULL")
+            }
+        }
+    }
 }

@@ -89,6 +89,7 @@ fun MainScreen(
     }
     
     val isCold = (currentWeather?.temp ?: 20.0) < 5.0
+    val isDark = MaterialTheme.colorScheme.background != Color.White
 
     val showBottomBar = remember(currentRoute, selectionMode.value) {
         val onDashboard = currentRoute == Screen.Dashboard.route || currentRoute == null
@@ -96,8 +97,10 @@ fun MainScreen(
         onDashboard && !onMap && !selectionMode.value
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(DashboardBackground)) {
-        WeatherBackground(weatherType = weatherType, isCold = isCold)
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        if (isDark) {
+            WeatherBackground(weatherType = weatherType, isCold = isCold)
+        }
         
         Scaffold(
             containerColor = Color.Transparent,
@@ -114,9 +117,9 @@ fun MainScreen(
                 SnackbarHost(hostState = snackbarHostState) { data ->
                     Snackbar(
                         snackbarData = data,
-                        containerColor = RamadanDarkBlue,
-                        contentColor = Color.White,
-                        actionColor = RamadanGold,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        actionColor = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.padding(12.dp)
                     )

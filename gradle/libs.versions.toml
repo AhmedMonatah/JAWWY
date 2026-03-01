@@ -80,7 +80,7 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "googleMaps" }
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+# Removed redundant room-compiler
 adhan = { group = "com.batoulapps.adhan", name = "adhan", version.ref = "adhan" }
 ummalqura = { group = "com.github.msarhan", name = "ummalqura-calendar", version.ref = "ummalqura" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }

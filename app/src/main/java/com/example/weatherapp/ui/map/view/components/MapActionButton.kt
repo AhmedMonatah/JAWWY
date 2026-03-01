@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
-import com.example.weatherapp.ui.theme.AccentPurple
+
 
 @Composable
 fun MapActionButton(
@@ -31,7 +31,7 @@ fun MapActionButton(
             .height(60.dp)
             .fillMaxWidth(0.7f),
         shape = RoundedCornerShape(30.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -23,20 +23,20 @@ fun EmptyAlertsState() {
             Icon(
                 imageVector = Icons.Default.NotificationsActive,
                 contentDescription = null,
-                tint = RamadanGold.copy(alpha = 0.12f),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                 modifier = Modifier.size(110.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 stringResource(R.string.no_alerts),
-                color = Color.White.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 stringResource(R.string.add_first_alert),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.2f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
             )
         }
     }

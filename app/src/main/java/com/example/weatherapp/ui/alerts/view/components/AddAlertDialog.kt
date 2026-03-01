@@ -1,6 +1,5 @@
 package com.example.weatherapp.ui.alerts.view.components
 
-import android.Manifest
 import android.app.AlarmManager
 import android.app.TimePickerDialog
 import android.content.Context
@@ -22,21 +21,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.favorites.view.components.TypeSelector
 import com.example.weatherapp.ui.theme.RamadanDarkBlue
 import com.example.weatherapp.ui.theme.RamadanDeepNavy
 import com.example.weatherapp.ui.theme.RamadanGold
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAlertDialog(
     onDismiss: () -> Unit,
-    onSave: (startTime: Long, endTime: Long, type: String) -> Unit
+    onSave: (startTime: Long, endTime: Long, type: String, ringtoneUri: String?) -> Unit
 ) {
     val context = LocalContext.current
     val now = System.currentTimeMillis()
@@ -51,12 +46,12 @@ fun AddAlertDialog(
     // Step 2: schedule after notification permission granted
     var pendingSave by remember { mutableStateOf(false) }
 
-    // POST_NOTIFICATIONS permission launcher (needed for BOTH alarm + notification)
+    // POST_NOTIFICATIONS permission launcher
     val notifPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted && pendingSave) {
-            onSave(startTime, if (type == "alarm") 0L else endTime, type)
+            onSave(startTime, if (type == "alarm") 0L else endTime, type, null)
         }
         pendingSave = false
         onDismiss()
@@ -65,15 +60,14 @@ fun AddAlertDialog(
     // Exact alarm permission launcher (alarm type on API 31+)
     val exactAlarmLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) {
+    ) { _ ->
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val canSchedule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             alarmManager.canScheduleExactAlarms()
         } else true
         if (canSchedule) {
-            // Now also ask for notification permission if needed
             requestNotifThenSave(context, notifPermLauncher, setPending = { pendingSave = true }) {
-                onSave(startTime, 0L, type)
+                onSave(startTime, 0L, type, null)
                 onDismiss()
             }
         } else {
@@ -83,7 +77,6 @@ fun AddAlertDialog(
 
     fun trySave() {
         if (type == "alarm") {
-            // 1. Check exact alarm permission first
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                 if (!alarmManager.canScheduleExactAlarms()) {
@@ -97,7 +90,7 @@ fun AddAlertDialog(
             }
         }
         requestNotifThenSave(context, notifPermLauncher, setPending = { pendingSave = true }) {
-            onSave(startTime, if (type == "alarm") 0L else endTime, type)
+            onSave(startTime, if (type == "alarm") 0L else endTime, type, null)
             onDismiss()
         }
     }
@@ -134,7 +127,7 @@ fun AddAlertDialog(
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = RamadanDarkBlue) {
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,17 +139,17 @@ fun AddAlertDialog(
                 text = stringResource(R.string.add_alert),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.alert_type),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White.copy(alpha = 0.8f))
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(RamadanDeepNavy, RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
@@ -178,7 +171,7 @@ fun AddAlertDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.duration),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White.copy(alpha = 0.8f))
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
 
                 if (type == "alarm") {
                     TimeButton(
@@ -216,17 +209,17 @@ fun AddAlertDialog(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
                 ) { Text(stringResource(R.string.cancel)) }
 
                 Button(
                     onClick = { trySave() },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     elevation = ButtonDefaults.buttonElevation(6.dp)
                 ) {
-                    Text(stringResource(R.string.save_alert), fontWeight = FontWeight.Bold, color = RamadanDeepNavy)
+                    Text(stringResource(R.string.save_alert), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }

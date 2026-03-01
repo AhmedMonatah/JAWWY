@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,7 +33,7 @@ public fun EmptyFavoritesState() {
             Icon(
                 imageVector = Icons.Default.Favorite,
                 contentDescription = null,
-                tint = RamadanGold.copy(alpha = 0.1f),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                 modifier = Modifier.size(120.dp)
             )
 
@@ -40,7 +41,7 @@ public fun EmptyFavoritesState() {
 
             Text(
                 stringResource(R.string.no_favorites),
-                color = Color.White.copy(alpha = 0.4f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
             )
         }
     }

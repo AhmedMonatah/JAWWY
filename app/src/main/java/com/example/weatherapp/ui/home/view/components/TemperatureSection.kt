@@ -29,7 +29,7 @@ fun TemperatureSection(
     textColor: Color = Color.White,
     weatherType: String = "clear"
 ) {
-    val isDark = true
+    val isDark = MaterialTheme.colorScheme.background != Color.White
     val iconRes = getWeatherIconRes(weatherType, condition)
     val iconTint = getWeatherIconTint(weatherType, condition)
 

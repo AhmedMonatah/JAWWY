@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +40,7 @@ fun SegmentedArcIndicator(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        val isDark = true
+        val isDark = MaterialTheme.colorScheme.background != Color.White
         val activeArcColor = if (isDark) AccentPurple else Color(0xFF1565C0)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 8f

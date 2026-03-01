@@ -10,7 +10,7 @@ data class OnboardingPageData(
 )
 
 enum class PageType {
-    RAMADAN_NIGHT,
+    GLOBAL_WEATHER,
     WEATHER_DAY,
     ALERTS
 }
@@ -29,6 +29,6 @@ val onboardingPages = listOf(
     OnboardingPageData(
         titleResId = R.string.onboarding_title_3,
         descriptionResId = R.string.onboarding_desc_3,
-        type = PageType.RAMADAN_NIGHT
+        type = PageType.GLOBAL_WEATHER
     )
 )

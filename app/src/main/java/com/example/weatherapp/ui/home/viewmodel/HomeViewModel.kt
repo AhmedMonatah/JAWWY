@@ -79,9 +79,12 @@ class HomeViewModel(
         _selectedDayIndex
     ) { args ->
         val currentTyped = args[0] as? WeatherEntity
+        @Suppress("UNCHECKED_CAST")
         val dailyTyped = args[1] as List<ForecastEntity>
+        @Suppress("UNCHECKED_CAST")
         val hourlyTyped = args[2] as List<HourlyForecastEntity>
         val langTyped = args[3] as String
+        @Suppress("UNCHECKED_CAST")
         val statusTyped = args[4] as? Resource<WeatherEntity>
         val indexTyped = args[5] as Int
 

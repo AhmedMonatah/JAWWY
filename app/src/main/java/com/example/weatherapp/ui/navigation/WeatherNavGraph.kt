@@ -32,7 +32,6 @@ sealed class Screen(val route: String) {
         fun createRoute(source: String = "favorites") = "map?source=$source"
     }
     object Onboarding : Screen("onboarding")
-    object Islamic : Screen("dashboard?page=4")
 }
 
 @Composable

@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.weatherapp.ui.theme.RamadanGold
+
 
 @Composable
 fun HeaderSection(
@@ -42,9 +42,9 @@ fun HeaderSection(
                 Surface(
                     modifier = Modifier.size(40.dp),
                     shape = CircleShape,
-                    color = RamadanGold.copy(alpha = 0.2f)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 ) {
-                    Icon(Icons.Default.LocationOn, null, Modifier.padding(8.dp), RamadanGold)
+                    Icon(Icons.Default.LocationOn, null, Modifier.padding(8.dp), MaterialTheme.colorScheme.primary)
                 }
                 Spacer(Modifier.width(12.dp))
             }

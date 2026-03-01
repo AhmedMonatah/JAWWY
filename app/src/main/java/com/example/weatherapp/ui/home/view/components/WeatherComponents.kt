@@ -12,30 +12,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-
-import com.example.weatherapp.ui.theme.*
-
+import com.example.weatherapp.ui.theme.LocalIsDark
 @Composable
-fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, progress: Float, icon: ImageVector) {
-    val isDark = true
-    val containerColor = if (isDark) RamadanMidnight.copy(alpha = 0.7f) else MaterialTheme.colorScheme.surfaceContainerHigh
-    val borderStroke = if (isDark) BorderStroke(1.dp, RamadanGold.copy(alpha = 0.3f)) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    val iconBgColor = if (isDark) RamadanGold.copy(alpha = 0.15f) else MaterialTheme.colorScheme.primaryContainer
-    val iconTintColor = if (isDark) RamadanGold else MaterialTheme.colorScheme.primary
+fun StatArcCard(
+    modifier: Modifier,
+    title: String,
+    value: String,
+    unit: String,
+    progress: Float,
+    icon: ImageVector
+) {
+    val isDark = LocalIsDark.current
+    val iconBgColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+    val iconTintColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 4.dp),
-        border = borderStroke
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDark) Color.Transparent else Color.White,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 4.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp), // padding مناسب
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -43,12 +51,16 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
                     shape = CircleShape,
                     color = iconBgColor
                 ) {
-                    Icon(icon, null, Modifier.padding(8.dp), iconTintColor)
+                    Icon(icon, contentDescription = null, modifier = Modifier.padding(8.dp), tint = iconTintColor)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.labelSmall, color = if (isDark) RamadanMoonGlow else Color.Gray)
+                Text(
+                    title,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                )
             }
-            
+
             Spacer(Modifier.height(16.dp))
 
             SegmentedArcIndicator(
@@ -60,4 +72,3 @@ fun StatArcCard(modifier: Modifier, title: String, value: String, unit: String, 
         }
     }
 }
-

@@ -5,9 +5,11 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,43 +45,17 @@ fun HomeScreen(
     val forecast by viewModel.forecast.collectAsState()
     val context = LocalContext.current
     
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        if (permissions[ACCESS_FINE_LOCATION] == true ||
-            permissions[ACCESS_COARSE_LOCATION] == true) {
-            viewModel.requestCurrentLocation()
-        }
-    }
-    
-
-    LaunchedEffect(lat, lon) {
-        if (lat != null && lon != null) {
-            viewModel.refreshWeather(lat, lon)
-        } else {
-            val hasFine = checkSelfPermission(
-                context, ACCESS_FINE_LOCATION
-            ) == PERMISSION_GRANTED
-            val hasCoarse = checkSelfPermission(
-                context, ACCESS_COARSE_LOCATION
-            ) == PERMISSION_GRANTED
-
-            if (hasFine || hasCoarse) {
-                viewModel.requestCurrentLocation()
-            } else {
-                val permissions = mutableListOf(
-                    ACCESS_FINE_LOCATION,
-                    ACCESS_COARSE_LOCATION
-                )
-                locationPermissionLauncher.launch(permissions.toTypedArray())
-            }
-        }
-    }
+    HandleLocationPermissionsAndRefresh(
+        lat = lat,
+        lon = lon,
+        viewModel = viewModel,
+        context = context
+    )
     
     val uiState by viewModel.uiState.collectAsState()
 
-    val isDark = true
-    val contentColor = Color.White
+    val isDark = MaterialTheme.colorScheme.background != Color.White
+    val contentColor = MaterialTheme.colorScheme.onBackground
     val isDetailMode = lat != null
     
     val locale = remember(uiState.currentLang) { Locale(uiState.currentLang) }
@@ -88,7 +64,7 @@ fun HomeScreen(
         isRefreshing = uiState.isRefreshing,
         onRefresh = { viewModel.triggerManualRefresh() }
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize() .background(Color.Transparent) ) {
 
             Column(
                 modifier = Modifier

@@ -45,7 +45,7 @@ fun MapScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val isDark = true
+        val isDark = MaterialTheme.colorScheme.background != Color.White
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,

@@ -1,19 +1,25 @@
 package com.example.weatherapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 val LightBackground = Color(0xFFF8F5EB)
 val LightSurface = Color(0xFFFFFDF5)
 val SoftGold = Color(0xFFFFF3D6)
 val SoftNavy = Color(0xFFE8EDF5)
+
+val LocalIsDark = staticCompositionLocalOf { false }
 
 private val DarkColorScheme = darkColorScheme(
     primary = RamadanGold,
@@ -26,21 +32,21 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = Color.White,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
-    surfaceVariant = TranslucentWhite
+    surfaceVariant = Color.Transparent
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = RamadanGold,
-    secondary = RamadanLanternOrange,
+    primary = Color(0xFF6151C3),
+    secondary = Color(0xFF6151C3),
     tertiary = Color(0xFF7D5260),
-    background = LightBackground,
-    surface = LightSurface,
+    background = Color.White,
+    surface = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = RamadanDeepNavy,
-    onSurface = RamadanDeepNavy,
-    surfaceVariant = SoftGold
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+    surfaceVariant = Color(0xFFE8EDF5)
 )
 
 @Composable
@@ -49,11 +55,22 @@ fun WeatherAppTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = DarkColorScheme
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
+        }
+    }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalIsDark provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

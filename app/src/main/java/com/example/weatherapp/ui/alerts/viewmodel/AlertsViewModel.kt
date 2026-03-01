@@ -92,14 +92,14 @@ class AlertsViewModel(
         _showNoInternetDialog.value = show
     }
 
-    fun addAlert(startTime: Long, endTime: Long, type: String) {
+    fun addAlert(startTime: Long, endTime: Long, type: String, ringtoneUri: String?) {
         if (!isOnline()) {
             _showNoInternetDialog.value = true
             return
         }
 
         viewModelScope.launch {
-            val alert = Alert(startTime = startTime, endTime = endTime, type = type)
+            val alert = Alert(startTime = startTime, endTime = endTime, type = type, isEnabled = true)
             val id = repository.insertAlert(alert)
             val savedAlert = alert.copy(id = id.toInt())
             Log.d("AlertsVM", "Alert saved id=${savedAlert.id} type=$type")

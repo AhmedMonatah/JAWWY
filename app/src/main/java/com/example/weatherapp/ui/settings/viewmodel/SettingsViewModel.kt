@@ -27,6 +27,9 @@ class SettingsViewModel(
     val locationMode = repository.locationModeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "gps")
 
+    val themeMode = repository.themeModeFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
+
     private val _uiEvents = MutableSharedFlow<SettingsUiEvent>()
     val uiEvents = _uiEvents.asSharedFlow()
 
@@ -73,6 +76,12 @@ class SettingsViewModel(
             } else {
                 repository.setLocationMode(mode)
             }
+        }
+    }
+
+    fun updateThemeMode(mode: String) {
+        viewModelScope.launch {
+            repository.setThemeMode(mode)
         }
     }
 

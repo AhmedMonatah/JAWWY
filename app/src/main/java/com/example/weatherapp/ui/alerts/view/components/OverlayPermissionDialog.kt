@@ -5,21 +5,18 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.R
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanGold
 
 @Composable
 fun OverlayPermissionDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = RamadanDarkBlue,
-        title = { Text(stringResource(R.string.permission_required), color = Color.White) },
-        text = { Text(stringResource(R.string.overlay_permission_desc), color = Color.White.copy(alpha = 0.7f)) },
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.permission_required), color = MaterialTheme.colorScheme.onSurface) },
+        text = { Text(stringResource(R.string.overlay_permission_desc), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
         confirmButton = {
             Button(
                 onClick = {
@@ -29,12 +26,12 @@ fun OverlayPermissionDialog(onDismiss: () -> Unit) {
                     ))
                     onDismiss()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = RamadanGold)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) { Text(stringResource(R.string.grant)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.6f))
+                Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
     )

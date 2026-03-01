@@ -28,6 +28,7 @@ class LocalDataSourceImpl(
     private val MANUAL_LAT_KEY = stringPreferencesKey("manual_lat")
     private val MANUAL_LON_KEY = stringPreferencesKey("manual_lon")
     private val ONBOARDING_KEY = booleanPreferencesKey("onboarding_shown")
+    private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
 
 
     override fun getCurrentWeather(): Flow<WeatherEntity?> =
@@ -106,6 +107,13 @@ class LocalDataSourceImpl(
 
     override suspend fun setLocationMode(mode: String) {
         context.dataStore.edit { it[LOCATION_MODE_KEY] = mode }
+    }
+
+    override fun getThemeMode(): Flow<String> =
+        context.dataStore.data.map { it[THEME_MODE_KEY] ?: "system" }
+
+    override suspend fun setThemeMode(mode: String) {
+        context.dataStore.edit { it[THEME_MODE_KEY] = mode }
     }
 
     override fun getManualLocation(): Flow<Pair<Double, Double>?> =

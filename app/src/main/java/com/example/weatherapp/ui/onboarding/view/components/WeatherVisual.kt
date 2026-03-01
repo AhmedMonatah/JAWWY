@@ -29,13 +29,18 @@ fun WeatherVisual() {
         label = ""
     )
 
-    Box {
-        Canvas(modifier = Modifier.size(140.dp)) {
-            drawCircle(
-                brush = Brush.radialGradient(listOf(Color(0xFFFFD700), Color(0xFFFFA500))),
-                radius = size.minDimension / 2
-            )
+    Box(
+        modifier = Modifier.size(240.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.size(140.dp)) {
+                drawCircle(
+                    brush = Brush.radialGradient(listOf(Color(0xFFFFD700), Color(0xFFFFA500))),
+                    radius = size.minDimension / 2
+                )
+            }
+            Text(text = "☁️", fontSize = 100.sp, modifier = Modifier.align(Alignment.BottomStart))
         }
-        Text(text = "☁️", fontSize = 100.sp, modifier = Modifier.align(Alignment.BottomStart))
     }
 }

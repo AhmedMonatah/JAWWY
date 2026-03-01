@@ -15,8 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
-import com.example.weatherapp.ui.theme.RamadanDeepNavy
-import com.example.weatherapp.ui.theme.RamadanGold
 
 @Composable
 fun OnboardingNextButton(
@@ -29,7 +27,7 @@ fun OnboardingNextButton(
         modifier = modifier
             .width(220.dp)
             .height(64.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = RamadanGold),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         shape = RoundedCornerShape(20.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 12.dp)
     ) {
@@ -49,7 +47,7 @@ fun OnboardingNextButton(
                     if (last) stringResource(R.string.get_started) else stringResource(R.string.continue_btn),
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp,
-                    color = RamadanDeepNavy,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     letterSpacing = 1.sp
                 )
                 Spacer(Modifier.width(12.dp))
@@ -57,7 +55,7 @@ fun OnboardingNextButton(
                     Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = RamadanDeepNavy
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }

@@ -87,18 +87,19 @@ fun OnboardingScreen(
         }
     }
 
+    val isDark = MaterialTheme.colorScheme.background != Color.White
+    val bgColors = if (isDark) listOf(RamadanMidnight, RamadanDeepNavy, RamadanDarkBlue) else listOf(Color(0xFFE8EDF5), Color.White, Color.White)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(RamadanMidnight)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.verticalGradient(
-                        listOf(RamadanMidnight, RamadanDeepNavy, RamadanDarkBlue)
-                    )
+                    Brush.verticalGradient(bgColors)
                 )
         ) {
             RamadanSkyEffect()

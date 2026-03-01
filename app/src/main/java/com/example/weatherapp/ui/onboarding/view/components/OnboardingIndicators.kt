@@ -29,7 +29,7 @@ fun OnboardingIndicators(currentPage: Int, pageCount: Int) {
                 label = ""
             )
             val color by animateColorAsState(
-                targetValue = if (isSelected) RamadanGold else Color.White.copy(alpha = 0.2f),
+                targetValue = if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
                 label = ""
             )
             Box(

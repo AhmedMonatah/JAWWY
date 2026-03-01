@@ -40,29 +40,48 @@ object NotificationHelper {
 
     private fun scheduleExactAlarm(context: Context, startTime: Long, alertId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("alertId", alertId)
         }
-        val pendingIntent = PendingIntent.getBroadcast(
+        
+        val operation = PendingIntent.getBroadcast(
             context,
             alertId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        // For AlarmClockInfo, we need a pending intent that opens the main UI if clicked from the system alarm clock
+        val mainIntent = Intent(context, MainActivity::class.java)
+        val mainPi = PendingIntent.getActivity(
+            context,
+            alertId,
+            mainIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val triggerAt = maxOf(startTime, System.currentTimeMillis() + 1000L)
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerAt, mainPi)
+        
+        try {
+            alarmManager.setAlarmClock(alarmClockInfo, operation)
+            android.util.Log.d("NotificationHelper", "Scheduled AlarmClock trigger for $alertId at $triggerAt")
+        } catch (e: Exception) {
+            android.util.Log.e("NotificationHelper", "Failed to schedule alarm clock", e)
+        }
     }
 
     private fun cancelExactAlarm(context: Context, alertId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
+        val pi = PendingIntent.getBroadcast(
             context,
             alertId,
             intent,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
-        pendingIntent?.let { alarmManager.cancel(it) }
+        pi?.let { alarmManager.cancel(it) }
     }
 
 
@@ -85,53 +104,73 @@ object NotificationHelper {
 
 
     fun showAlarmNotification(context: Context, alertId: Int) {
-        val channelId = "alarm_channel"
-        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        val intent = Intent(context, AlarmService::class.java).apply {
+            putExtra("alertId", alertId)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+    }
 
-        val intent = Intent(context, MainActivity::class.java).apply {
+    fun getAlarmNotification(context: Context, alertId: Int, weather: com.example.weatherapp.model.WeatherEntity? = null): android.app.Notification {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "alarm_notification_channel_v2"
+
+        val stopIntent = Intent(context, AlarmService::class.java).apply {
+            action = AlarmService.ACTION_STOP_ALARM
+        }
+        val stopPi = PendingIntent.getService(
+            context, alertId, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val clickIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent = PendingIntent.getActivity(
-            context, alertId, intent,
+        val clickPi = PendingIntent.getActivity(
+            context, alertId, clickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val channelName = context.getString(R.string.alarm_channel_name)
-        val title = "🌙 ${context.getString(R.string.alarm_title)}"
-        val text = "✨ ${context.getString(R.string.alarm_text)}"
-        val summary = context.getString(R.string.alarm_summary)
+        val title = if (weather != null && weather.cityName.isNotEmpty()) {
+            "🌙 ${context.getString(R.string.weather_title_city, weather.cityName)}"
+        } else {
+            "🌙 ${context.getString(R.string.weather_title_default)}"
+        }
+        
+        val text = if (weather != null) {
+            "✨ ${context.getString(R.string.weather_text, weather.temp, weather.description)}"
+        } else {
+            "✨ ${context.getString(R.string.alarm_text)}"
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH).apply {
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
-                setSound(sound, android.media.AudioAttributes.Builder()
-                    .setUsage(android.media.AudioAttributes.USAGE_ALARM).build())
+                setSound(null, null) 
                 enableVibration(true)
-                vibrationPattern = longArrayOf(0, 400, 200, 400)
             }
             manager.createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
+        return NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setLargeIcon(android.graphics.BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             .setContentTitle(title)
             .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(text)
-                .setSummaryText(summary))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setAutoCancel(true)
-            .setSound(sound)
-            .setVibrate(longArrayOf(0, 400, 200, 400))
-            .setContentIntent(pendingIntent)
+            .setContentIntent(clickPi)
+            .setOngoing(true)
+            .setAutoCancel(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .addAction(R.drawable.ic_notification, context.getString(R.string.stop_alarm), stopPi)
             .setColor(0xFFD4A843.toInt())
             .build()
-
-        manager.notify(alertId, notification)
     }
 
     fun createWeatherNotification(context: Context, temp: Int, desc: String, city: String) {
@@ -156,7 +195,7 @@ object NotificationHelper {
         }
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText("✨ $text")
             .setStyle(NotificationCompat.BigTextStyle()
