@@ -33,7 +33,7 @@ JAWWY App is an **Android mobile application** that displays the weather status 
   <tr>
     <td align="center">Onboarding 1
     <td align="center">Onboarding 2</td>
-    <td align="center">Onboarding1 3</td>
+    <td align="center">Onboarding 3</td>
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/984f2263-3f20-4b31-a7bd-522a6d44e26a" alt="OnBoarding 1" width="220"/></td>
