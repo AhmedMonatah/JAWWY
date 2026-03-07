@@ -16,5 +16,9 @@ data class ForecastEntity(
     val tempMax: Double,
     val description: String,
     val icon: String,
+    val humidity: Int = 0,
+    val pressure: Int = 0,
+    val windSpeed: Double = 0.0,
+    val clouds: Int = 0,
     val timestamp: Long
 ) : Parcelable

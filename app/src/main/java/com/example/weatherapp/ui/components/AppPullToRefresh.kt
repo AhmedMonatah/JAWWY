@@ -8,8 +8,8 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanGold
+import com.example.weatherapp.ui.theme.DarkBlue
+import com.example.weatherapp.ui.theme.Gold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,8 +31,8 @@ fun AppPullToRefresh(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = isRefreshing,
                 state = state,
-                containerColor = RamadanDarkBlue,
-                color = RamadanGold
+                containerColor = DarkBlue,
+                color = Gold
             )
         }
     ) {

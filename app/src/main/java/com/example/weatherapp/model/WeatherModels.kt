@@ -68,6 +68,10 @@ data class HourlyItem(
 data class DailyItem(
     val dt: Long,
     val temp: Temp,
+    val pressure: Int,
+    val humidity: Int,
+    val speed: Double,
+    val clouds: Int,
     val weather: List<Weather>
 ) : Parcelable
 

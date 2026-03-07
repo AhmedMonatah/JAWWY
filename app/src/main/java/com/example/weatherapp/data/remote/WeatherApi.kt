@@ -3,7 +3,6 @@ package com.example.weatherapp.data.remote
 import com.example.weatherapp.model.CurrentWeatherResponse
 import com.example.weatherapp.model.DailyForecastResponse
 import com.example.weatherapp.model.HourlyForecastResponse
-import com.example.weatherapp.model.GeocodingResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -14,8 +13,7 @@ interface WeatherApi {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("units") units: String,
-        @Query("lang") lang: String,
-        @Query("appid") appid: String
+        @Query("lang") lang: String
     ): CurrentWeatherResponse
 
     @GET("forecast/daily")
@@ -24,7 +22,6 @@ interface WeatherApi {
         @Query("lon") lon: Double,
         @Query("units") units: String,
         @Query("lang") lang: String,
-        @Query("appid") appid: String,
         @Query("cnt") cnt: Int = 7
     ): DailyForecastResponse
 
@@ -33,7 +30,6 @@ interface WeatherApi {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("units") units: String,
-        @Query("lang") lang: String,
-        @Query("appid") appid: String
+        @Query("lang") lang: String
     ): HourlyForecastResponse
 }

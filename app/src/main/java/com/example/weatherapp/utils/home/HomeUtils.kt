@@ -14,7 +14,7 @@ fun computeDisplayState(
     forecast: List<ForecastEntity>,
     selectedDayIndex: Int,
     locale: Locale,
-    refreshStatus: Resource<WeatherEntity>?,
+    refreshStatus: Resource<*>?,
     cityNameParam: String?,
     timezoneOffset: Int = 0
 ): HomeDisplayState {
@@ -34,10 +34,20 @@ fun computeDisplayState(
         } ?: "..."
     }
 
-    val humidity = (currentWeather?.humidity ?: 0).toFloat()
-    val pressure = (currentWeather?.pressure ?: 0).toFloat()
-    val wind = (currentWeather?.windSpeed ?: 0.0).toFloat()
-    val clouds = if (isToday) (currentWeather?.clouds ?: 0) else 15
+    val humidity = if (isToday) (currentWeather?.humidity ?: 0).toFloat()
+                   else forecast.getOrNull(selectedDayIndex - 1)?.humidity?.toFloat() ?: 0f
+    
+    val pressure = if (isToday) (currentWeather?.pressure ?: 0).toFloat()
+                   else forecast.getOrNull(selectedDayIndex - 1)?.pressure?.toFloat() ?: 0f
+    
+    val wind = if (isToday) (currentWeather?.windSpeed ?: 0.0).toFloat()
+               else forecast.getOrNull(selectedDayIndex - 1)?.windSpeed?.toFloat() ?: 0f
+    
+    val clouds = if (isToday) (currentWeather?.clouds ?: 0)
+                 else forecast.getOrNull(selectedDayIndex - 1)?.clouds ?: 0
+
+    val icon = if (isToday) (currentWeather?.icon ?: "")
+               else forecast.getOrNull(selectedDayIndex - 1)?.icon ?: ""
 
     val cityName = if (refreshStatus is Resource.Loading && currentWeather == null) {
         cityNameParam ?: "Loading..."
@@ -59,7 +69,7 @@ fun computeDisplayState(
     val date = dateFormat.format(displayDate)
     val time = timeFormat.format(displayDate)
 
-    return HomeDisplayState(cityName, temp, condition, date, time, humidity, pressure, wind, clouds)
+    return HomeDisplayState(cityName, temp, condition, date, time, humidity, pressure, wind, clouds, icon)
 }
 
 fun filterHourlyForDay(

@@ -9,5 +9,6 @@ data class HomeDisplayState(
     val humidity: Float = 0f,
     val pressure: Float = 0f,
     val wind: Float = 0f,
-    val clouds: Int = 0
+    val clouds: Int = 0,
+    val icon: String = ""
 )

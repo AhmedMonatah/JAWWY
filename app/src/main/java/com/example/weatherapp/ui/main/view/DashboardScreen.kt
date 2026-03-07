@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.main.view.components
+package com.example.weatherapp.ui.main.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,17 +14,20 @@ import com.example.weatherapp.ui.settings.view.SettingsScreen
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DashboardPager(
+fun DashboardScreen(
     navController: NavHostController,
     pagerState: PagerState
 ) {
+    // Simplified: No longer synchronizes with routes. Just hosts the pager.
+    // This allows animateScrollToPage to work seamlessly without jitter.
     HorizontalPager(
         state = pagerState,
         modifier = Modifier.fillMaxSize(),
+        userScrollEnabled = true
     ) { page ->
         when (page) {
             0 -> HomeScreen(navController = navController)
-            1 -> FavoritesScreen (navController = navController)
+            1 -> FavoritesScreen(navController = navController)
             2 -> AlertsScreen(navController = navController)
             3 -> SettingsScreen(navController = navController)
         }

@@ -23,18 +23,22 @@ fun StatArcCard(
     icon: ImageVector
 ) {
     val isDark = LocalIsDark.current
-    val iconBgColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+    val iconBgColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) // Softer icon bg
     val iconTintColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDark) Color.Transparent else Color.White,
-            contentColor = MaterialTheme.colorScheme.onBackground
+            containerColor = if (isDark) Color.Transparent else Color.White.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 4.dp)
+        border = if (isDark) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        } else {
+            BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))
+        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier

@@ -9,8 +9,7 @@ interface RemoteDataSource {
         lat: Double,
         lon: Double,
         units: String,
-        lang: String,
-        apiKey: String
+        lang: String
     ): CurrentWeatherResponse
 
     suspend fun getDailyForecast(
@@ -18,7 +17,6 @@ interface RemoteDataSource {
         lon: Double,
         units: String,
         lang: String,
-        apiKey: String,
         cnt: Int = 7
     ): DailyForecastResponse
 
@@ -26,7 +24,6 @@ interface RemoteDataSource {
         lat: Double,
         lon: Double,
         units: String,
-        lang: String,
-        apiKey: String
+        lang: String
     ): HourlyForecastResponse
 }

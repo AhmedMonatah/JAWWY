@@ -27,11 +27,11 @@ fun TemperatureSection(
     date: String,
     time: String,
     textColor: Color = Color.White,
-    weatherType: String = "clear"
+    iconCode: String = "01d"
 ) {
     val isDark = MaterialTheme.colorScheme.background != Color.White
-    val iconRes = getWeatherIconRes(weatherType, condition)
-    val iconTint = getWeatherIconTint(weatherType, condition)
+    val iconRes = getWeatherIconRes(iconCode, condition)
+    val iconTint = getWeatherIconTint(iconCode, condition)
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
@@ -51,6 +51,10 @@ fun TemperatureSection(
             Text("$temp°", fontSize = 100.sp, fontWeight = FontWeight.Light, color = textColor)
         }
         Text(condition, style = MaterialTheme.typography.headlineSmall, color = textColor)
-        Text("$date | $time", style = MaterialTheme.typography.bodyLarge, color = if (isDark) TextSecondary else Color.Gray)
+        Text(
+            "$date | $time",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

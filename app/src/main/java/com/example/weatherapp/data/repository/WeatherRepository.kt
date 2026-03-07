@@ -35,10 +35,10 @@ interface WeatherRepository {
     fun getForecast(): Flow<List<ForecastEntity>>
     fun getHourlyForecast(): Flow<List<HourlyForecastEntity>>
     
-    suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity>
-    suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity>
-    suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit>
-    suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit>
+    suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): WeatherEntity
+    suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): WeatherEntity
+    suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String)
+    suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String)
     
     fun getFavorites(): Flow<List<FavoriteLocation>>
     suspend fun addFavorite(favorite: FavoriteLocation)

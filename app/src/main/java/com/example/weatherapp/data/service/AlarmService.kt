@@ -16,7 +16,6 @@ import android.os.VibratorManager
 import com.example.weatherapp.R
 import com.example.weatherapp.WeatherApplication
 import com.example.weatherapp.model.WeatherEntity
-import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -106,9 +105,10 @@ class AlarmService : Service() {
         val units = repository.unitsFlow.firstOrNull() ?: "metric"
         val lang = repository.languageFlow.firstOrNull() ?: "en"
 
-        return when (val res = repository.fetchWeather(lat, lon, units, lang)) {
-            is Resource.Success -> res.data
-            else -> repository.getCurrentWeather().firstOrNull()
+        return try {
+            repository.fetchWeather(lat, lon, units, lang)
+        } catch (e: Exception) {
+            repository.getCurrentWeather().firstOrNull()
         }
     }
 

@@ -7,7 +7,17 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
 
@@ -16,27 +26,60 @@ fun HandleLocationPermissionsAndRefresh(
     lat: Double?,
     lon: Double?,
     viewModel: HomeViewModel,
-    context: Context
+    context: Context,
+    showLocationDialog: MutableState<Boolean>
 ) {
+    val hasRequestedPermission = rememberSaveable { mutableStateOf(false) }
+
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
+        hasRequestedPermission.value = true
         if (permissions[ACCESS_FINE_LOCATION] == true ||
             permissions[ACCESS_COARSE_LOCATION] == true) {
+            showLocationDialog.value = false
             viewModel.requestCurrentLocation()
+        } else {
+            showLocationDialog.value = true
         }
     }
 
-    LaunchedEffect(lat, lon) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val locationMode by viewModel.locationMode.collectAsState()
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (lat == null && lon == null && locationMode == "gps") {
+                    val hasFine = checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
+                    val hasCoarse = checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
+                    if (hasFine || hasCoarse) {
+                        showLocationDialog.value = false
+                        viewModel.requestCurrentLocation()
+                    } else if (hasRequestedPermission.value) {
+                        showLocationDialog.value = true
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(lat, lon, locationMode) {
         if (lat != null && lon != null) {
             viewModel.refreshWeather(lat, lon)
-        } else {
+        } else if (locationMode == "gps") {
             val hasFine = checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
             val hasCoarse = checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
 
             if (hasFine || hasCoarse) {
+                showLocationDialog.value = false
                 viewModel.requestCurrentLocation()
-            } else {
+            } else if (!hasRequestedPermission.value) {
                 locationPermissionLauncher.launch(
                     arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
                 )

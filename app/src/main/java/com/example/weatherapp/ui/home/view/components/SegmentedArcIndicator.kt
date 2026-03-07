@@ -14,12 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.weatherapp.ui.theme.AccentPurple
-import com.example.weatherapp.ui.theme.TextSecondary
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -40,16 +37,15 @@ fun SegmentedArcIndicator(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        val isDark = MaterialTheme.colorScheme.background != Color.White
-        val activeArcColor = if (isDark) AccentPurple else Color(0xFF1565C0)
+        val activeArcColor = MaterialTheme.colorScheme.primary
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 8f
-            val dashCount = 20
-            val startAngle = 135f
-            val sweepAngle = 270f
+            val dashCount = 40
+            val startAngle = -90f
+            val sweepAngle = 360f
 
             val radius = size.minDimension / 2
-            val innerRadius = radius * 0.65f
+            val innerRadius = radius * 0.70f // Thinner ring
             val outerRadius = radius * 0.85f
 
             val center = this.center
@@ -59,7 +55,7 @@ fun SegmentedArcIndicator(
                 val angleInDegrees = startAngle + (index * angleStep)
                 val angleInRad = Math.toRadians(angleInDegrees.toDouble())
 
-                val isActive = index < (dashCount * animatedProgress)
+                val isActive = (index.toFloat() / dashCount) <= animatedProgress
 
                 val startX = center.x + (innerRadius * cos(angleInRad)).toFloat()
                 val startY = center.y + (innerRadius * sin(angleInRad)).toFloat()
@@ -68,7 +64,7 @@ fun SegmentedArcIndicator(
                 val endY = center.y + (outerRadius * sin(angleInRad)).toFloat()
 
                 drawLine(
-                    color = if (isActive) activeArcColor else activeArcColor.copy(alpha = 0.2f),
+                    color = if (isActive) activeArcColor else activeArcColor.copy(alpha = 0.4f), // Even more subtle inactive state
                     start = Offset(startX, startY),
                     end = Offset(endX, endY),
                     strokeWidth = strokeWidth,
@@ -76,8 +72,8 @@ fun SegmentedArcIndicator(
                 )
             }
         }
-        val labelColor = if (isDark) Color.White else Color.Black
-        val unitColor = if (isDark) TextSecondary else Color.Gray
+        val labelColor = MaterialTheme.colorScheme.onSurface
+        val unitColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(

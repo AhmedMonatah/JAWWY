@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.map.view.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,13 +12,23 @@ import com.example.weatherapp.R
 
 @Composable
 fun MapHeader(source: String) {
+    val isDark = com.example.weatherapp.ui.theme.LocalIsDark.current
     Surface(
         modifier = Modifier
             .padding(top = 40.dp, start = 20.dp, end = 20.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .then(
+                if (!isDark) Modifier.border(
+                    1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.4f), RoundedCornerShape(24.dp)
+                ) else Modifier
+            ),
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
-        tonalElevation = 8.dp
+        color = if (isDark) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+        } else {
+            androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f)
+        },
+        tonalElevation = if (isDark) 8.dp else 0.dp
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
