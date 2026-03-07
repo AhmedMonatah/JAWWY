@@ -11,24 +11,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.ui.navigation.Screen
 import com.example.weatherapp.ui.navigation.WeatherNavGraph
-import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.model.WeatherEntity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.di.LocalAppContainer
 import com.example.weatherapp.ui.home.view.components.WeatherBackground
-import com.example.weatherapp.ui.theme.DashboardBackground
-import com.example.weatherapp.ui.theme.RamadanGold
 import androidx.compose.foundation.background
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import com.example.weatherapp.ui.main.view.components.DashboardBottomBar
 import com.example.weatherapp.ui.main.view.viewmodel.MainViewModel
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
+import com.example.weatherapp.ui.theme.LocalIsDark
+import com.example.weatherapp.ui.components.NoInternetConnectionDialog
 import com.example.weatherapp.utils.network.NetworkMonitor
 import com.example.weatherapp.utils.weather.WeatherTypeUtil
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
@@ -38,8 +33,6 @@ val LocalSelectionMode = compositionLocalOf<MutableState<Boolean>> {
     error("No SelectionMode provided")
 }
 
-
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(
@@ -47,40 +40,17 @@ fun MainScreen(
     startDestination: String,
     viewModel: MainViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory)
 ) {
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
     val selectionMode = remember { mutableStateOf(false) }
 
-    val pagerState = rememberPagerState(pageCount = { 5 })
-    
-    val routePage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
-    
-    LaunchedEffect(routePage) {
-        if (pagerState.currentPage != routePage) {
-            pagerState.scrollToPage(routePage)
-        }
-    }
+    val pagerState = rememberPagerState(pageCount = { 4 })
 
-    LaunchedEffect(pagerState.currentPage) {
-        val currentPathPage = navBackStackEntry?.arguments?.getString("page")?.toIntOrNull() ?: 0
-        if (currentPathPage != pagerState.currentPage) {
-            navController.navigate(Screen.Dashboard.createRoute(pagerState.currentPage)) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-    }
-
-    val scope = rememberCoroutineScope()
-    val currentWeather by viewModel.repository.getCurrentWeather().collectAsState(initial = null)
+    val currentWeather by viewModel.currentWeather.collectAsState()
 
     NetworkMonitor(
-        connectivityFlow = viewModel.repository.connectivityFlow as StateFlow<Boolean>,
+        connectivityFlow = viewModel.connectivityFlow,
         snackbarHostState = snackbarHostState
     )
     
@@ -89,27 +59,41 @@ fun MainScreen(
     }
     
     val isCold = (currentWeather?.temp ?: 20.0) < 5.0
-    val isDark = MaterialTheme.colorScheme.background != Color.White
 
     val showBottomBar = remember(currentRoute, selectionMode.value) {
-        val onDashboard = currentRoute == Screen.Dashboard.route || currentRoute == null
-        val onMap = currentRoute?.startsWith(Screen.Map.route.substringBefore("{")) == true
-        onDashboard && !onMap && !selectionMode.value
+        val isDashboard = currentRoute == Screen.Dashboard.route || currentRoute == null
+        isDashboard && !selectionMode.value
     }
 
+    val coroutineScope = rememberCoroutineScope()
+
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        if (isDark) {
-            WeatherBackground(weatherType = weatherType, isCold = isCold)
-        }
+        WeatherBackground(weatherType = weatherType, isCold = isCold)
         
         Scaffold(
             containerColor = Color.Transparent,
             bottomBar = {
                 if (showBottomBar) {
-                    DashboardBottomBar(pagerState.currentPage) { page ->
-                        scope.launch {
-                            pagerState.scrollToPage(page)
+                    val showNoInternet by viewModel.showNoInternet.collectAsState(initial = false)
+                    
+                    DashboardBottomBar(
+                        currentPage = pagerState.currentPage,
+                        onNavigate = { screen ->
+                            val targetIndex = when (screen) {
+                                Screen.Home -> 0
+                                Screen.Favorites -> 1
+                                Screen.Alerts -> 2
+                                Screen.Settings -> 3
+                                else -> 0
+                            }
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(targetIndex)
+                            }
                         }
+                    )
+
+                    if (showNoInternet) {
+                        NoInternetConnectionDialog(onDismiss = { viewModel.setShowNoInternet(false) })
                     }
                 }
             },
@@ -145,6 +129,3 @@ fun MainScreen(
         }
     }
 }
-
-
-

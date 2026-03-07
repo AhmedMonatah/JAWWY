@@ -11,15 +11,12 @@ import com.example.weatherapp.model.ForecastEntity
 import com.example.weatherapp.model.HourlyForecastEntity
 import com.example.weatherapp.model.WeatherEntity
 import com.example.weatherapp.data.remote.RemoteDataSource
-import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.flow.Flow
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.example.weatherapp.model.Alert
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.stateIn
-import com.example.weatherapp.BuildConfig
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -32,12 +29,7 @@ class AppRepository(
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            else -> false
-        }
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     override val connectivityFlow: Flow<Boolean> = callbackFlow {
@@ -52,11 +44,7 @@ class AppRepository(
         connectivityManager.registerNetworkCallback(request, callback)
         trySend(isOnline())
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
-    }.stateIn(
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO),
-        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-        initialValue = isOnline()
-    )
+    }
 
     override val onboardingShownFlow: Flow<Boolean> = localDataSource.getOnboardingShown()
 
@@ -84,81 +72,61 @@ class AppRepository(
     override fun getForecast(): Flow<List<ForecastEntity>> = localDataSource.getForecast()
     override fun getHourlyForecast(): Flow<List<HourlyForecastEntity>> = localDataSource.getHourlyForecast()
 
-    override suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
-        return try {
-            val response = remoteDataSource.getCurrentWeather(lat, lon, units, lang, BuildConfig.API_KEY)
-            val entity = WeatherEntity(
-                cityName = response.name,
-                temp = response.main.temp,
-                description = response.weather.firstOrNull()?.description ?: "",
-                icon = response.weather.firstOrNull()?.icon ?: "",
-                lat = response.coord.lat,
-                lon = response.coord.lon,
-                timestamp = System.currentTimeMillis(),
-                humidity = response.main.humidity,
-                pressure = response.main.pressure,
-                windSpeed = response.wind.speed,
-                clouds = response.clouds?.all ?: 0,
-                countryCode = response.sys.country,
-                timezoneOffset = response.timezone
+    override suspend fun fetchWeather(lat: Double, lon: Double, units: String, lang: String): WeatherEntity {
+        val response = remoteDataSource.getCurrentWeather(lat, lon, units, lang)
+        return WeatherEntity(
+            cityName = response.name,
+            temp = response.main.temp,
+            description = response.weather.firstOrNull()?.description ?: "",
+            icon = response.weather.firstOrNull()?.icon ?: "",
+            lat = response.coord.lat,
+            lon = response.coord.lon,
+            timestamp = System.currentTimeMillis(),
+            humidity = response.main.humidity,
+            pressure = response.main.pressure,
+            windSpeed = response.wind.speed,
+            clouds = response.clouds?.all ?: 0,
+            countryCode = response.sys.country,
+            timezoneOffset = response.timezone
+        )
+    }
+
+    override suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): WeatherEntity {
+        val weather = fetchWeather(lat, lon, units, lang)
+        localDataSource.insertCurrentWeather(weather)
+        return weather
+    }
+
+    override suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String) {
+        val response = remoteDataSource.getDailyForecast(lat, lon, units, lang, 7)
+        val entities = response.list.map { item ->
+            ForecastEntity(
+                dt = item.dt,
+                tempDay = item.temp.day,
+                tempMin = item.temp.min,
+                tempMax = item.temp.max,
+                description = item.weather.firstOrNull()?.description ?: "",
+                icon = item.weather.firstOrNull()?.icon ?: "",
+                timestamp = System.currentTimeMillis()
             )
-            Resource.Success(entity)
-        } catch (e: Exception) {
-            Log.e("AppRepo", "Error fetching weather", e)
-            Resource.Error(e.message ?: "Unknown Error")
         }
+        localDataSource.clearForecast()
+        localDataSource.insertForecast(entities)
     }
 
-    override suspend fun refreshCurrentWeather(lat: Double, lon: Double, units: String, lang: String): Resource<WeatherEntity> {
-        val result = fetchWeather(lat, lon, units, lang)
-        if (result is Resource.Success && result.data != null) {
-            localDataSource.insertCurrentWeather(result.data)
+    override suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String) {
+        val response = remoteDataSource.getHourlyForecast(lat, lon, units, lang)
+        val entities = response.list.map { item ->
+            HourlyForecastEntity(
+                dt = item.dt,
+                temp = item.main.temp,
+                description = item.weather.firstOrNull()?.description ?: "",
+                icon = item.weather.firstOrNull()?.icon ?: "",
+                timestamp = System.currentTimeMillis()
+            )
         }
-        return result
-    }
-
-    override suspend fun refreshForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
-        return try {
-            val response = remoteDataSource.getDailyForecast(lat, lon, units, lang, BuildConfig.API_KEY, 7)
-            val entities = response.list.map { item ->
-                ForecastEntity(
-                    dt = item.dt,
-                    tempDay = item.temp.day,
-                    tempMin = item.temp.min,
-                    tempMax = item.temp.max,
-                    description = item.weather.firstOrNull()?.description ?: "",
-                    icon = item.weather.firstOrNull()?.icon ?: "",
-                    timestamp = System.currentTimeMillis()
-                )
-            }
-            localDataSource.clearForecast()
-            localDataSource.insertForecast(entities)
-            Resource.Success(Unit)
-        } catch (e: Exception) {
-            Log.e("AppRepo", "Error fetching forecast", e)
-            Resource.Error(e.message ?: "Unknown Error")
-        }
-    }
-
-    override suspend fun refreshHourlyForecast(lat: Double, lon: Double, units: String, lang: String): Resource<Unit> {
-        return try {
-            val response = remoteDataSource.getHourlyForecast(lat, lon, units, lang, BuildConfig.API_KEY)
-            val entities = response.list.map { item ->
-                HourlyForecastEntity(
-                    dt = item.dt,
-                    temp = item.main.temp,
-                    description = item.weather.firstOrNull()?.description ?: "",
-                    icon = item.weather.firstOrNull()?.icon ?: "",
-                    timestamp = System.currentTimeMillis()
-                )
-            }
-            localDataSource.clearHourlyForecast()
-            localDataSource.insertHourlyForecast(entities)
-            Resource.Success(Unit)
-        } catch (e: Exception) {
-            Log.e("AppRepo", "Error fetching hourly", e)
-            Resource.Error(e.message ?: "Unknown Error")
-        }
+        localDataSource.clearHourlyForecast()
+        localDataSource.insertHourlyForecast(entities)
     }
 
     override fun getFavorites(): Flow<List<FavoriteLocation>> = localDataSource.getFavorites()

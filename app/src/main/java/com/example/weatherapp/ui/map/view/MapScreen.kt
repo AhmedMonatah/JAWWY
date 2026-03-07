@@ -1,25 +1,14 @@
 package com.example.weatherapp.ui.map.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.di.LocalAppContainer
 import com.example.weatherapp.ui.map.viewmodel.MapViewModel
-import com.example.weatherapp.ui.main.view.LocalSnackbarHostState
-import com.example.weatherapp.ui.theme.AccentPurple
-import com.example.weatherapp.ui.theme.TranslucentBlack
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -29,6 +18,7 @@ import kotlinx.coroutines.launch
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.map.view.components.MapHeader
 import com.example.weatherapp.ui.map.view.components.MapActionButton
+import com.example.weatherapp.ui.theme.LocalIsDark
 
 @Composable
 fun MapScreen(
@@ -45,7 +35,8 @@ fun MapScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val isDark = MaterialTheme.colorScheme.background != Color.White
+        val isDark = LocalIsDark.current
+
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -55,8 +46,11 @@ fun MapScreen(
                 maxZoomPreference = 20f,
                 mapStyleOptions = if (isDark) {
                     MapStyleOptions.loadRawResourceStyle(context, R.raw.map_dark_style)
-                } else null
+                } else {
+                    MapStyleOptions.loadRawResourceStyle(context, R.raw.map_light_style)
+                }
             ),
+
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
             onMapClick = { point ->
                 viewModel.updateSelectedPoint(point)

@@ -15,10 +15,14 @@ import com.example.weatherapp.model.Particle
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
-import com.example.weatherapp.ui.theme.RamadanGold
-import com.example.weatherapp.ui.theme.RamadanLanternOrange
-import com.example.weatherapp.ui.theme.RamadanMoonGlow
-import com.example.weatherapp.ui.theme.RamadanStarLight
+import com.example.weatherapp.ui.theme.LocalIsDark
+import com.example.weatherapp.ui.theme.DarkBlue
+import com.example.weatherapp.ui.theme.DeepNavy
+import com.example.weatherapp.ui.theme.Gold
+import com.example.weatherapp.ui.theme.LanternOrange
+import com.example.weatherapp.ui.theme.Midnight
+import com.example.weatherapp.ui.theme.MoonGlow
+import com.example.weatherapp.ui.theme.StarLight
 import kotlin.math.sin
 
 @Composable
@@ -37,7 +41,7 @@ fun WeatherBackground(
             }
         }
     }
-    val time = timeSource.longValue / 1000f // time in seconds
+    val time = timeSource.longValue / 1000f
 
     val pulse by infiniteTransition.animateFloat(
         initialValue = 0.7f,
@@ -59,7 +63,6 @@ fun WeatherBackground(
         label = "moonGlow"
     )
 
-    // Stars and golden particles
     val particles = remember(weatherType, isCold) {
         val count = when {
             weatherType == "snow" || (weatherType == "clear" && isCold) -> 120
@@ -77,7 +80,13 @@ fun WeatherBackground(
         }
     }
 
-    // Lantern-like floating particles (warm golden)
+    val isDark = LocalIsDark.current
+    
+    val mainParticleColor = if (isDark) StarLight else Color(0xFFFFE59E) // Soft Gold for Day
+    val lanternGlowColor = if (isDark) LanternOrange else Color(0xFFFFD54F) // Sunny Amber
+    val crescentColor = if (isDark) MoonGlow else Color(0xFF6151C3) // Primary Purple in Light
+    val glowColor = if (isDark) Gold else Color(0xFFFFC107) // Sun glow
+
     val lanternParticles = remember {
         List(10) {
             Particle(
@@ -91,39 +100,58 @@ fun WeatherBackground(
     }
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
+    val skyGradientColors = remember(weatherType, isDark) {
+        if (isDark) {
+            listOf(Midnight, DeepNavy, DarkBlue)
+        } else {
+            when (weatherType.lowercase()) {
+                "clear" -> listOf(Color(0xFF4FACFE), Color(0xFF00F2FE))
+                "clouds" -> listOf(Color(0xFFBDC3C7), Color(0xFFEFF3F6))
+                "rain", "thunderstorm", "drizzle" -> listOf(Color(0xFF4B6CB7), Color(0xFF182848))
+                "snow" -> listOf(Color(0xFFE6E9F0), Color(0xFFEEF1F5))
+                else -> listOf(Color(0xFF4FACFE), Color(0xFF00F2FE))
+            }
+        }
+    }
     
     Canvas(modifier = Modifier.fillMaxSize()) {
         val width = size.width
         val height = size.height
         
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = skyGradientColors
+            ),
+            size = size
+        )
+
         val moonX = if (isRtl) 0.18f * width else 0.82f * width
         val moonCenter = Offset(moonX, 90.dp.toPx())
 
-        // Stars / falling particles
         particles.forEachIndexed { index, p ->
             val individualOffset = (time * p.speed + index * 0.07f)
             val shiftedY = (p.y + individualOffset) % 1f
             val yPos = shiftedY * height
             
-            // Subtle horizontal sway
             val xOffset = sin(time * 0.5f + p.x * 10f) * 10f
             val xPos = (p.x * width + xOffset + width) % width
 
             drawCircle(
-                color = RamadanStarLight.copy(alpha = p.alpha * pulse),
+                color = mainParticleColor.copy(alpha = p.alpha * pulse * (if (isDark) 1f else 0.6f)),
                 radius = p.size,
                 center = Offset(xPos, yPos)
             )
 
-            if (p.size > 2.2f) {
+            if (p.size > 2.2f && isDark) {
                 drawLine(
-                    color = RamadanMoonGlow.copy(alpha = p.alpha * 0.3f * pulse),
+                    color = MoonGlow.copy(alpha = p.alpha * 0.3f * pulse),
                     start = Offset(xPos - p.size * 2f, yPos),
                     end = Offset(xPos + p.size * 2f, yPos),
                     strokeWidth = 0.5.dp.toPx()
                 )
                 drawLine(
-                    color = RamadanMoonGlow.copy(alpha = p.alpha * 0.3f * pulse),
+                    color = MoonGlow.copy(alpha = p.alpha * 0.3f * pulse),
                     start = Offset(xPos, yPos - p.size * 2f),
                     end = Offset(xPos, yPos + p.size * 2f),
                     strokeWidth = 0.5.dp.toPx()
@@ -131,7 +159,6 @@ fun WeatherBackground(
             }
         }
 
-        // Floating golden lantern particles
         lanternParticles.forEachIndexed { index, p ->
             val floatTime = time * 0.3f + index * 0.5f
             val xOffset = sin(floatTime) * 40f
@@ -140,12 +167,11 @@ fun WeatherBackground(
             val yShift = (p.y - time * p.speed + 1000f) % 1f
             val yPos = yShift * height
 
-            // Warm glow circle
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        RamadanLanternOrange.copy(alpha = p.alpha * pulse),
-                        RamadanGold.copy(alpha = p.alpha * 0.3f * pulse),
+                        lanternGlowColor.copy(alpha = p.alpha * pulse),
+                        glowColor.copy(alpha = p.alpha * 0.3f * pulse),
                         Color.Transparent
                     ),
                     center = Offset(xPos, yPos),
@@ -155,66 +181,109 @@ fun WeatherBackground(
                 center = Offset(xPos, yPos)
             )
             drawCircle(
-                color = RamadanMoonGlow.copy(alpha = p.alpha * pulse * 0.8f),
+                color = (if (isDark) MoonGlow else Color.White).copy(alpha = p.alpha * pulse * 0.8f),
                 radius = p.size * 0.8f,
                 center = Offset(xPos, yPos)
             )
         }
 
-        // Crescent moon (always visible for Ramadan)
-        if (isRtl) {
-            withTransform({
-                scale(-1f, 1f, pivot = moonCenter)
-            }) {
+        if (isDark) {
+            if (isRtl) {
+                withTransform({
+                    scale(-1f, 1f, pivot = moonCenter)
+                }) {
+                    drawCrescentMoon(
+                        center = moonCenter,
+                        outerRadius = 40.dp.toPx(),
+                        glowAlpha = moonGlow,
+                        isRtl = isRtl,
+                        isDark = isDark,
+                        moonColor = crescentColor,
+                        glowBaseColor = glowColor
+                    )
+                }
+            } else {
                 drawCrescentMoon(
                     center = moonCenter,
                     outerRadius = 40.dp.toPx(),
                     glowAlpha = moonGlow,
-                    isRtl = isRtl
+                    isRtl = isRtl,
+                    isDark = isDark,
+                    moonColor = crescentColor,
+                    glowBaseColor = glowColor
                 )
             }
         } else {
-            drawCrescentMoon(
+            drawSun(
                 center = moonCenter,
-                outerRadius = 40.dp.toPx(),
-                glowAlpha = moonGlow,
-                isRtl = isRtl
+                radius = 42.dp.toPx(),
+                glowAlpha = pulse
             )
         }
 
-        // Clear weather: golden sun glow behind crescent
         if (weatherType.lowercase() == "clear") {
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        RamadanGold.copy(alpha = 0.12f * pulse),
+                        glowColor.copy(alpha = (if (isDark) 0.12f else 0.35f) * pulse),
                         Color.Transparent
                     ),
                     center = moonCenter,
-                    radius = 200.dp.toPx()
+                    radius = if (isDark) 200.dp.toPx() else 250.dp.toPx()
                 ),
-                radius = 200.dp.toPx(),
+                radius = if (isDark) 200.dp.toPx() else 250.dp.toPx(),
                 center = moonCenter
             )
         }
     }
 }
 
-/**
- * Draws a crescent moon shape with glow effect.
- */
+private fun DrawScope.drawSun(
+    center: Offset,
+    radius: Float,
+    glowAlpha: Float
+) {
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFFFD54F).copy(alpha = 0.5f * glowAlpha),
+                Color(0xFFFFC107).copy(alpha = 0.2f * glowAlpha),
+                Color.Transparent
+            ),
+            center = center,
+            radius = radius * 4f
+        ),
+        radius = radius * 4f,
+        center = center
+    )
+
+    drawCircle(
+        color = Color(0xFFFFC107),
+        radius = radius,
+        center = center
+    )
+
+    drawCircle(
+        color = Color.White.copy(alpha = 0.4f),
+        radius = radius * 0.7f,
+        center = center
+    )
+}
+
 private fun DrawScope.drawCrescentMoon(
     center: Offset,
     outerRadius: Float,
     glowAlpha: Float,
-    isRtl: Boolean
+    isRtl: Boolean,
+    isDark: Boolean,
+    moonColor: Color,
+    glowBaseColor: Color
 ) {
-    // Outer glow
     drawCircle(
         brush = Brush.radialGradient(
             colors = listOf(
-                RamadanMoonGlow.copy(alpha = glowAlpha),
-                RamadanGold.copy(alpha = glowAlpha * 0.3f),
+                moonColor.copy(alpha = glowAlpha * (if (isDark) 1f else 0.4f)),
+                glowBaseColor.copy(alpha = glowAlpha * 0.3f),
                 Color.Transparent
             ),
             center = center,
@@ -224,19 +293,17 @@ private fun DrawScope.drawCrescentMoon(
         center = center
     )
 
-    // Moon body (crescent via two overlapping circles)
     drawCircle(
-        color = RamadanMoonGlow.copy(alpha = 0.9f),
+        color = moonColor.copy(alpha = if (isDark) 0.9f else 0.7f),
         radius = outerRadius,
         center = center
     )
-    // Inner circle to create crescent shape
     val xOffset = if (isRtl) -outerRadius * 0.35f else outerRadius * 0.35f
+    val actualCutoutColor = if (isDark) DeepNavy else Color(0xFF4FACFE)
     drawCircle(
-        color = Color(0xFF0A1628), // Match background
+        color = actualCutoutColor, 
         radius = outerRadius * 0.78f,
         center = Offset(center.x + xOffset, center.y - outerRadius * 0.1f)
     )
 }
 
-// Particle model moved to WeatherEffectModels.kt

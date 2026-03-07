@@ -16,6 +16,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import com.example.weatherapp.BuildConfig
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.ui.ViewModelFactory
@@ -43,9 +46,25 @@ class AppContainerImpl(private val context: Context) : IAppContainer {
         database.alertDao()
     }
 
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val url = original.url.newBuilder()
+                    .addQueryParameter("appid", BuildConfig.API_KEY)
+                    .build()
+                chain.proceed(original.newBuilder().url(url).build())
+            }
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BASIC
+            })
+            .build()
+    }
+
     private val weatherApi: WeatherApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.openweathermap.org/data/2.5/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherApi::class.java)

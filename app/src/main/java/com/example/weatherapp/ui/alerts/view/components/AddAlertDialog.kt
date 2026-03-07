@@ -1,7 +1,6 @@
 package com.example.weatherapp.ui.alerts.view.components
 
 import android.app.AlarmManager
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -14,18 +13,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.favorites.view.components.TypeSelector
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanDeepNavy
-import com.example.weatherapp.ui.theme.RamadanGold
 import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

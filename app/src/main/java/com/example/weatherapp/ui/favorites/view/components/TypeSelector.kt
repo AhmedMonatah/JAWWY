@@ -1,6 +1,5 @@
 package com.example.weatherapp.ui.favorites.view.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,13 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.weatherapp.ui.theme.RamadanGold
+import com.example.weatherapp.ui.theme.LocalIsDark
 
 @Composable
 fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val isDark = LocalIsDark.current
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
@@ -27,8 +26,13 @@ fun TypeSelector(text: String, selected: Boolean, onClick: () -> Unit, modifier:
                 if (selected) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
             ).then(
-                if (selected) Modifier.border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-                else Modifier
+                if (selected) {
+                    if (isDark) {
+                        Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
+                    } else {
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                    }
+                } else Modifier
             )
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp),

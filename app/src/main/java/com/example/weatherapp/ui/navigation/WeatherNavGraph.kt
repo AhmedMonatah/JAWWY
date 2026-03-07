@@ -1,39 +1,21 @@
 package com.example.weatherapp.ui.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.weatherapp.ui.alerts.view.AlertsScreen
+import androidx.navigation.navArgument
 import com.example.weatherapp.ui.home.view.HomeScreen
+import com.example.weatherapp.ui.main.view.DashboardScreen
+import com.example.weatherapp.ui.map.view.MapScreen
 
-import android.net.Uri
-import androidx.compose.foundation.pager.PagerState
-import com.example.weatherapp.ui.main.view.components.DashboardPager
-
-sealed class Screen(val route: String) {
-    object Dashboard : Screen("dashboard?page={page}") {
-        fun createRoute(page: Int) = "dashboard?page=$page"
-    }
-    object Home : Screen("home?lat={lat}&lon={lon}&city={city}") {
-        fun createRoute(lat: Double? = null, lon: Double? = null, city: String? = null): String {
-            return if (lat != null && lon != null && city != null) {
-                val encodedCity = Uri.encode(city)
-                "home?lat=$lat&lon=$lon&city=$encodedCity"
-            } else "dashboard?page=0"
-        }
-    }
-    object Settings : Screen("dashboard?page=3")
-    object Favorites : Screen("dashboard?page=2")
-    object Alerts : Screen("alerts")
-    object Alarm : Screen("dashboard?page=1")
-    object Map : Screen("map?source={source}") {
-        fun createRoute(source: String = "favorites") = "map?source=$source"
-    }
-    object Onboarding : Screen("onboarding")
-}
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WeatherNavGraph(
     navController: NavHostController,
@@ -46,24 +28,17 @@ fun WeatherNavGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        composable(
-            route = Screen.Dashboard.route,
-            arguments = listOf(
-                androidx.navigation.navArgument("page") { defaultValue = "0" }
-            )
-        ) { backStackEntry ->
-            val page = backStackEntry.arguments?.getString("page")?.toIntOrNull() ?: 0
-            DashboardPager(
-                navController = navController,
-                pagerState = pagerState
-            )
+        // Consolidate main screens into a single destination for smooth paging
+        composable(Screen.Dashboard.route) {
+            DashboardScreen(navController, pagerState)
         }
+
         composable(
-            route = Screen.Home.route,
+            route = Screen.HomeDetail.route,
             arguments = listOf(
-                androidx.navigation.navArgument("lat") { nullable = true; type = androidx.navigation.NavType.StringType },
-                androidx.navigation.navArgument("lon") { nullable = true; type = androidx.navigation.NavType.StringType },
-                androidx.navigation.navArgument("city") { nullable = true; type = androidx.navigation.NavType.StringType }
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lon") { type = NavType.StringType },
+                navArgument("city") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull()
@@ -72,40 +47,38 @@ fun WeatherNavGraph(
             
             HomeScreen(navController = navController, lat = lat, lon = lon, cityName = city)
         }
+
         composable(
             route = Screen.Map.route,
             arguments = listOf(
-                androidx.navigation.navArgument("source") { defaultValue = "favorites" }
+                navArgument("source") { defaultValue = "favorites" }
             ),
             enterTransition = {
                 slideIntoContainer(
-                    androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = androidx.compose.animation.core.tween(500)
+                    AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(500)
                 )
             },
             exitTransition = {
                 slideOutOfContainer(
-                    androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Down,
-                    animationSpec = androidx.compose.animation.core.tween(500)
+                    AnimatedContentTransitionScope.SlideDirection.Down,
+                    animationSpec = tween(500)
                 )
             }
         ) { backStackEntry ->
             val source = backStackEntry.arguments?.getString("source") ?: "favorites"
-            com.example.weatherapp.ui.map.view.MapScreen(
+            MapScreen(
                 source = source,
                 onLocationSelected = { src ->
                     if (src == "settings") {
-                        navController.navigate(Screen.Dashboard.createRoute(0)) {
-                            popUpTo(0) { inclusive = true }
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.Dashboard.route) { inclusive = true }
                         }
                     } else {
                         navController.popBackStack()
                     }
                 }
             )
-        }
-        composable(Screen.Alerts.route) {
-            AlertsScreen(navController = navController)
         }
     }
 }

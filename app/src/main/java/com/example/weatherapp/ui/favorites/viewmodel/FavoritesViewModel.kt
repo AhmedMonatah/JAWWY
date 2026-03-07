@@ -45,7 +45,6 @@ class FavoritesViewModel(
         _showNoInternetDialog.value = show
     }
 
-
     init {
         viewModelScope.launch {
             repository.languageFlow.collect { lang ->
@@ -68,19 +67,19 @@ class FavoritesViewModel(
     }
 
     private suspend fun refreshFavorite(location: FavoriteLocation, units: String, lang: String) {
-        val result = repository.fetchWeather(location.lat, location.lon, units, lang)
-        if (result is com.example.weatherapp.utils.state.Resource.Success && result.data != null) {
+        try {
+            val result = repository.fetchWeather(location.lat, location.lon, units, lang)
             val updated = location.copy(
-                name = result.data.cityName,
-                currentTemp = result.data.temp,
-                condition = result.data.description,
-                icon = result.data.icon
+                name = result.cityName,
+                currentTemp = result.temp,
+                condition = result.description,
+                icon = result.icon
             )
             repository.addFavorite(updated)
+        } catch (e: Exception) {
+            android.util.Log.e("FavoritesVM", "Error refreshing favorite: ${location.name}", e)
         }
     }
-
-
 
     fun toggleSelection(location: FavoriteLocation) {
         _selectedFavorites.value = if (_selectedFavorites.value.contains(location)) {

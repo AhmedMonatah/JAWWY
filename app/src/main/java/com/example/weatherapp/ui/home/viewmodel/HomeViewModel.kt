@@ -13,8 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import android.util.Log
 import android.annotation.SuppressLint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -43,7 +42,7 @@ class HomeViewModel(
     private val locationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
-    private val _refreshStatus = MutableStateFlow<Resource<WeatherEntity>?>(null)
+    private val _refreshStatus = MutableStateFlow<Resource<Unit>?>(null)
     val refreshStatus = _refreshStatus.asStateFlow()
 
     val currentWeather: StateFlow<WeatherEntity?> = repository.getCurrentWeather()
@@ -143,21 +142,19 @@ class HomeViewModel(
                 old.coords == new.coords && old.unit == new.unit && old.lang == new.lang
             }.collect { input ->
                 input.coords?.let { (lat, lon) ->
-                    _refreshStatus.value = Resource.Loading<WeatherEntity>()
+                    _refreshStatus.value = Resource.Loading()
                     
-                    coroutineScope {
-                        val currentDeferred = async { repository.refreshCurrentWeather(lat, lon, input.unit, input.lang) }
-                        val hourlyDeferred = async { repository.refreshHourlyForecast(lat, lon, input.unit, input.lang) }
-                        
-                        val currentResult = currentDeferred.await()
-                        _refreshStatus.value = currentResult
-                        
-                        if (currentResult is Resource.Success<WeatherEntity>) {
-                            currentResult.data?.let { 
-                                repository.refreshForecast(lat, lon, input.unit, input.lang)
-                            }
+                    viewModelScope.launch {
+                        try {
+                            _refreshStatus.value = Resource.Loading()
+                            repository.refreshCurrentWeather(lat, lon, input.unit, input.lang)
+                            repository.refreshHourlyForecast(lat, lon, input.unit, input.lang)
+                            repository.refreshForecast(lat, lon, input.unit, input.lang)
+                            _refreshStatus.value = Resource.Success(Unit)
+                        } catch (e: Exception) {
+                            Log.e("HomeVM", "Error refreshing weather", e)
+                            _refreshStatus.value = Resource.Error(e.message ?: "Unknown error")
                         }
-                        hourlyDeferred.await()
                     }
                 }
             }
@@ -178,6 +175,11 @@ class HomeViewModel(
     fun requestCurrentLocation() {
         if (isManualOverride) return
         
+        // Guard: If we already have data and are just "resuming", don't fetch again unless forced
+        if (_lastCoords.value != null && currentWeather.value != null) {
+            return
+        }
+
         viewModelScope.launch {
             locationClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
@@ -221,19 +223,16 @@ class HomeViewModel(
                 val unit = units.value
                 val lang = language.value
 
-                coroutineScope {
-                    val currentDeferred = async { repository.refreshCurrentWeather(coords.first, coords.second, unit, lang) }
-                    val hourlyDeferred = async { repository.refreshHourlyForecast(coords.first, coords.second, unit, lang) }
-
-                    val currentResult = currentDeferred.await()
-                    _refreshStatus.value = currentResult
-
-                    if (currentResult is Resource.Success<WeatherEntity>) {
-                        currentResult.data?.let {
-                            repository.refreshForecast(coords.first, coords.second, unit, lang)
-                        }
+                viewModelScope.launch {
+                    try {
+                        repository.refreshCurrentWeather(coords.first, coords.second, unit, lang)
+                        repository.refreshHourlyForecast(coords.first, coords.second, unit, lang)
+                        repository.refreshForecast(coords.first, coords.second, unit, lang)
+                        _refreshStatus.value = Resource.Success(Unit)
+                    } catch (e: Exception) {
+                        Log.e("HomeVM", "Manual refresh failed", e)
+                        _refreshStatus.value = Resource.Error(e.message ?: "Refresh failed")
                     }
-                    hourlyDeferred.await()
                 }
             } else {
                 requestCurrentLocation()

@@ -146,4 +146,9 @@
     <string name="delete_all">مسح الكل</string>
     <string name="start_time">بدايه الوقت</string>
     <string name="end_time">نهايه الوقت</string>
+
+    <string name="location_required_title">مطلوب إذن الموقع</string>
+    <string name="location_required_message">يتطلب هذا التطبيق إذن الموقع لعرض توقعات الطقس المحلية. يرجى تفعيله من الإعدادات أو الخروج من التطبيق.</string>
+    <string name="enable_location">تفعيل الموقع</string>
+    <string name="exit_app">خروج</string>
 </resources>

@@ -11,24 +11,21 @@ class RemoteDataSourceImpl(
         lat: Double,
         lon: Double,
         units: String,
-        lang: String,
-        apiKey: String
-    ): CurrentWeatherResponse = api.getCurrentWeather(lat, lon, units, lang, apiKey)
+        lang: String
+    ): CurrentWeatherResponse = api.getCurrentWeather(lat, lon, units, lang)
 
     override suspend fun getDailyForecast(
         lat: Double,
         lon: Double,
         units: String,
         lang: String,
-        apiKey: String,
         cnt: Int
-    ): DailyForecastResponse = api.getDailyForecast(lat, lon, units, lang, apiKey, cnt)
+    ): DailyForecastResponse = api.getDailyForecast(lat, lon, units, lang, cnt)
 
     override suspend fun getHourlyForecast(
         lat: Double,
         lon: Double,
         units: String,
-        lang: String,
-        apiKey: String
-    ): HourlyForecastResponse = api.getHourlyForecast(lat, lon, units, lang, apiKey)
+        lang: String
+    ): HourlyForecastResponse = api.getHourlyForecast(lat, lon, units, lang)
 }

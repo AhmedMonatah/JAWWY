@@ -64,7 +64,11 @@ fun HourlyForecastSection(
 
 @Composable
 fun HourlyForecastItem(time: String, temp: Int, description: String, icon: String, isDark: Boolean) {
-    val containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    val containerColor = if (isDark) {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    } else {
+        Color.White.copy(alpha = 0.5f)
+    }
     val contentColor = MaterialTheme.colorScheme.onSurface
     val timeColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
@@ -72,7 +76,11 @@ fun HourlyForecastItem(time: String, temp: Int, description: String, icon: Strin
         shape = RoundedCornerShape(30.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         modifier = Modifier.width(70.dp).height(120.dp),
-        border = if (isDark) BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)) else null
+        border = if (isDark) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+        } else {
+            BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))
+        }
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),

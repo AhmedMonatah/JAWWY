@@ -1,8 +1,6 @@
 package com.example.weatherapp.ui.alerts.viewmodel
 
-import android.app.AlarmManager
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -78,8 +76,6 @@ class AlertsViewModel(
         }
     }
 
-
-
     fun setShowBottomSheet(show: Boolean) {
         _showBottomSheet.value = show
     }
@@ -112,8 +108,6 @@ class AlertsViewModel(
             )
         }
     }
-
-
 
     fun toggleAlert(alert: Alert) {
         viewModelScope.launch {

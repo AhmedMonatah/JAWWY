@@ -32,7 +32,7 @@ fun MapActionButton(
             .fillMaxWidth(0.7f),
         shape = RoundedCornerShape(30.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = if (com.example.weatherapp.ui.theme.LocalIsDark.current) 10.dp else 4.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (isLoading) {

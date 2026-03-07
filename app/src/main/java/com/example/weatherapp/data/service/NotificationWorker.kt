@@ -7,7 +7,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.weatherapp.WeatherApplication
 import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.flow.firstOrNull
 
 class NotificationWorker(
@@ -58,9 +57,10 @@ class NotificationWorker(
         val units = repository.unitsFlow.firstOrNull() ?: "metric"
         val lang = repository.languageFlow.firstOrNull() ?: "en"
 
-        return when (val res = repository.fetchWeather(lat, lon, units, lang)) {
-            is Resource.Success -> res.data
-            else -> repository.getCurrentWeather().firstOrNull()
+        return try {
+            repository.fetchWeather(lat, lon, units, lang)
+        } catch (e: Exception) {
+            repository.getCurrentWeather().firstOrNull()
         }
     }
 }

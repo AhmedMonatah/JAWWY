@@ -21,6 +21,6 @@ fun getWeatherIconTint(icon: String, description: String = ""): Color {
         lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || icon.startsWith("09") || icon.startsWith("10") -> Color(0xFF4682B4)
         lowerDesc.contains("thunder") || icon.startsWith("11") -> Color(0xFF483D8B)
         lowerDesc.contains("cloud") || icon.startsWith("02") || icon.startsWith("03") || icon.startsWith("04") -> Color(0xFF87CEEB)
-        else -> Color(0xFFD4A843)
+        else -> Color(0xFFFFB300)
     }
 }

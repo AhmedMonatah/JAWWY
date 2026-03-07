@@ -21,8 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
 import com.example.weatherapp.model.Alert
 import com.example.weatherapp.ui.theme.LocalIsDark
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanGold
+import com.example.weatherapp.ui.theme.Gold
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,7 +50,7 @@ fun AlertItem(
         colors = CardDefaults.cardColors(
             containerColor = if (isDark) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (alert.isEnabled) { if (selected) 0.8f else 1f } else 0.5f)
         ),
-        border = if (selected) BorderStroke(3.dp, RamadanGold) else BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+        border = if (selected) BorderStroke(3.dp, Gold) else BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
         elevation = CardDefaults.cardElevation(if (isDark) 0.dp else if (alert.isEnabled) 4.dp else 1.dp)
     ) {
         Row(

@@ -65,11 +65,10 @@ class SettingsViewModel(
     }
 
     fun updateLocationMode(mode: String) {
-        if (mode == "map" && !repository.isOnline()) {
+        if (!repository.isOnline() && (mode == "map" || locationMode.value != mode)) {
             viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
             return
         }
-        
         viewModelScope.launch {
             if (mode == "map") {
                 _uiEvents.emit(SettingsUiEvent.NavigateToMap)
@@ -80,6 +79,10 @@ class SettingsViewModel(
     }
 
     fun updateThemeMode(mode: String) {
+        if (!repository.isOnline()) {
+            viewModelScope.launch { _uiEvents.emit(SettingsUiEvent.ShowNoInternet) }
+            return
+        }
         viewModelScope.launch {
             repository.setThemeMode(mode)
         }

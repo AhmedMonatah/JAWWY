@@ -127,13 +127,17 @@ fun FavoritesScreen(
                             if (globalSelectionMode.value) {
                                 viewModel.toggleSelection(location)
                             } else {
-                                navController.navigate(
-                                    Screen.Home.createRoute(
-                                        location.lat,
-                                        location.lon,
-                                        location.name
+                                if (viewModel.isOnline()) {
+                                    navController.navigate(
+                                        Screen.HomeDetail.createRoute(
+                                            location.lat,
+                                            location.lon,
+                                            location.name
+                                        )
                                     )
-                                )
+                                } else {
+                                    viewModel.setShowNoInternetDialog(true)
+                                }
                             }
                         },
                         onLongClick = {

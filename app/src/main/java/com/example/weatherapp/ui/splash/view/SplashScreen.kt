@@ -10,16 +10,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.example.weatherapp.R
 import com.example.weatherapp.ui.splash.view.components.SplashContent
-import com.example.weatherapp.ui.theme.RamadanDarkBlue
-import com.example.weatherapp.ui.theme.RamadanDeepNavy
-import com.example.weatherapp.ui.theme.RamadanMidnight
+import com.example.weatherapp.ui.theme.LocalIsDark
+import com.example.weatherapp.ui.theme.DarkBlue
+import com.example.weatherapp.ui.theme.DeepNavy
+import com.example.weatherapp.ui.theme.Midnight
 
 @Composable
 fun SplashScreen() {
     val title = stringResource(R.string.app_name)
 
-    val isDark = androidx.compose.material3.MaterialTheme.colorScheme.background != Color.White
-    val bgColors = if (isDark) listOf(RamadanMidnight, RamadanDeepNavy, RamadanDarkBlue) else listOf(Color(0xFFE8EDF5), Color.White, Color.White)
+    val isDark = LocalIsDark.current
+    val bgColors = if (isDark) {
+        listOf(Midnight, DeepNavy, DarkBlue)
+    } else {
+        listOf(Color(0xFFE3F2FD), Color(0xFFBBDEFB), Color.White)
+    }
 
     Box(
         modifier = Modifier

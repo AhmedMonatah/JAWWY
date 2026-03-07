@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.settings.view
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -74,14 +75,15 @@ fun SettingsScreen(
             }
 
             SettingsGroup(title = stringResource(R.string.theme_mode)) {
+                val isSystemDark = isSystemInDarkTheme()
                 SettingsRadioButton(
                     text = stringResource(R.string.theme_light),
-                    selected = themeMode == "light",
+                    selected = themeMode == "light" || (themeMode == "system" && !isSystemDark),
                     onClick = { viewModel.updateThemeMode("light") }
                 )
                 SettingsRadioButton(
                     text = stringResource(R.string.theme_dark),
-                    selected = themeMode == "dark",
+                    selected = themeMode == "dark" || (themeMode == "system" && isSystemDark),
                     onClick = { viewModel.updateThemeMode("dark") }
                 )
             }

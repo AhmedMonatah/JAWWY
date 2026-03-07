@@ -23,15 +23,13 @@ import androidx.navigation.NavController
 import com.example.weatherapp.ui.home.view.components.WeatherEffects
 import com.example.weatherapp.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapp.ui.components.AppPullToRefresh
-import com.example.weatherapp.utils.state.Resource
 import com.example.weatherapp.ui.home.view.components.DailyForecastSection
 import com.example.weatherapp.ui.home.view.components.HeaderSection
 import com.example.weatherapp.ui.home.view.components.HourlyForecastSection
 import com.example.weatherapp.ui.home.view.components.TemperatureSection
 import com.example.weatherapp.ui.home.view.components.WeatherStatsSection
-import com.example.weatherapp.utils.home.computeDisplayState
-import com.example.weatherapp.utils.home.filterHourlyForDay
-import com.example.weatherapp.utils.weather.WeatherTypeUtil
+import com.example.weatherapp.ui.theme.LocalIsDark
+import com.example.weatherapp.ui.components.LocationPermissionDialog
 
 @Composable
 fun HomeScreen(
@@ -45,16 +43,19 @@ fun HomeScreen(
     val forecast by viewModel.forecast.collectAsState()
     val context = LocalContext.current
     
+    val showLocationDialog = remember { mutableStateOf(false) }
+
     HandleLocationPermissionsAndRefresh(
         lat = lat,
         lon = lon,
         viewModel = viewModel,
-        context = context
+        context = context,
+        showLocationDialog = showLocationDialog
     )
     
     val uiState by viewModel.uiState.collectAsState()
 
-    val isDark = MaterialTheme.colorScheme.background != Color.White
+    val isDark = LocalIsDark.current
     val contentColor = MaterialTheme.colorScheme.onBackground
     val isDetailMode = lat != null
     
@@ -133,5 +134,9 @@ fun HomeScreen(
                 )
             }
         }
+    }
+
+    if (showLocationDialog.value && !isDetailMode) {
+        LocationPermissionDialog(onDismiss = { showLocationDialog.value = false })
     }
 }

@@ -10,43 +10,40 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-val LightBackground = Color(0xFFF8F5EB)
-val LightSurface = Color(0xFFFFFDF5)
-val SoftGold = Color(0xFFFFF3D6)
-val SoftNavy = Color(0xFFE8EDF5)
+val LightBackground = Color(0xFFF0F4F8)
+val LightSurface = Color(0xFFFFFFFF)
 
 val LocalIsDark = staticCompositionLocalOf { false }
 
 private val DarkColorScheme = darkColorScheme(
-    primary = RamadanGold,
-    secondary = RamadanMoonGlow,
-    tertiary = RamadanLanternOrange,
-    background = RamadanDeepNavy,
-    surface = RamadanDarkBlue,
+    primary = Gold,
+    secondary = MoonGlow,
+    tertiary = LanternOrange,
+    background = DarkBlue,
+    surface = DarkBlue,
     onPrimary = Color.White,
-    onSecondary = RamadanDeepNavy,
+    onSecondary = DeepNavy,
     onTertiary = Color.White,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
-    surfaceVariant = Color.Transparent
+    surfaceVariant = DarkBlue
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6151C3),
-    secondary = Color(0xFF6151C3),
-    tertiary = Color(0xFF7D5260),
-    background = Color.White,
-    surface = Color.White,
+    primary = Color(0xFF2196F3),
+    secondary = Color(0xFF03A9F4),
+    tertiary = Color(0xFF00BCD4),
+    background = Color(0xFFF4F8FB),
+    surface = Color(0xFFFFFFFF),
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    surfaceVariant = Color(0xFFE8EDF5)
+    onBackground = Color(0xFF1A1C1E),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFDFE2E6)
 )
 
 @Composable

@@ -16,26 +16,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.weatherapp.ui.navigation.Screen
 
 
 @Composable
-fun DashboardBottomBar(currentPage: Int, onPageSelected: (Int) -> Unit) {
+fun DashboardBottomBar(currentPage: Int, onNavigate: (Screen) -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(65.dp),
-        color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f),
-        shadowElevation = 12.dp
+            .height(60.dp),
+        color = MaterialTheme.colorScheme.background.copy(0.50F),
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BottomNavItem(Icons.Default.Home, "HOME", currentPage == 0) { onPageSelected(0) }
-            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 1) { onPageSelected(1) }
-            BottomNavItem(Icons.Default.Alarm, "ALARM", currentPage == 2) { onPageSelected(2) }
-            BottomNavItem(Icons.Default.Settings, "SETTING", currentPage == 3) { onPageSelected(3) }
+            BottomNavItem(Icons.Default.Home, "HOME", currentPage == 0) { onNavigate(Screen.Home) }
+            
+            BottomNavItem(Icons.Default.Star, "SAVED", currentPage == 1) { onNavigate(Screen.Favorites) }
+            
+            BottomNavItem(Icons.Default.Alarm, "ALERTS", currentPage == 2) { onNavigate(Screen.Alerts) }
+            
+            BottomNavItem(Icons.Default.Settings, "SETTING", currentPage == 3) { onNavigate(Screen.Settings) }
         }
     }
 }

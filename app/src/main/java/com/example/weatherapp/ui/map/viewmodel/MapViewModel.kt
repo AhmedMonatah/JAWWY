@@ -3,7 +3,6 @@ package com.example.weatherapp.ui.map.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.utils.state.Resource
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import com.google.android.gms.maps.model.LatLng
@@ -44,31 +43,32 @@ class MapViewModel(
     fun selectLocation(lat: Double, lon: Double, source: String = "favorites") {
         _isLoading.value = true
         viewModelScope.launch {
-            val result = repository.fetchWeather(lat, lon, currentUnits, currentLang)
-            
-            if (result is Resource.Success) {
-                result.data?.let { weather ->
-                    if (source == "settings") {
-                        repository.setManualLocation(lat, lon)
-                        repository.setLocationMode("map")
-                        // Force update dashboard current weather
-                        repository.refreshCurrentWeather(lat, lon, currentUnits, currentLang)
-                    } else {
-                        repository.addFavorite(
-                            com.example.weatherapp.model.FavoriteLocation(
-                                name = weather.cityName.ifBlank { "Selected Location" },
-                                lat = weather.lat,
-                                lon = weather.lon,
-                                currentTemp = weather.temp,
-                                condition = weather.description,
-                                icon = weather.icon
-                            )
+            try {
+                val weather = repository.fetchWeather(lat, lon, currentUnits, currentLang)
+                
+                if (source == "settings") {
+                    repository.setManualLocation(lat, lon)
+                    repository.setLocationMode("map")
+                    // Force update dashboard current weather
+                    repository.refreshCurrentWeather(lat, lon, currentUnits, currentLang)
+                } else {
+                    repository.addFavorite(
+                        com.example.weatherapp.model.FavoriteLocation(
+                            name = weather.cityName.ifBlank { "Selected Location" },
+                            lat = weather.lat,
+                            lon = weather.lon,
+                            currentTemp = weather.temp,
+                            condition = weather.description,
+                            icon = weather.icon
                         )
-                    }
-                    _navigateToPrevious.emit(Unit)
+                    )
                 }
+                _navigateToPrevious.emit(Unit)
+            } catch (e: Exception) {
+                android.util.Log.e("MapViewModel", "Error fetching weather for location", e)
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 }

@@ -85,7 +85,7 @@ fun DailyCardItem(
     val containerColor = when {
         isSelected -> primaryColor
         isDark -> Color.Transparent
-        else -> MaterialTheme.colorScheme.surface
+        else -> Color.White.copy(alpha = 0.5f)
     }
     val contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
     
@@ -96,14 +96,14 @@ fun DailyCardItem(
             .clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = when {
-                isSelected -> 4.dp
-                isDark -> 0.dp
-                else -> 2.dp
-            }
-        ),
-        border = if (isSelected && !isDark) null else BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = if (isSelected) {
+            null
+        } else if (isDark) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        } else {
+            BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))
+        }
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(vertical = 12.dp),

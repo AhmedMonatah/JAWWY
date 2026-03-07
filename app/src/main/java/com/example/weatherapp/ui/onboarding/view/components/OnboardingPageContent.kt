@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.model.OnboardingPageData
-import com.example.weatherapp.ui.theme.RamadanGold
 
 
 @Composable
@@ -66,7 +65,7 @@ fun OnboardingPageContent(data: OnboardingPageData, isActive: Boolean) {
             text = stringResource(data.titleResId),
             fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = if (androidx.compose.material3.MaterialTheme.colorScheme.background != Color.White) com.example.weatherapp.ui.theme.RamadanGold else androidx.compose.material3.MaterialTheme.colorScheme.primary,
+            color = if (androidx.compose.material3.MaterialTheme.colorScheme.background != Color.White) com.example.weatherapp.ui.theme.Gold else androidx.compose.material3.MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
                 translationY = (1 - enterAnim.value) * 40f
