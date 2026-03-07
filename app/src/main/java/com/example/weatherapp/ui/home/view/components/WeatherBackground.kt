@@ -108,8 +108,9 @@ fun WeatherBackground(
             when (weatherType.lowercase()) {
                 "clear" -> listOf(Color(0xFF4FACFE), Color(0xFF00F2FE))
                 "clouds" -> listOf(Color(0xFFBDC3C7), Color(0xFFEFF3F6))
-                "rain", "thunderstorm", "drizzle" -> listOf(Color(0xFF4B6CB7), Color(0xFF182848))
+                "rain", "thunderstorm", "drizzle", "thunder" -> listOf(Color(0xFF4B6CB7), Color(0xFF182848))
                 "snow" -> listOf(Color(0xFFE6E9F0), Color(0xFFEEF1F5))
+                "atmosphere" -> listOf(Color(0xFF90A4AE), Color(0xFFCFD8DC))
                 else -> listOf(Color(0xFF4FACFE), Color(0xFF00F2FE))
             }
         }

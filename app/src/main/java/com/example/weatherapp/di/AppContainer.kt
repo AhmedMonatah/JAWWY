@@ -35,7 +35,8 @@ class AppContainerImpl(private val context: Context) : IAppContainer {
             context,
             WeatherDatabase::class.java,
             "weather_database"
-        ).build()
+        ).fallbackToDestructiveMigration()
+         .build()
     }
 
     private val weatherDao: WeatherDao by lazy {

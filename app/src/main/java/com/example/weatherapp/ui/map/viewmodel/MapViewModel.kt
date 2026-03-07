@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.map.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.WeatherRepository
+import com.example.weatherapp.model.FavoriteLocation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import com.google.android.gms.maps.model.LatLng
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class MapViewModel(
     private val repository: WeatherRepository
@@ -44,16 +46,17 @@ class MapViewModel(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val weather = repository.fetchWeather(lat, lon, currentUnits, currentLang)
+                val currentUnits = repository.unitsFlow.first()
+                val currentLang = repository.languageFlow.first()
                 
                 if (source == "settings") {
                     repository.setManualLocation(lat, lon)
                     repository.setLocationMode("map")
-                    // Force update dashboard current weather
                     repository.refreshCurrentWeather(lat, lon, currentUnits, currentLang)
                 } else {
+                    val weather = repository.fetchWeather(lat, lon, currentUnits, currentLang)
                     repository.addFavorite(
-                        com.example.weatherapp.model.FavoriteLocation(
+                        FavoriteLocation(
                             name = weather.cityName.ifBlank { "Selected Location" },
                             lat = weather.lat,
                             lon = weather.lon,
@@ -62,7 +65,9 @@ class MapViewModel(
                             icon = weather.icon
                         )
                     )
+                    repository.refreshCurrentWeather(lat, lon, currentUnits, currentLang)
                 }
+                
                 _navigateToPrevious.emit(Unit)
             } catch (e: Exception) {
                 android.util.Log.e("MapViewModel", "Error fetching weather for location", e)

@@ -55,7 +55,6 @@ fun SegmentedArcIndicator(
                 val angleInDegrees = startAngle + (index * angleStep)
                 val angleInRad = Math.toRadians(angleInDegrees.toDouble())
 
-                // Scale index to match progress since we're using 360 degrees now
                 val isActive = (index.toFloat() / dashCount) <= animatedProgress
 
                 val startX = center.x + (innerRadius * cos(angleInRad)).toFloat()
@@ -65,7 +64,7 @@ fun SegmentedArcIndicator(
                 val endY = center.y + (outerRadius * sin(angleInRad)).toFloat()
 
                 drawLine(
-                    color = if (isActive) activeArcColor else activeArcColor.copy(alpha = 0.08f), // Even more subtle inactive state
+                    color = if (isActive) activeArcColor else activeArcColor.copy(alpha = 0.4f), // Even more subtle inactive state
                     start = Offset(startX, startY),
                     end = Offset(endX, endY),
                     strokeWidth = strokeWidth,

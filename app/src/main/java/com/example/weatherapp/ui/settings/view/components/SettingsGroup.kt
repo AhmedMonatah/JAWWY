@@ -26,16 +26,12 @@ fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isDark) {
-                    Color.Transparent
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = if (isDark) 0.6f else 1.0f)
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = if (isDark) 0.dp else 2.dp
+                defaultElevation = if (isDark) 0.dp else 1.dp
             ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
         ) {
             Column(
                 modifier = Modifier.padding(20.dp)

@@ -80,6 +80,7 @@ dependencies {
     androidTestImplementation ("androidx.arch.core:core-testing:2.2.0")
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.lottie.compose)
     
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 

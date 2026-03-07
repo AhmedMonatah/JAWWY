@@ -107,6 +107,10 @@ class AppRepository(
                 tempMax = item.temp.max,
                 description = item.weather.firstOrNull()?.description ?: "",
                 icon = item.weather.firstOrNull()?.icon ?: "",
+                humidity = item.humidity,
+                pressure = item.pressure,
+                windSpeed = item.speed,
+                clouds = item.clouds,
                 timestamp = System.currentTimeMillis()
             )
         }

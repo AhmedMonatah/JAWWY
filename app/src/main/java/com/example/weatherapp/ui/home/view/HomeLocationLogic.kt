@@ -12,6 +12,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -44,10 +46,12 @@ fun HandleLocationPermissionsAndRefresh(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val locationMode by viewModel.locationMode.collectAsState()
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                if (lat == null && lon == null) {
+                if (lat == null && lon == null && locationMode == "gps") {
                     val hasFine = checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
                     val hasCoarse = checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
                     if (hasFine || hasCoarse) {
@@ -65,10 +69,10 @@ fun HandleLocationPermissionsAndRefresh(
         }
     }
 
-    LaunchedEffect(lat, lon) {
+    LaunchedEffect(lat, lon, locationMode) {
         if (lat != null && lon != null) {
             viewModel.refreshWeather(lat, lon)
-        } else {
+        } else if (locationMode == "gps") {
             val hasFine = checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
             val hasCoarse = checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
 

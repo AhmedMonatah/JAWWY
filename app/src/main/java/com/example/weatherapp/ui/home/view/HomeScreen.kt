@@ -95,7 +95,7 @@ fun HomeScreen(
                         date = uiState.displayState.date,
                         time = uiState.displayState.time,
                         textColor = contentColor,
-                        weatherType = uiState.weatherType
+                        iconCode = uiState.displayState.icon
                     )
 
                     DailyForecastSection(

@@ -84,7 +84,7 @@ class HomeViewModel(
         val hourlyTyped = args[2] as List<HourlyForecastEntity>
         val langTyped = args[3] as String
         @Suppress("UNCHECKED_CAST")
-        val statusTyped = args[4] as? Resource<WeatherEntity>
+        val statusTyped = args[4] as? Resource<Unit>
         val indexTyped = args[5] as Int
 
         val locale = Locale(langTyped)
@@ -96,12 +96,11 @@ class HomeViewModel(
         
         val displayHourly = filterHourlyForDay(hourlyTyped, indexTyped, dailyTyped, timezoneOffset)
         
-        val weatherType = WeatherTypeUtil.determineWeatherType(currentTyped?.description, currentTyped?.icon)
+        val weatherType = WeatherTypeUtil.determineWeatherType(displayState.condition, displayState.icon)
         
         val isRefreshing = statusTyped is Resource.Loading<*>
         
-        val currentTemp = currentTyped?.temp ?: 0.0
-        val showSnow = weatherType == "snow" || currentTemp <= 0.0
+        val showSnow = weatherType == "snow" || displayState.temp <= 0.0
         val showRain = weatherType == "rain" || weatherType.contains("thunder")
 
         HomeUiState(
@@ -117,20 +116,17 @@ class HomeViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     private val _lastCoords = MutableStateFlow<Pair<Double, Double>?>(null)
-    private var isManualOverride = false
+    private val _isManualOverride = MutableStateFlow(false)
 
     init {
 
         viewModelScope.launch {
             combine(
-                repository.unitsFlow,
-                repository.languageFlow, 
-                repository.locationModeFlow,
-                repository.manualLocationFlow,
-                _lastCoords
-            ) { unit, lang, mode, manual, gps ->
-                val coords = if (isManualOverride){
-                gps
+                combine(repository.unitsFlow, repository.languageFlow, repository.locationModeFlow) { u, l, m -> Triple(u, l, m) },
+                combine(repository.manualLocationFlow, _lastCoords, _isManualOverride) { m, g, o -> Triple(m, g, o) }
+            ) { (unit, lang, mode), (manual, gps, isOverride) ->
+                val coords = if (isOverride){
+                    gps
                 }
                 else if (mode == "map"){
                     manual
@@ -161,8 +157,10 @@ class HomeViewModel(
         }
 
         viewModelScope.launch {
-            repository.locationModeFlow.collect { mode ->
-                if (mode == "gps" && !isManualOverride) {
+            combine(repository.locationModeFlow, _isManualOverride) { mode, isOverride ->
+                mode == "gps" && !isOverride
+            }.collect { shouldRequest ->
+                if (shouldRequest) {
                     requestCurrentLocation()
                 }
             }
@@ -173,9 +171,8 @@ class HomeViewModel(
 
     @SuppressLint("MissingPermission")
     fun requestCurrentLocation() {
-        if (isManualOverride) return
+        if (_isManualOverride.value || locationMode.value == "map") return
         
-        // Guard: If we already have data and are just "resuming", don't fetch again unless forced
         if (_lastCoords.value != null && currentWeather.value != null) {
             return
         }
@@ -185,13 +182,13 @@ class HomeViewModel(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 CancellationTokenSource().token
             ).addOnSuccessListener { location ->
-                if (location != null && !isManualOverride) {
+                if (location != null && !_isManualOverride.value) {
                     _lastCoords.value = location.latitude to location.longitude
-                } else if (!isManualOverride) {
+                } else if (!_isManualOverride.value) {
                     locationClient.lastLocation.addOnSuccessListener { lastLoc ->
-                        if (lastLoc != null && !isManualOverride) {
-                            _lastCoords.value = lastLoc.latitude to lastLoc.longitude
-                        } else if (!isManualOverride) {
+                        if (lastLoc != null && !_isManualOverride.value) {
+                            _lastCoords.value = lastLoc.latitude to location.longitude
+                        } else if (!_isManualOverride.value) {
                             _lastCoords.value = 30.0444 to 31.2357
                         }
                     }
@@ -201,7 +198,7 @@ class HomeViewModel(
     }
 
     fun refreshWeather(lat: Double, lon: Double) {
-        isManualOverride = true
+        _isManualOverride.value = true
         _lastCoords.value = lat to lon
     }
 
@@ -211,12 +208,23 @@ class HomeViewModel(
 
     fun triggerManualRefresh() {
         viewModelScope.launch {
+            // Wait a bit to ensure state flows are synced during rapid recreations
+            kotlinx.coroutines.delay(100)
+            
+            val isManual = _isManualOverride.value
             val mode = locationMode.value
-            val coords = if (mode == "map") {
-                manualLocation.value
+            val manualCoords = manualLocation.value
+            val gpsCoords = _lastCoords.value
+
+            val coords = if (isManual) {
+                gpsCoords
+            } else if (mode == "map") {
+                manualCoords
             } else {
-                _lastCoords.value
+                gpsCoords
             }
+
+            Log.d("HomeVM", "Refresh triggered: mode=$mode, isManual=$isManual, coords=$coords")
 
             if (coords != null) {
                 _refreshStatus.value = Resource.Loading()
