@@ -1,4 +1,4 @@
-# 🌤 JAMMA App
+# 🌤 JAWWY App
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7084b046-4916-441f-9772-c24c1a07feea" alt="JAMMA Logo" width="150"/>
@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/WorkManager-607D8B?style=flat-square&logo=android&logoColor=white" alt="WorkManager"/>
 </p>
 
-JAMMA App is an **Android mobile application** that displays the weather status and temperature from your current location. You can pick a location on the map or search it using auto-complete, add it to your favorites, and get full weather information. You can also set alerts for rain, wind, extreme temperatures, fog, snow, and more.  
+JAWWY App is an **Android mobile application** that displays the weather status and temperature from your current location. You can pick a location on the map or search it using auto-complete, add it to your favorites, and get full weather information. You can also set alerts for rain, wind, extreme temperatures, fog, snow, and more.  
 
 ---
 
