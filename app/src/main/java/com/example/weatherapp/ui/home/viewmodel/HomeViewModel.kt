@@ -25,6 +25,7 @@ import com.example.weatherapp.utils.home.computeDisplayState
 import com.example.weatherapp.utils.home.filterHourlyForDay
 import com.example.weatherapp.utils.weather.WeatherTypeUtil
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 data class HomeUiState(
     val displayState: HomeDisplayState = HomeDisplayState(),
@@ -208,8 +209,7 @@ class HomeViewModel(
 
     fun triggerManualRefresh() {
         viewModelScope.launch {
-            // Wait a bit to ensure state flows are synced during rapid recreations
-            kotlinx.coroutines.delay(100)
+            delay(100)
             
             val isManual = _isManualOverride.value
             val mode = locationMode.value
