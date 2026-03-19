@@ -24,6 +24,7 @@ import com.example.weatherapp.model.HomeDisplayState
 import com.example.weatherapp.utils.home.computeDisplayState
 import com.example.weatherapp.utils.home.filterHourlyForDay
 import com.example.weatherapp.utils.weather.WeatherTypeUtil
+import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlinx.coroutines.delay
 
@@ -201,6 +202,11 @@ class HomeViewModel(
     fun refreshWeather(lat: Double, lon: Double) {
         _isManualOverride.value = true
         _lastCoords.value = lat to lon
+    }
+
+    fun resetOverride() {
+        _isManualOverride.value = false
+        _lastCoords.value = null
     }
 
     fun selectDay(index: Int) {

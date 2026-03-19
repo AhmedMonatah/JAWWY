@@ -11,4 +11,3 @@ val LanternOrange = Color(0xFFE8923F)
 val Midnight = Color(0xFF0D1B2A)
 
 val TextPrimary = Color(0xFFFFFFFF)
-val TextSecondary = Color(0xFFA0A0A0)

@@ -18,6 +18,7 @@ import java.util.Locale
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import com.example.weatherapp.di.LocalAppContainer
 import androidx.navigation.NavController
 import com.example.weatherapp.ui.home.view.components.WeatherEffects
@@ -34,7 +35,10 @@ import com.example.weatherapp.ui.components.LocationPermissionDialog
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(factory = LocalAppContainer.current.viewModelFactory),
+    viewModel: HomeViewModel = viewModel(
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        factory = LocalAppContainer.current.viewModelFactory
+    ),
     lat: Double? = null,
     lon: Double? = null,
     cityName: String? = null
@@ -44,6 +48,7 @@ fun HomeScreen(
     val context = LocalContext.current
     
     val showLocationDialog = remember { mutableStateOf(false) }
+    val isDetailMode = lat != null
 
     HandleLocationPermissionsAndRefresh(
         lat = lat,
@@ -52,13 +57,22 @@ fun HomeScreen(
         context = context,
         showLocationDialog = showLocationDialog
     )
+
+    // When leaving a Favorites detail screen, reset the manual override so the
+    // main Home tab returns to showing the user's GPS / map-based location.
+    if (isDetailMode) {
+        DisposableEffect(Unit) {
+            onDispose {
+                viewModel.resetOverride()
+            }
+        }
+    }
     
     val uiState by viewModel.uiState.collectAsState()
 
     val isDark = LocalIsDark.current
     val contentColor = MaterialTheme.colorScheme.onBackground
-    val isDetailMode = lat != null
-    
+
     val locale = remember(uiState.currentLang) { Locale(uiState.currentLang) }
 
     AppPullToRefresh(

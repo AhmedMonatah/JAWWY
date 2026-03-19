@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private var splashShown = false
+        private var lastKnownTheme: String? = null
+        private var lastKnownLang: String? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,17 +33,20 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val themeMode by repository.themeModeFlow.collectAsState(initial = "system")
+            val themeMode by repository.themeModeFlow.collectAsState(initial = lastKnownTheme ?: "system")
+            val currentLang by repository.languageFlow.collectAsState(initial = lastKnownLang ?: "en")
+
+            LaunchedEffect(themeMode) { lastKnownTheme = themeMode }
+            LaunchedEffect(currentLang) {
+                lastKnownLang = currentLang
+                val locales = androidx.core.os.LocaleListCompat.forLanguageTags(currentLang)
+                AppCompatDelegate.setApplicationLocales(locales)
+            }
+
             val isDark = when (themeMode) {
                 "light" -> false
                 "dark" -> true
                 else -> isSystemInDarkTheme()
-            }
-
-            val currentLang by repository.languageFlow.collectAsState(initial = "en")
-            LaunchedEffect(currentLang) {
-                val locales = androidx.core.os.LocaleListCompat.forLanguageTags(currentLang)
-                AppCompatDelegate.setApplicationLocales(locales)
             }
 
             CompositionLocalProvider(LocalAppContainer provides app.container) {

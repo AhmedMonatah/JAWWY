@@ -13,9 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-val LightBackground = Color(0xFFF0F4F8)
-val LightSurface = Color(0xFFFFFFFF)
-
 val LocalIsDark = staticCompositionLocalOf { false }
 
 private val DarkColorScheme = darkColorScheme(
