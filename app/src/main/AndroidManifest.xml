@@ -43,7 +43,7 @@
             android:exported="false" />
 
         <service
-            android:name=".data.service.AlarmService"
+            android:name=".ui.service.AlarmService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false" />
 

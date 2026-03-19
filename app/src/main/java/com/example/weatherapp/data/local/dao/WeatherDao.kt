@@ -4,9 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.model.WeatherEntity
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.HourlyForecastEntity
+import com.example.weatherapp.data.model.WeatherEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

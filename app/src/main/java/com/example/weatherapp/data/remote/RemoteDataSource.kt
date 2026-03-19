@@ -1,8 +1,9 @@
 package com.example.weatherapp.data.remote
 
-import com.example.weatherapp.model.CurrentWeatherResponse
-import com.example.weatherapp.model.DailyForecastResponse
-import com.example.weatherapp.model.HourlyForecastResponse
+
+import com.example.weatherapp.data.model.CurrentWeatherResponse
+import com.example.weatherapp.data.model.DailyForecastResponse
+import com.example.weatherapp.data.model.HourlyForecastResponse
 
 interface RemoteDataSource {
     suspend fun getCurrentWeather(

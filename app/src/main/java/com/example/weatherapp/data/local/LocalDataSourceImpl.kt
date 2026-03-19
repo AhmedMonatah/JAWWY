@@ -7,14 +7,15 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.weatherapp.data.local.dao.AlertDao
 import com.example.weatherapp.data.local.dao.FavoriteDao
 import com.example.weatherapp.data.local.dao.WeatherDao
-import com.example.weatherapp.model.Alert
-import com.example.weatherapp.model.FavoriteLocation
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.model.WeatherEntity
+import com.example.weatherapp.data.model.FavoriteLocation
 import com.example.weatherapp.data.repository.dataStore
+import com.example.weatherapp.data.model.HourlyForecastEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
+import com.example.weatherapp.data.model.Alert
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.WeatherEntity
 class LocalDataSourceImpl(
     private val context: Context,
     private val weatherDao: WeatherDao,

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.weatherapp.model.PageType
+import com.example.weatherapp.data.model.PageType
 
 @Composable
 fun WeatherAssistantWithVisual(type: PageType) {

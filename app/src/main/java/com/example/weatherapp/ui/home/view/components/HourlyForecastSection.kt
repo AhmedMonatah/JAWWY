@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
-import com.example.weatherapp.model.HourlyForecastEntity
+import com.example.weatherapp.data.model.HourlyForecastEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

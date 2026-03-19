@@ -2,9 +2,9 @@ package com.example.weatherapp.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.WeatherEntity
-import com.example.weatherapp.model.HourlyForecastEntity
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.WeatherEntity
+import com.example.weatherapp.data.model.HourlyForecastEntity
 import com.example.weatherapp.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +20,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.combine
 import com.example.weatherapp.utils.state.Resource
-import com.example.weatherapp.model.HomeDisplayState
+import com.example.weatherapp.data.model.HomeDisplayState
 import com.example.weatherapp.utils.home.computeDisplayState
 import com.example.weatherapp.utils.home.filterHourlyForDay
 import com.example.weatherapp.utils.weather.WeatherTypeUtil

@@ -1,23 +1,22 @@
 package com.example.weatherapp.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.weatherapp.data.local.LocalDataSource
-import com.example.weatherapp.model.FavoriteLocation
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.model.WeatherEntity
+
 import com.example.weatherapp.data.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import com.example.weatherapp.model.Alert
+import com.example.weatherapp.data.model.Alert
+import com.example.weatherapp.data.model.FavoriteLocation
+import com.example.weatherapp.data.model.WeatherEntity
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.HourlyForecastEntity
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class AppRepository(

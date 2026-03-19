@@ -3,7 +3,7 @@ package com.example.weatherapp.ui.map.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.model.FavoriteLocation
+import com.example.weatherapp.data.model.FavoriteLocation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import com.google.android.gms.maps.model.LatLng

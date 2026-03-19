@@ -1,9 +1,9 @@
 package com.example.weatherapp.utils.home
 
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.HourlyForecastEntity
-import com.example.weatherapp.model.WeatherEntity
-import com.example.weatherapp.model.HomeDisplayState
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.HourlyForecastEntity
+import com.example.weatherapp.data.model.WeatherEntity
+import com.example.weatherapp.data.model.HomeDisplayState
 import com.example.weatherapp.utils.state.Resource
 import java.text.SimpleDateFormat
 import java.util.*

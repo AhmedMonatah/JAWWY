@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.model.Alert
+import com.example.weatherapp.data.model.Alert
 import com.example.weatherapp.data.repository.WeatherRepository
-import com.example.weatherapp.data.service.NotificationHelper
+import com.example.weatherapp.ui.service.NotificationHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

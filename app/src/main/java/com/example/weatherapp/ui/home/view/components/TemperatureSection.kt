@@ -12,9 +12,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.weatherapp.ui.home.view.components.getWeatherIconRes
-import com.example.weatherapp.ui.home.view.components.getWeatherIconTint
-import com.example.weatherapp.ui.theme.TextSecondary
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection

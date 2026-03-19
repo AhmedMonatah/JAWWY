@@ -7,8 +7,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import com.example.weatherapp.model.Snowflake
-import com.example.weatherapp.model.Raindrop
+import com.example.weatherapp.data.model.Snowflake
+import com.example.weatherapp.data.model.Raindrop
 import kotlin.math.sin
 
 @Composable

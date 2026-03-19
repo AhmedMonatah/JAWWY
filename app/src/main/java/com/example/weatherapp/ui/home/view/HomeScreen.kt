@@ -58,8 +58,6 @@ fun HomeScreen(
         showLocationDialog = showLocationDialog
     )
 
-    // When leaving a Favorites detail screen, reset the manual override so the
-    // main Home tab returns to showing the user's GPS / map-based location.
     if (isDetailMode) {
         DisposableEffect(Unit) {
             onDispose {

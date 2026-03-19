@@ -19,8 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
-import com.example.weatherapp.model.ForecastEntity
-import com.example.weatherapp.model.WeatherEntity
+import com.example.weatherapp.data.model.ForecastEntity
+import com.example.weatherapp.data.model.WeatherEntity
 import com.example.weatherapp.ui.theme.LocalIsDark
 
 import java.text.SimpleDateFormat

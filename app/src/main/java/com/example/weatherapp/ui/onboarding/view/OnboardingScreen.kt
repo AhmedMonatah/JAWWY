@@ -3,7 +3,7 @@ package com.example.weatherapp.ui.onboarding.view
 import com.example.weatherapp.ui.onboarding.viewmodel.OnboardingViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.di.LocalAppContainer
-import com.example.weatherapp.model.onboardingPages
+import com.example.weatherapp.data.model.onboardingPages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
